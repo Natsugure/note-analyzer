@@ -8,17 +8,45 @@
 
 /* Begin PBXBuildFile section */
 		1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */; };
-		1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA262C3A26D600C30A89 /* ContentView.swift */; };
+		1AE3CA272C3A26D600C30A89 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA262C3A26D600C30A89 /* MainView.swift */; };
 		1AE3CA292C3A26D700C30A89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3CA282C3A26D700C30A89 /* Assets.xcassets */; };
 		1AE3CA2C2C3A26D700C30A89 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3CA2B2C3A26D700C30A89 /* Preview Assets.xcassets */; };
+		1AE3CA362C3A2D4700C30A89 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1AE3CA352C3A2D4700C30A89 /* RealmSwift */; };
+		1AE3CA392C3A2E6400C30A89 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1AE3CA352C3A2D4700C30A89 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AE3CA3F2C3A35BC00C30A89 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA3E2C3A35BC00C30A89 /* Item.swift */; };
+		1AE3CA432C3A692600C30A89 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA422C3A692600C30A89 /* WebView.swift */; };
+		1AE3CA452C3B63CA00C30A89 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */; };
+		1AE3CA472C3B649500C30A89 /* ContentsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA462C3B649500C30A89 /* ContentsData.swift */; };
+		1AE3CA492C43945800C30A89 /* AuthSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA482C43945800C30A89 /* AuthSessionView.swift */; };
+		1AE3CA4B2C43991000C30A89 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA4A2C43991000C30A89 /* LoginView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1AE3CA3A2C3A2E6400C30A89 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1AE3CA392C3A2E6400C30A89 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noteAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = noteAnalyzerApp.swift; sourceTree = "<group>"; };
-		1AE3CA262C3A26D600C30A89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1AE3CA262C3A26D600C30A89 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		1AE3CA282C3A26D700C30A89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AE3CA2B2C3A26D700C30A89 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1AE3CA3E2C3A35BC00C30A89 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		1AE3CA422C3A692600C30A89 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		1AE3CA462C3B649500C30A89 /* ContentsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsData.swift; sourceTree = "<group>"; };
+		1AE3CA482C43945800C30A89 /* AuthSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionView.swift; sourceTree = "<group>"; };
+		1AE3CA4A2C43991000C30A89 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AE3CA362C3A2D4700C30A89 /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,7 +81,9 @@
 			isa = PBXGroup;
 			children = (
 				1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */,
-				1AE3CA262C3A26D600C30A89 /* ContentView.swift */,
+				1AE3CA3B2C3A352600C30A89 /* Data Model */,
+				1AE3CA382C3A2D5B00C30A89 /* Models */,
+				1AE3CA372C3A2D5000C30A89 /* Views */,
 				1AE3CA282C3A26D700C30A89 /* Assets.xcassets */,
 				1AE3CA2A2C3A26D700C30A89 /* Preview Content */,
 			);
@@ -67,6 +98,34 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		1AE3CA372C3A2D5000C30A89 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1AE3CA262C3A26D600C30A89 /* MainView.swift */,
+				1AE3CA4A2C43991000C30A89 /* LoginView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1AE3CA382C3A2D5B00C30A89 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1AE3CA482C43945800C30A89 /* AuthSessionView.swift */,
+				1AE3CA422C3A692600C30A89 /* WebView.swift */,
+				1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */,
+				1AE3CA462C3B649500C30A89 /* ContentsData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1AE3CA3B2C3A352600C30A89 /* Data Model */ = {
+			isa = PBXGroup;
+			children = (
+				1AE3CA3E2C3A35BC00C30A89 /* Item.swift */,
+			);
+			path = "Data Model";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -77,12 +136,16 @@
 				1AE3CA1D2C3A26D600C30A89 /* Sources */,
 				1AE3CA1E2C3A26D600C30A89 /* Frameworks */,
 				1AE3CA1F2C3A26D600C30A89 /* Resources */,
+				1AE3CA3A2C3A2E6400C30A89 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = noteAnalyzer;
+			packageProductDependencies = (
+				1AE3CA352C3A2D4700C30A89 /* RealmSwift */,
+			);
 			productName = noteAnalyzer;
 			productReference = 1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +174,10 @@
 				Base,
 			);
 			mainGroup = 1AE3CA182C3A26D600C30A89;
+			packageReferences = (
+				1AE3CA322C3A2D4700C30A89 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				1AE3CA4C2C43A86400C30A89 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = 1AE3CA222C3A26D600C30A89 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -137,8 +204,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */,
+				1AE3CA272C3A26D600C30A89 /* MainView.swift in Sources */,
+				1AE3CA432C3A692600C30A89 /* WebView.swift in Sources */,
+				1AE3CA492C43945800C30A89 /* AuthSessionView.swift in Sources */,
+				1AE3CA452C3B63CA00C30A89 /* NetworkManager.swift in Sources */,
+				1AE3CA3F2C3A35BC00C30A89 /* Item.swift in Sources */,
 				1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */,
+				1AE3CA4B2C43991000C30A89 /* LoginView.swift in Sources */,
+				1AE3CA472C3B649500C30A89 /* ContentsData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +353,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -309,6 +383,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -344,6 +419,33 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1AE3CA322C3A2D4700C30A89 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		1AE3CA4C2C43A86400C30A89 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1AE3CA352C3A2D4700C30A89 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AE3CA322C3A2D4700C30A89 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1AE3CA192C3A26D600C30A89 /* Project object */;
 }
