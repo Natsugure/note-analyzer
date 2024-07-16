@@ -55,14 +55,9 @@ extension WebView {
             self.parent = parent
         }
         
-//        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-//            webView.evaluateJavaScript("document.body.innerHTML") { html, error in
-//                print("--------ここから---------")
-//                //きちんとデータは取れてる。ただ文字コードがおかしいので、どうにかしてShift-JISまたはUTF-8の正しい方へ変換する。
-//                print(html as? String)
-//                
-//            }
-//        }
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            NetworkManager().getCookies(webView)
+        }
     }
 }
 
