@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A25C67F2C4770C400403215 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A25C67E2C4770C400403215 /* KeychainManager.swift */; };
 		1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */; };
 		1AE3CA272C3A26D600C30A89 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA262C3A26D600C30A89 /* MainView.swift */; };
 		1AE3CA292C3A26D700C30A89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3CA282C3A26D700C30A89 /* Assets.xcassets */; };
@@ -17,8 +18,6 @@
 		1AE3CA432C3A692600C30A89 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA422C3A692600C30A89 /* WebView.swift */; };
 		1AE3CA452C3B63CA00C30A89 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */; };
 		1AE3CA472C3B649500C30A89 /* ContentsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA462C3B649500C30A89 /* ContentsData.swift */; };
-		1AE3CA492C43945800C30A89 /* AuthSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA482C43945800C30A89 /* AuthSessionView.swift */; };
-		1AE3CA4B2C43991000C30A89 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA4A2C43991000C30A89 /* LoginView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +35,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A25C67E2C4770C400403215 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noteAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = noteAnalyzerApp.swift; sourceTree = "<group>"; };
 		1AE3CA262C3A26D600C30A89 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -45,8 +45,6 @@
 		1AE3CA422C3A692600C30A89 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		1AE3CA462C3B649500C30A89 /* ContentsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsData.swift; sourceTree = "<group>"; };
-		1AE3CA482C43945800C30A89 /* AuthSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionView.swift; sourceTree = "<group>"; };
-		1AE3CA4A2C43991000C30A89 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,7 +100,6 @@
 			isa = PBXGroup;
 			children = (
 				1AE3CA262C3A26D600C30A89 /* MainView.swift */,
-				1AE3CA4A2C43991000C30A89 /* LoginView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -110,10 +107,10 @@
 		1AE3CA382C3A2D5B00C30A89 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				1AE3CA482C43945800C30A89 /* AuthSessionView.swift */,
-				1AE3CA422C3A692600C30A89 /* WebView.swift */,
-				1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */,
 				1AE3CA462C3B649500C30A89 /* ContentsData.swift */,
+				1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */,
+				1AE3CA422C3A692600C30A89 /* WebView.swift */,
+				1A25C67E2C4770C400403215 /* KeychainManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -206,11 +203,10 @@
 			files = (
 				1AE3CA272C3A26D600C30A89 /* MainView.swift in Sources */,
 				1AE3CA432C3A692600C30A89 /* WebView.swift in Sources */,
-				1AE3CA492C43945800C30A89 /* AuthSessionView.swift in Sources */,
+				1A25C67F2C4770C400403215 /* KeychainManager.swift in Sources */,
 				1AE3CA452C3B63CA00C30A89 /* NetworkManager.swift in Sources */,
 				1AE3CA3F2C3A35BC00C30A89 /* Item.swift in Sources */,
 				1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */,
-				1AE3CA4B2C43991000C30A89 /* LoginView.swift in Sources */,
 				1AE3CA472C3B649500C30A89 /* ContentsData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

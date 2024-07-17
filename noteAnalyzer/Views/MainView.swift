@@ -19,15 +19,13 @@ struct MainView: View {
                     await networkManager.getStats()
                 }
             }
-            Spacer()
+            .padding()
+            
             Button("ログイン") {
-                Task {
-                    do {
-                        try await networkManager.login(email: "natsugure5301102@gmail.com", password: "SwyedKJqZpSeU6")
-                    } catch {
-                        print("Error: \(error)")
-                    }
-                }
+                networkManager.authenticate()
+            }
+            .sheet(isPresented: $networkManager.showAuthWebView) {
+                WebView(isPresented: $networkManager.isAuthenticated, networkManager: networkManager, urlString: "https://note.com/login")
             }
         }
     }

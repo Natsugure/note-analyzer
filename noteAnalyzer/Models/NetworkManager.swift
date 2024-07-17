@@ -11,12 +11,12 @@ import WebKit
 class NetworkManager: ObservableObject {
     
     @Published var contents = [Contents]()
+    @Published var isAuthenticated = false
+    @Published var showAuthWebView = false
+    
     private var isLastPage = false
-    
     private let session: URLSession
-    
-    private var stringCookie: String = ""
-//    private var stringCookie: String = "_note_session_v5=34a6711d7e5ec15354d349afc5a879cd; XSRF-TOKEN=qD6vLdnL1Ai8jFfSHeO8plSxBysZjpf9xMBxJGYV5TU;fp=0e9df89b0f721197676b8693faa2f5b3b; _vid_v1=62e92e11be374b0e94b8aedaeea6bab4; _vid_v1=62e92e11be374b0e94b8aedaeea6bab4"
+    private var cookies: [HTTPCookie] = []
     
     // レート制限のための変数
     private let requestsPerMinute: Int = 60 // 1分あたりの最大リクエスト数
@@ -27,31 +27,40 @@ class NetworkManager: ObservableObject {
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
         self.session = URLSession(configuration: configuration)
+        
+        if let cookieData = KeychainManager.load(forKey: "noteCookies"),
+           let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
+            self.cookies = cookies
+        }
     }
     
-    func login(email: String, password: String) async throws {
-        let loginURL = URL(string: "https://note.com/api/v1/sessions/sign_in")!
-        var request = URLRequest(url: loginURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let userData = ["login": email, "password": password]
-        request.httpBody = try JSONSerialization.data(withJSONObject: userData)
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw NSError(domain: "LoginError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Login failed"])
+    func authenticate() {
+        showAuthWebView = true
+    }
+    
+    func checkAuthentication(webView: WKWebView) {
+        webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
+            let noteCookies = cookies.filter { $0.domain.contains("note.com") }
+            self.isAuthenticated = !noteCookies.isEmpty
+            if self.isAuthenticated {
+                self.cookies = noteCookies
+                let cookieData = try? NSKeyedArchiver.archivedData(withRootObject: noteCookies, requiringSecureCoding: true)
+                if let data = cookieData {
+                    let status = KeychainManager.save(cookieData: data, forKey: "noteCookies")
+                    print("Keychain save status: \(status)")
+                }
+                print("認証成功: \(noteCookies.count) cookies found")
+                self.showAuthWebView = false
+            } else {
+                print("認証失敗: No note.com cookies found")
+            }
         }
-        
-        let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-        if let error = jsonResponse?["error"] as? String {
-            throw NSError(domain: "LoginError", code: 401, userInfo: [NSLocalizedDescriptionKey: error])
-        } else {
-            // ログイン成功。セッションクッキーは自動的に保存されます。
-            print("ログイン成功")
-        }
+    }
+    
+    //inoutは参照渡しを意味する。関数内で引数の値を変更しても、元の変数の値も変わる。
+    private func addCookiesToRequest(_ request: inout URLRequest) {
+        let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
+        request.allHTTPHeaderFields = cookieHeaders
     }
     
     private func fetchData(url urlString: String) async throws {
@@ -64,8 +73,8 @@ class NetworkManager: ObservableObject {
         // レート制限をチェック
         try await checkRateLimit()
         
-        let request = URLRequest(url: url)
-//        request.setValue(stringCookie, forHTTPHeaderField: "Cookie")
+        var request = URLRequest(url: url)
+        addCookiesToRequest(&request)
         //Cookieの取得はできているけど、このCookieをURLRequestに入れるだけではログインできないみたい。
         //Vivaldiでログイン状態のCookieをそのままStringにぶち込んだらstatsのJSON出せた。WKWebViewから取得したCookieがなにか間違っているっぽい。
         let (data, _) = try await session.data(for: request)
@@ -89,7 +98,7 @@ class NetworkManager: ObservableObject {
             
             do {
                 try await fetchData(url: urlString)
-
+                
                 if isLastPage {
                     print("最後のページに到達しました - 総ページ数: \(page)")
                     break

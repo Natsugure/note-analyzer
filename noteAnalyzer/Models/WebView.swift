@@ -11,6 +11,9 @@ import WebKit
 struct WebView: UIViewRepresentable {
     typealias UIViewType = WKWebView
     
+    @Binding var isPresented: Bool
+    @ObservedObject var networkManager: NetworkManager
+    
     let urlString: String?
     private let observable = WebViewURLObservable()
     
@@ -23,56 +26,18 @@ struct WebView: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> WKWebView {
-        return WKWebView()
+        let webView = WKWebView()
+        webView.navigationDelegate = context.coordinator
+        return webView
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-//        loadHTMLContent(<#T##content: String##String#>, into: <#T##WKWebView#>)
-//        uiView.uiDelegate = context.coordinator
-//        uiView.navigationDelegate = context.coordinator
-//        observable.instance = uiView.observe(\WKWebView.url, options: .new) { view, change in
-//            if let url = view.url {
-//                let stringUrl = url.absoluteString
-//                if stringUrl == "https://note.com/" {
-////                    NetworkManager().getCookies(uiView)
-//                }
-//            }
-//        }
-        
         if let safeString = urlString {
             if let url = URL(string: safeString) {
                 let request = URLRequest(url: url)
-                let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                    if let error = error {
-                        print("Error: \(error)")
-                        return
-                    }
-                    guard let data = data else {
-                        print("No data.")
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        if let string = String(data: data, encoding: .utf8) {
-                            print(string)
-                        }
-                        uiView.load(data, mimeType: "text/html", characterEncodingName: "utf-8", baseURL: url)
-                    }
-                }
-//                uiView.load(request)
-                task.resume()
+                uiView.load(request)
             }
         }
-    }
-    
-    func loadHTMLContent(_ content: String, into webView: WKWebView) {
-        // 文字列をUTF-8でエンコード
-        guard let data = content.data(using: .utf8) else {
-            print("Failed to encode content.")
-            return
-        }
-
-        // データをUTF-8としてロード
-        webView.load(data, mimeType: "text/html", characterEncodingName: "utf-8", baseURL: URL(string: "https://example.com")!)
     }
 }
 
@@ -85,9 +50,10 @@ extension WebView {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            if webView.url?.absoluteString == "https://note.com/" {
+                parent.networkManager.checkAuthentication(webView: webView)
+            }
         }
-        
-
     }
 }
 
