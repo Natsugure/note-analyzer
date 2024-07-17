@@ -19,8 +19,15 @@ struct MainView: View {
                     await networkManager.getStats()
                 }
             }
-            NavigationLink(destination: WebView(urlString: "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv")) {
-                Text("WebViewを開く")
+            Spacer()
+            Button("ログイン") {
+                Task {
+                    do {
+                        try await networkManager.login(email: "natsugure5301102@gmail.com", password: "SwyedKJqZpSeU6")
+                    } catch {
+                        print("Error: \(error)")
+                    }
+                }
             }
         }
     }
