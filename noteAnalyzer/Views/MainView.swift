@@ -6,27 +6,27 @@
 //
 
 import SwiftUI
-import RealmSwift
 
 struct MainView: View {
-    
-    @ObservedObject var networkManager = NetworkManager()
+    @State var selectedToolBar = 1
     
     var body: some View {
-        NavigationStack {
-            Button("データ取得") {
-                Task {
-                    await networkManager.getStats()
-                }
+        TabView {
+            NavigationStack {
+                DashboardView()
+                    .navigationTitle("note Analyzer")
+                    .navigationBarTitleDisplayMode(.inline)
             }
-            .padding()
+            .tabItem {
+                Label("ダッシュボード", systemImage: "chart.bar.fill")
+            }
+            .tag(1)
             
-            Button("ログイン") {
-                networkManager.authenticate()
-            }
-            .sheet(isPresented: $networkManager.showAuthWebView) {
-                WebView(isPresented: $networkManager.isAuthenticated, networkManager: networkManager, urlString: "https://note.com/login")
-            }
+            SettingsView()
+                .tabItem {
+                    Label("設定", systemImage: "gearshape.fill")
+                }
+                .tag(2)
         }
     }
 }

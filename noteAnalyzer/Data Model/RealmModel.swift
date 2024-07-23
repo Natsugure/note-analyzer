@@ -9,21 +9,23 @@ import Foundation
 import RealmSwift
 
 final class Item: Object, Identifiable {
-    @Persisted(primaryKey: true) var id: String
+    @Persisted(primaryKey: true) var id: Int
     
     @Persisted var title: String
-    @Persisted var type: String
-    @Persisted var published_at: Date
+    @Persisted var type: ContentType
+    @Persisted var publishedAt: String
     @Persisted var stats: RealmSwift.List<Stats>
 }
 
 final class Stats: Object, Identifiable {
     @Persisted(primaryKey: true) var id = UUID().uuidString
     
-    @Persisted var updated_at: Date
-    @Persisted var view_count: Int
-    @Persisted var like_count: Int
-    @Persisted var comment_count: Int
+    @Persisted var updatedAt: Date
+    @Persisted var readCount: Int
+    @Persisted var likeCount: Int
+    @Persisted var commentCount: Int
     
     @Persisted(originProperty: "stats") var item: LinkingObjects<Item>
 }
+
+    

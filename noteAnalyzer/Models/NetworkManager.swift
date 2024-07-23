@@ -5,18 +5,22 @@
 //  Created by 秋空 on 2024/07/08.
 //
 
-import Foundation
+import SwiftUI
 import WebKit
 
 class NetworkManager: ObservableObject {
     
-    @Published var contents = [Contents]()
+    @Published var contents = [FetchedStatsData.Content]()
+    @Published var publishedDateArray = [FetchedContentsData.Content]()
     @Published var isAuthenticated = false
     @Published var showAuthWebView = false
     
     private var isLastPage = false
+    private var isUpdated = false
     private let session: URLSession
     private var cookies: [HTTPCookie] = []
+    
+    private let realmManager: RealmManager
     
     // レート制限のための変数
     private let requestsPerMinute: Int = 60 // 1分あたりの最大リクエスト数
@@ -31,6 +35,12 @@ class NetworkManager: ObservableObject {
         if let cookieData = KeychainManager.load(forKey: "noteCookies"),
            let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
             self.cookies = cookies
+        }
+        
+        do {
+            self.realmManager = try RealmManager()
+        } catch {
+            fatalError("Failed to initialize RealmManager: \(error)")
         }
     }
     
@@ -63,7 +73,7 @@ class NetworkManager: ObservableObject {
         request.allHTTPHeaderFields = cookieHeaders
     }
     
-    private func fetchData(url urlString: String) async throws {
+    private func fetchData(url urlString: String) async throws -> Data {
         print(urlString)
         
         guard let url = URL(string: urlString) else {
@@ -75,16 +85,47 @@ class NetworkManager: ObservableObject {
         
         var request = URLRequest(url: url)
         addCookiesToRequest(&request)
-        //Cookieの取得はできているけど、このCookieをURLRequestに入れるだけではログインできないみたい。
-        //Vivaldiでログイン状態のCookieをそのままStringにぶち込んだらstatsのJSON出せた。WKWebViewから取得したCookieがなにか間違っているっぽい。
+        
         let (data, _) = try await session.data(for: request)
         
+        return data
+    }
+    
+    private func parseStatsJSON(_ data: Data) async throws {
         let decoder = JSONDecoder()
-        let results = try decoder.decode(Results.self, from: data)
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let results = try decoder.decode(FetchedStatsData.self, from: data)
         
         await MainActor.run {
-            self.contents += results.data.note_stats
-            self.isLastPage = results.data.last_page
+            let thisTime = self.stringToDate(results.data.lastCalculateAt)
+            let lastTime = self.stringToDate(UserDefaults.standard.string(forKey: "lastCalculateAt")!)
+            
+            if thisTime <= lastTime {
+                self.isUpdated = false
+                return
+            } else {
+                self.isUpdated = true
+                self.contents += results.data.noteStats
+                self.isLastPage = results.data.lastPage
+                
+                if self.isLastPage {
+                    UserDefaults.standard.set(results.data.lastCalculateAt, forKey: "lastCalculateAt")
+                }
+            }
+        }
+        
+        // リクエストのタイムスタンプを記録
+        requestTimestamps.append(Date())
+    }
+    
+    private func parseContentsJSON(_ data: Data) async throws {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let results = try decoder.decode(FetchedContentsData.self, from: data)
+        
+        await MainActor.run {
+            self.publishedDateArray += results.data.contents
+            self.isLastPage = results.data.isLastPage
         }
         
         // リクエストのタイムスタンプを記録
@@ -92,12 +133,18 @@ class NetworkManager: ObservableObject {
     }
     
     func getStats() async {
-        let maxLoopCount = 60
+        let maxLoopCount = 100
         for page in 1...maxLoopCount {
             let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
             
             do {
-                try await fetchData(url: urlString)
+                let fetchedData = try await fetchData(url: urlString)
+                try await parseStatsJSON(fetchedData)
+                
+                if page == 1 && !isUpdated {
+                    print("更新されていません")
+                    break
+                }
                 
                 if isLastPage {
                     print("最後のページに到達しました - 総ページ数: \(page)")
@@ -111,7 +158,42 @@ class NetworkManager: ObservableObject {
                 break
             }
         }
-        print("取得完了, 総アイテム数: \(contents.count)")
+
+        if isUpdated {
+            print("取得完了, 総アイテム数: \(contents.count)")
+            
+            await getPublishedDate()
+            
+            await MainActor.run {
+                realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
+            }
+        }
+        
+        isUpdated = false
+    }
+    
+    func getPublishedDate() async {
+        let maxLoopCount = 200
+        for page in 1...maxLoopCount {
+            let urlString = "https://note.com/api/v2/creators/natsu_gure/contents?kind=note&page=\(page)"
+            
+            do {
+                let fetchedData = try await fetchData(url: urlString)
+                try await parseContentsJSON(fetchedData)
+                
+                if isLastPage {
+                    print("最後のページに到達しました - 総ページ数: \(page)")
+                    break
+                }
+                
+                // リクエスト間に1秒の遅延を追加
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+            } catch {
+                print("Error: \(error)")
+                break
+            }
+        }
+        print("取得完了, 総アイテム数: \(publishedDateArray.count)")
     }
     
     
@@ -130,5 +212,14 @@ class NetworkManager: ObservableObject {
                 try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
             }
         }
+    }
+    
+    func stringToDate(_ dateString: String) -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd HH:mm"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
+        
+        return formatter.date(from: dateString)!
     }
 }
