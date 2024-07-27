@@ -13,6 +13,14 @@ struct DashboardView: View {
     @ObservedObject var networkManager = NetworkManager()
     @ObservedResults(Item.self) var items
     
+    var sortedItems: [Item] {
+        items.sorted { (item1, item2) -> Bool in
+            let readCount1 = item1.stats.last?.readCount ?? 0
+            let readCount2 = item2.stats.last?.readCount ?? 0
+            return readCount1 > readCount2
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -28,9 +36,9 @@ struct DashboardView: View {
                             .padding(.leading, 10)
                         Text("ビュー").bold()
                             .frame(width: 40)
-                        Text("スキ").bold()
-                            .frame(width: 40)
                         Text("コメント").bold()
+                            .frame(width: 40)
+                        Text("スキ").bold()
                             .frame(width: 40)
                             .padding(.trailing, 10)
                     }
@@ -39,9 +47,8 @@ struct DashboardView: View {
                         .background(Color.gray.opacity(0.1))
                         .listRowInsets(EdgeInsets())
                     ) {
-                        
                         // データ行
-                        ForEach(items) { item in
+                        ForEach(sortedItems) { item in
                             HStack(alignment: .center) {
                                 Text(item.title)
                                     .lineLimit(2)
@@ -49,9 +56,9 @@ struct DashboardView: View {
                                     .padding(.leading, 10)
                                 Text(String(item.stats.last?.readCount ?? 0))
                                     .frame(width: 40)
-                                Text(String(item.stats.last?.likeCount ?? 0))
-                                    .frame(width: 40)
                                 Text(String(item.stats.last?.commentCount ?? 0))
+                                    .frame(width: 40)
+                                Text(String(item.stats.last?.likeCount ?? 0))
                                     .frame(width: 40)
                                     .padding(.trailing, 10)
                             }
@@ -61,7 +68,9 @@ struct DashboardView: View {
                     }
                 }
                 .listStyle(PlainListStyle())
-
+                
+                .navigationTitle("詳細版ダッシュボード")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     //フィルターボタン
                     ToolbarItem(placement: .topBarLeading) {
@@ -122,7 +131,7 @@ struct ChartView: View {
                     if let date = value.as(Date.self) {
                         let isInDataRange = chartData.contains { Calendar.current.isDate($0.0, inSameDayAs: date) }
                         if isInDataRange {
-                            AxisValueLabel(format: .dateTime.month().day())
+                            AxisValueLabel(format: .dateTime.month(.twoDigits).day(.twoDigits))
                         }
                         AxisTick()
                         AxisGridLine()

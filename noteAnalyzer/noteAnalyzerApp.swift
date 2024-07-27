@@ -15,19 +15,19 @@ struct noteAnalyzerApp: SwiftUI.App {
     
     var body: some Scene {
         WindowGroup {
-            MainView()
+            ContentView()
         }
     }
 }
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
-        do {
-            _ = try Realm()
-            print(Realm.Configuration.defaultConfiguration.fileURL!)
-        } catch {
-            fatalError("Error initializing new realm: \(error)")
-        }
+//        do {
+//            _ = try Realm()
+//            print(Realm.Configuration.defaultConfiguration.fileURL!)
+//        } catch {
+//            fatalError("Error initializing new realm: \(error)")
+//        }
         
         UserDefaults.standard.register(defaults: ["lastCalculateAt" : "1970/1/1 00:00"])
         
