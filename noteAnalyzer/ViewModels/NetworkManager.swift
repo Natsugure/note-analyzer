@@ -110,6 +110,7 @@ class NetworkManager: ObservableObject {
                 
                 if self.isLastPage {
                     UserDefaults.standard.set(results.data.lastCalculateAt, forKey: "lastCalculateAt")
+                    UserDefaults.standard.set(self.contents[0].user.urlname, forKey: "urlname")
                 }
             }
         }
@@ -174,8 +175,9 @@ class NetworkManager: ObservableObject {
     
     func getPublishedDate() async {
         let maxLoopCount = 200
+        let urlName = UserDefaults.standard.string(forKey: "urlname")!
         for page in 1...maxLoopCount {
-            let urlString = "https://note.com/api/v2/creators/natsu_gure/contents?kind=note&page=\(page)"
+            let urlString = "https://note.com/api/v2/creators/\(urlName)/contents?kind=note&page=\(page)"
             
             do {
                 let fetchedData = try await fetchData(url: urlString)

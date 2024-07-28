@@ -30,6 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        }
         
         UserDefaults.standard.register(defaults: ["lastCalculateAt" : "1970/1/1 00:00"])
+        UserDefaults.standard.register(defaults: ["urlname" : ""])
         
         return true
     }

@@ -7,11 +7,18 @@
 
 import SwiftUI
 import RealmSwift
-import Charts
+
+enum StatsType {
+    case view
+    case comment
+    case like
+}
 
 struct DashboardView: View {
     @ObservedObject var networkManager = NetworkManager()
     @ObservedResults(Item.self) var items
+    @State private var path = [Item]()
+    @State private var selection: StatsType = .view
     
     var sortedItems: [Item] {
         items.sorted { (item1, item2) -> Bool in
@@ -22,9 +29,16 @@ struct DashboardView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             VStack {
-                ChartView(items: items)
+                Picker(selection: $selection, label: Text("グラフ選択")) {
+                    Text("ビュー").tag(StatsType.view)
+                    Text("コメント").tag(StatsType.comment)
+                    Text("スキ").tag(StatsType.like)
+                }
+                .pickerStyle(.segmented)
+                
+                ChartViewForAll(items: items, statsType: selection)
                     .frame(height: 300)
                     .padding(.horizontal, 20)
                 
@@ -49,27 +63,29 @@ struct DashboardView: View {
                     ) {
                         // データ行
                         ForEach(sortedItems) { item in
-                            HStack(alignment: .center) {
-                                Text(item.title)
-                                    .lineLimit(2)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.leading, 10)
-                                Text(String(item.stats.last?.readCount ?? 0))
-                                    .frame(width: 40)
-                                Text(String(item.stats.last?.commentCount ?? 0))
-                                    .frame(width: 40)
-                                Text(String(item.stats.last?.likeCount ?? 0))
-                                    .frame(width: 40)
-                                    .padding(.trailing, 10)
-                            }
-                            .font(.system(size: 12))
+                            NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selection)) {
+                                HStack(alignment: .center) {
+                                    Text(item.title)
+                                        .lineLimit(2)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.leading, 10)
+                                    Text(String(item.stats.last?.readCount ?? 0))
+                                        .frame(width: 40)
+                                    Text(String(item.stats.last?.commentCount ?? 0))
+                                        .frame(width: 40)
+                                    Text(String(item.stats.last?.likeCount ?? 0))
+                                        .frame(width: 40)
+                                        .padding(.trailing, 10)
+                                }
+                                .font(.system(size: 12))
                             .listRowInsets(EdgeInsets())
+                            }
                         }
                     }
                 }
                 .listStyle(PlainListStyle())
                 
-                .navigationTitle("詳細版ダッシュボード")
+                .navigationTitle("全記事統計")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     //フィルターボタン
@@ -94,70 +110,6 @@ struct DashboardView: View {
                 }
             }
         }
-    }
-}
-
-struct ChartView: View {
-    let items: Results<Item>
-    
-    var chartData: [(Date, Int)] {
-        let allStats = items.flatMap { $0.stats }
-        let groupedStats = Dictionary(grouping: allStats) { stat in
-            Calendar.current.startOfDay(for: stat.updatedAt)
-        }
-        
-        return groupedStats.map { (date, stats) in
-            let totalReadCount = stats.reduce(0) { $0 + $1.readCount }
-            return (date, totalReadCount)
-        }.sorted { $0.0 < $1.0 }
-    }
-    
-    var body: some View {
-        Chart {
-                ForEach(chartData, id: \.0) { dataPoint in
-                    LineMark(
-                        x: .value("Date", dataPoint.0),
-                        y: .value("Total Read Count", dataPoint.1)
-                    )
-                    PointMark(
-                        x: .value("Date", dataPoint.0),
-                        y: .value("Total Read Count", dataPoint.1)
-                    )
-                }
-            }
-            .chartXScale(domain: chartXDomain)
-            .chartXAxis {
-                AxisMarks(preset: .aligned, values: .stride(by: .day)) { value in
-                    if let date = value.as(Date.self) {
-                        let isInDataRange = chartData.contains { Calendar.current.isDate($0.0, inSameDayAs: date) }
-                        if isInDataRange {
-                            AxisValueLabel(format: .dateTime.month(.twoDigits).day(.twoDigits))
-                        }
-                        AxisTick()
-                        AxisGridLine()
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading)
-            }
-            .chartYScale(domain: chartYDomain)
-    }
-    
-    var chartXDomain: ClosedRange<Date> {
-        guard let minDate = chartData.first?.0, let maxDate = chartData.last?.0 else {
-            return Date()...Date()
-        }
-        return minDate...maxDate
-    }
-    
-    var chartYDomain: ClosedRange<Int> {
-        let counts = chartData.map { $0.1 }
-        guard let minCount = counts.min(), let maxCount = counts.max() else {
-            return 0...100
-        }
-        let padding = max(1, (maxCount - minCount) / 10)
-        return (minCount - padding)...(maxCount + padding)
     }
 }
 

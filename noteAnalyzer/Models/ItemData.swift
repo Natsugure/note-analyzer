@@ -31,7 +31,7 @@ struct FetchedStatsData: Codable {
         let lastPage: Bool
         let lastCalculateAt: String
     }
-
+    
     struct Content: Codable, Identifiable {
         var id: Int
         var name: String?
@@ -40,6 +40,11 @@ struct FetchedStatsData: Codable {
         var readCount: Int
         var likeCount: Int
         var commentCount: Int
+        var user: UserURLName
+    }
+    
+    struct UserURLName: Codable {
+        var urlname: String
     }
 }
 
