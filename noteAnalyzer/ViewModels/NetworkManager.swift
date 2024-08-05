@@ -166,7 +166,11 @@ class NetworkManager: ObservableObject {
             await getPublishedDate()
             
             await MainActor.run {
-                realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
+                do {
+                     try realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
+                } catch {
+                    print(error)
+                }
             }
         }
         
@@ -216,7 +220,7 @@ class NetworkManager: ObservableObject {
         }
     }
     
-    func stringToDate(_ dateString: String) -> Date {
+    private func stringToDate(_ dateString: String) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd HH:mm"
         formatter.locale = Locale(identifier: "en_US_POSIX")

@@ -12,23 +12,17 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            HomeView()
-                .tabItem {
-                    Label("ホーム", systemImage: "house.fill")
-                }
-                .tag(1)
-            
             DashboardView()
                 .tabItem {
-                    Label("ダッシュボード", systemImage: "chart.bar.fill")
+                    Label("ダッシュボード ", systemImage: "chart.bar.fill")
                 }
-                .tag(2)
+                .tag(1)
             
             SettingsView()
                 .tabItem {
                     Label("設定", systemImage: "gearshape.fill")
                 }
-                .tag(3)
+                .tag(2)
         }
     }
 }

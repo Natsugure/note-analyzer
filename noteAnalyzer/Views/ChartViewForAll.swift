@@ -19,7 +19,7 @@ struct ChartViewForAll: View {
             Calendar.current.startOfDay(for: stat.updatedAt)
         }
         
-        return groupedStats.map { (date, stats) in
+        let sortedStats = groupedStats.map { (date, stats) in
             switch statsType {
             case .view:
                 let totalReadCount = stats.reduce(0) { $0 + $1.readCount }
@@ -32,6 +32,9 @@ struct ChartViewForAll: View {
                 return (date, totalLikeCount)
             }
         }.sorted { $0.0 < $1.0 }
+        
+        // 直近7データ分に絞る
+        return Array(sortedStats.suffix(7))
     }
     
     var lineColor: Color {
@@ -47,37 +50,34 @@ struct ChartViewForAll: View {
     
     var body: some View {
         Chart {
-                ForEach(chartData, id: \.0) { dataPoint in
-                    LineMark(
-                        x: .value("Date", dataPoint.0),
-                        y: .value("Total Count", dataPoint.1)
-                    )
-                    .foregroundStyle(lineColor)
-                    
-                    PointMark(
-                        x: .value("Date", dataPoint.0),
-                        y: .value("Total Count", dataPoint.1)
-                    )
-                    .foregroundStyle(lineColor)
+            ForEach(chartData, id: \.0) { dataPoint in
+                LineMark(
+                    x: .value("Date", dataPoint.0),
+                    y: .value("Total Count", dataPoint.1)
+                )
+                .foregroundStyle(lineColor)
+                
+                PointMark(
+                    x: .value("Date", dataPoint.0),
+                    y: .value("Total Count", dataPoint.1)
+                )
+                .foregroundStyle(lineColor)
+            }
+        }
+        .chartXScale(domain: chartXDomain)
+        .chartXAxis {
+            AxisMarks(values: chartData.map { $0.0 }) { value in
+                if let date = value.as(Date.self) {
+                    AxisValueLabel(format: .dateTime.month(.twoDigits).day(.twoDigits))
+                    AxisTick()
+                    AxisGridLine()
                 }
             }
-            .chartXScale(domain: chartXDomain)
-            .chartXAxis {
-                AxisMarks(preset: .aligned, values: .stride(by: .day)) { value in
-                    if let date = value.as(Date.self) {
-                        let isInDataRange = chartData.contains { Calendar.current.isDate($0.0, inSameDayAs: date) }
-                        if isInDataRange {
-                            AxisValueLabel(format: .dateTime.month(.twoDigits).day(.twoDigits))
-                        }
-                        AxisTick()
-                        AxisGridLine()
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading)
-            }
-            .chartYScale(domain: chartYDomain)
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading)
+        }
+        .chartYScale(domain: chartYDomain)
     }
     
     var chartXDomain: ClosedRange<Date> {

@@ -38,7 +38,7 @@ struct ArticleDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.leading, 10)
                     Text("ビュー").bold()
-                        .frame(width: 40)
+                        .frame(width: 60)
                     Text("コメント").bold()
                         .frame(width: 40)
                     Text("スキ").bold()
@@ -50,18 +50,27 @@ struct ArticleDetailView: View {
                     .background(Color.gray.opacity(0.1))
                     .listRowInsets(EdgeInsets())
                 ) {
-                    ForEach(item.stats) { stats in
+                    ForEach(item.stats.sorted(by: { $0.updatedAt > $1.updatedAt })) { stats in
                         HStack {
                             Text(formatDate(stats.updatedAt))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, 10)
-                            Text(String(stats.readCount))
-                                .frame(width: 40)
-                            Text(String(stats.commentCount))
-                                .frame(width: 40)
-                            Text(String(stats.likeCount))
-                                .frame(width: 40)
-                                .padding(.trailing, 10)
+                            ZStack {
+                                K.BrandColor.read.opacity(0.5)
+                                Text(String(stats.readCount))
+                            }
+                            .frame(width: 60)
+                            ZStack {
+                                K.BrandColor.comment.opacity(0.5)
+                                Text(String(stats.commentCount))
+                            }
+                            .frame(width: 40)
+                            ZStack {
+                                K.BrandColor.likeBackground
+                                Text(String(stats.likeCount))
+                            }
+                            .frame(width: 40)
+                        .padding(.trailing, 10)
                         }
                         .font(.system(size: 12))
                     .listRowInsets(EdgeInsets())

@@ -13,7 +13,7 @@ final class Item: Object, Identifiable {
     
     @Persisted var title: String
     @Persisted var type: ContentType
-    @Persisted var publishedAt: String
+    @Persisted var publishedAt: Date
     @Persisted var stats: RealmSwift.List<Stats>
 }
 

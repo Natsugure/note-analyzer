@@ -17,16 +17,11 @@ enum StatsType {
 struct DashboardView: View {
     @ObservedObject var networkManager = NetworkManager()
     @ObservedResults(Item.self) var items
+    @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
     @State private var selection: StatsType = .view
-    
-    var sortedItems: [Item] {
-        items.sorted { (item1, item2) -> Bool in
-            let readCount1 = item1.stats.last?.readCount ?? 0
-            let readCount2 = item2.stats.last?.readCount ?? 0
-            return readCount1 > readCount2
-        }
-    }
+    @State private var sortType: SortType = .view
+
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -41,49 +36,63 @@ struct DashboardView: View {
                 ChartViewForAll(items: items, statsType: selection)
                     .frame(height: 300)
                     .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
                 
                 List {
                     Section(header:
                                 HStack {
-                        Text("記事").bold()
+                        Text("更新日").bold()
                             .frame(maxWidth: .infinity)
-                            .padding(.leading, 10)
+                        Text("記事数").bold()
+                            .frame(maxWidth: 40)
                         Text("ビュー").bold()
-                            .frame(width: 40)
+                            .frame(width: 80)
                         Text("コメント").bold()
-                            .frame(width: 40)
+                            .frame(width: 60)
                         Text("スキ").bold()
-                            .frame(width: 40)
-                            .padding(.trailing, 10)
+                            .frame(width: 60)
+                            .padding(.trailing, 27)
+
                     }
                         .font(.system(size: 12))
                         .padding(.vertical, 8)
                         .background(Color.gray.opacity(0.1))
                         .listRowInsets(EdgeInsets())
                     ) {
-                        // データ行
-                        ForEach(sortedItems) { item in
-                            NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selection)) {
-                                HStack(alignment: .center) {
-                                    Text(item.title)
-                                        .lineLimit(2)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(.leading, 10)
-                                    Text(String(item.stats.last?.readCount ?? 0))
+                        ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
+                            NavigationLink(destination: DailyView(path: $path, selection: $selection, selectedDate: date)) {
+                                HStack {
+                                    VStack {
+                                        Text("\(date, formatter: dateFormatter)")
+                                        Text(dateToTimeString(date: date))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    Text("\(articleCount)")
                                         .frame(width: 40)
-                                    Text(String(item.stats.last?.commentCount ?? 0))
-                                        .frame(width: 40)
-                                    Text(String(item.stats.last?.likeCount ?? 0))
-                                        .frame(width: 40)
-                                        .padding(.trailing, 10)
+                                    ZStack {
+                                        K.BrandColor.read.opacity(0.5)
+                                        Text("\(readCount)")
+                                    }
+                                    .frame(width: 80)
+                                    ZStack {
+                                        K.BrandColor.comment.opacity(0.3)
+                                        Text("\(commentCount)")
+                                    }
+                                    .frame(width: 60)
+                                    ZStack {
+                                        K.BrandColor.likeBackground
+                                        Text("\(likeCount)")
+                                    }
+                                    .frame(width: 60)
                                 }
                                 .font(.system(size: 12))
-                            .listRowInsets(EdgeInsets())
                             }
                         }
+                        .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
                     }
                 }
                 .listStyle(PlainListStyle())
+
                 
                 .navigationTitle("全記事統計")
                 .navigationBarTitleDisplayMode(.inline)
@@ -111,7 +120,47 @@ struct DashboardView: View {
             }
         }
     }
+    
+    private func calculateTotalCounts() -> [(Date, Int, Int, Int, Int)] {
+        var countsByDate: [Date: (readCount: Int, likeCount: Int, commentCount: Int, articleCount: Int)] = [:]
+        
+        for stat in stats {
+            let date = stat.updatedAt
+            
+            if countsByDate[date] == nil {
+                countsByDate[date] = (readCount: 0, likeCount: 0, commentCount: 0, articleCount: 0)
+            }
+            
+            countsByDate[date]?.readCount += stat.readCount
+            countsByDate[date]?.likeCount += stat.likeCount
+            countsByDate[date]?.commentCount += stat.commentCount
+            countsByDate[date]?.articleCount += 1 //記事の数をカウント
+        }
+        
+        // 結果を配列に変換
+        var result = countsByDate.map { (date, counts) in
+            return (date, counts.readCount, counts.likeCount, counts.commentCount, counts.articleCount)
+        }
+        
+        // 更新日でソート
+        result.sort { $0.0 > $1.0 }
+        
+        return result
+    }
+    
+    private func dateToTimeString(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        return dateFormatter.string(from: date)
+    }
+    // 日付フォーマッター
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter
+    }()
 }
+    
 
 #Preview {
     DashboardView()
