@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MarkdownViewer: View {
+struct MarkdownView: View {
     let filename: String
     @State private var attributedString = AttributedString()
     
@@ -59,6 +59,6 @@ struct MarkdownViewer: View {
 }
 
 #Preview {
-    MarkdownViewer(filename: "term_of_service")
+    MarkdownView(filename: "term_of_service")
 }
 
