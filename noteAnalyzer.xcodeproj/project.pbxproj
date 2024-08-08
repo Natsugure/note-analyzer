@@ -91,8 +91,8 @@
 		1AE3CA182C3A26D600C30A89 = {
 			isa = PBXGroup;
 			children = (
-				1A7E450B2C64590A002A4B82 /* README.md */,
 				1AE3CA232C3A26D600C30A89 /* noteAnalyzer */,
+				1A7E450B2C64590A002A4B82 /* README.md */,
 				1AE3CA222C3A26D600C30A89 /* Products */,
 			);
 			sourceTree = "<group>";
