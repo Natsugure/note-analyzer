@@ -91,6 +91,7 @@
 		1AE3CA182C3A26D600C30A89 = {
 			isa = PBXGroup;
 			children = (
+				1A7E450B2C64590A002A4B82 /* README.md */,
 				1AE3CA232C3A26D600C30A89 /* noteAnalyzer */,
 				1AE3CA222C3A26D600C30A89 /* Products */,
 			);
@@ -116,7 +117,6 @@
 				1A2AC3AB2C5496DC0046C921 /* Constants.swift */,
 				1A06C8FC2C6224BC00838DD5 /* privacy_policy.md */,
 				1A06C8FB2C6224BC00838DD5 /* term_of_service.md */,
-				1A7E450B2C64590A002A4B82 /* README.md */,
 			);
 			path = noteAnalyzer;
 			sourceTree = "<group>";
