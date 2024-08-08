@@ -2,7 +2,7 @@
 //  RealmManager.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/07/21.
+//  Created by Natsugure on 2024/07/21.
 //
 
 import Foundation

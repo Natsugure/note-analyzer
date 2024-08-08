@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/07/07.
+//  Created by Natsugure on 2024/07/07.
 //
 
 import SwiftUI

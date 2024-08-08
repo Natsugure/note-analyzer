@@ -1,8 +1,8 @@
 //
-//  ContentsData.swift
+//  APIResponses.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/07/08.
+//  Created by Natsugure on 2024/07/08.
 //
 
 import Foundation

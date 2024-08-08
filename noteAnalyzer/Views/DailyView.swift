@@ -2,7 +2,7 @@
 //  DailyView.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/08/04.
+//  Created by Natsugure on 2024/08/04.
 //
 
 import SwiftUI

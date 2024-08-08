@@ -2,7 +2,7 @@
 //  KeychainManager.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/07/17.
+//  Created by Natsugure on 2024/07/17.
 //
 
 import Foundation

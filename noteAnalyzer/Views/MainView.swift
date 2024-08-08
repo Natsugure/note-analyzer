@@ -2,7 +2,7 @@
 //  MainView.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/08/05.
+//  Created by Natsugure on 2024/08/05.
 //
 
 import SwiftUI

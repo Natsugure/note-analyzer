@@ -1,8 +1,8 @@
 //
-//  DashboardView.swift
+//  SettingsView.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/07/21.
+//  Created by Natsugure on 2024/07/21.
 //
 
 import SwiftUI
@@ -16,8 +16,8 @@ struct SettingsView: View {
         NavigationStack(path: $path) {
             List {
                 Section {
-                    NavigationLink("利用規約", destination: MarkdownViewer(filename: "term_of_service"))
-                    NavigationLink("プライバシーポリシー", destination: MarkdownViewer(filename: "privacy_policy"))
+                    NavigationLink("利用規約", destination: MarkdownView(filename: "term_of_service"))
+                    NavigationLink("プライバシーポリシー", destination: MarkdownView(filename: "privacy_policy"))
                 }
                 Section {
                     Button(action: {

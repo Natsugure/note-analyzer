@@ -2,7 +2,7 @@
 //  ChartViewForAll.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/07/28.
+//  Created by Natsugure on 2024/07/28.
 //
 
 import SwiftUI
