@@ -23,16 +23,16 @@ enum ContentType: String, Codable, RawRepresentable, PersistableEnum {
     }
 }
 
-struct FetchedStatsData: Codable {
-    let data: ItemData
+struct APIStatsResponse: Codable {
+    let data: APIStatsData
     
-    struct ItemData: Codable {
-        let noteStats: [Content]
+    struct APIStatsData: Codable {
+        let noteStats: [APIStatsItem]
         let lastPage: Bool
         let lastCalculateAt: String
     }
     
-    struct Content: Codable, Identifiable {
+    struct APIStatsItem: Codable, Identifiable {
         var id: Int
         var name: String?
         var body: String?
@@ -40,23 +40,23 @@ struct FetchedStatsData: Codable {
         var readCount: Int
         var likeCount: Int
         var commentCount: Int
-        var user: UserURLName
+        var user: APIUserInfo
     }
     
-    struct UserURLName: Codable {
+    struct APIUserInfo: Codable {
         var urlname: String
     }
 }
 
-struct FetchedContentsData: Codable {
-    let data: ItemData
+struct APIContentsResponse: Codable {
+    let data: APIContentsData
     
-    struct ItemData: Codable {
-        let contents: [Content]
+    struct APIContentsData: Codable {
+        let contents: [APIContentItem]
         let isLastPage: Bool
     }
     
-    struct Content: Codable, Identifiable {
+    struct APIContentItem: Codable, Identifiable {
         let id: Int
         let publishAt: String
     }

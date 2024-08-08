@@ -10,14 +10,14 @@ import WebKit
 
 class NetworkManager: ObservableObject {
     
-    @Published var contents = [FetchedStatsData.Content]()
-    @Published var publishedDateArray = [FetchedContentsData.Content]()
+    @Published var contents = [APIStatsResponse.APIStatsItem]()
+    @Published var publishedDateArray = [APIContentsResponse.APIContentItem]()
     @Published var isAuthenticated = false
     @Published var showAuthWebView = false
     
     private var isLastPage = false
     private var isUpdated = false
-    private let session: URLSession
+    private var session: URLSession
     private var cookies: [HTTPCookie] = []
     
     private let realmManager: RealmManager
@@ -30,11 +30,16 @@ class NetworkManager: ObservableObject {
         let configuration = URLSessionConfiguration.default
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
         self.session = URLSession(configuration: configuration)
         
-        if let cookieData = KeychainManager.load(forKey: "noteCookies"),
-           let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
-            self.cookies = cookies
+        if let cookieData = KeychainManager.load(forKey: "noteCookies") {
+            print("Keychain load successful: \(cookieData)")
+            if let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
+                self.cookies = cookies
+            }
+        } else {
+            print("Keychain load failed")
         }
         
         do {
@@ -42,6 +47,14 @@ class NetworkManager: ObservableObject {
         } catch {
             fatalError("Failed to initialize RealmManager: \(error)")
         }
+    }
+    
+    private func createSession() {
+        let configuration = URLSessionConfiguration.default
+        configuration.httpShouldSetCookies = true
+        configuration.httpCookieAcceptPolicy = .always
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
+        self.session = URLSession(configuration: configuration)
     }
     
     func authenticate() {
@@ -70,11 +83,26 @@ class NetworkManager: ObservableObject {
     //inoutは参照渡しを意味する。関数内で引数の値を変更しても、元の変数の値も変わる。
     private func addCookiesToRequest(_ request: inout URLRequest) {
         let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
-        request.allHTTPHeaderFields = cookieHeaders
+        if let headers = request.allHTTPHeaderFields {
+            request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
+        } else {
+            request.allHTTPHeaderFields = cookieHeaders
+        }
+        
+        let cookiesStorage = HTTPCookieStorage.shared.cookies
+        print("Current cookies: \(String(describing: cookiesStorage))")
+        
+        request.cachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
     }
     
     private func fetchData(url urlString: String) async throws -> Data {
         print(urlString)
+        
+        let configuration = URLSessionConfiguration.default
+        configuration.httpShouldSetCookies = true
+        configuration.httpCookieAcceptPolicy = .always
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
+        self.session = URLSession(configuration: configuration)
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
@@ -94,7 +122,7 @@ class NetworkManager: ObservableObject {
     private func parseStatsJSON(_ data: Data) async throws {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let results = try decoder.decode(FetchedStatsData.self, from: data)
+        let results = try decoder.decode(APIStatsResponse.self, from: data)
         
         await MainActor.run {
             let thisTime = self.stringToDate(results.data.lastCalculateAt)
@@ -122,7 +150,7 @@ class NetworkManager: ObservableObject {
     private func parseContentsJSON(_ data: Data) async throws {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let results = try decoder.decode(FetchedContentsData.self, from: data)
+        let results = try decoder.decode(APIContentsResponse.self, from: data)
         
         await MainActor.run {
             self.publishedDateArray += results.data.contents
@@ -175,6 +203,7 @@ class NetworkManager: ObservableObject {
         }
         
         isUpdated = false
+        session.finishTasksAndInvalidate() //セッションを都度終了させる
     }
     
     func getPublishedDate() async {
@@ -202,6 +231,51 @@ class NetworkManager: ObservableObject {
         print("取得完了, 総アイテム数: \(publishedDateArray.count)")
     }
     
+    //アプリ内のすべてのデータを消去する。Realmはデータベース自体破棄し、Keychainは関連するデータを全て削除する。
+    func clearAllData() {
+        do {
+            try realmManager.deleteAll()
+        } catch {
+            print("Failed to delete all data: \(error)")
+        }
+        
+        let status = KeychainManager.delete(forKey: "noteCookies")
+        if status == errSecSuccess {
+            print("Keychain delete successful")
+        } else {
+            print("Keychain delete failed with status: \(status)")
+        }
+        
+        // HTTPCookieStorageからクッキーを削除
+        if let cookies = HTTPCookieStorage.shared.cookies {
+            for cookie in cookies {
+                print(cookie)
+                HTTPCookieStorage.shared.deleteCookie(cookie)
+            }
+        }
+        
+        // セッションをリセット
+        URLSession.shared.reset {}
+        
+        session.invalidateAndCancel()
+        let configuration = URLSessionConfiguration.default
+        configuration.httpShouldSetCookies = true
+        configuration.httpCookieAcceptPolicy = .always
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        session = URLSession(configuration: configuration)
+        
+        WKProcessPool.shared.reset()
+        cookies.removeAll()
+        
+        // WebViewのCookieをクリア
+        let dataStore = WKWebsiteDataStore.default()
+        dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
+                print("WebView cookies cleared")
+            }
+        }
+
+    }
     
     // レート制限をチェックし、必要に応じて待機する関数
     private func checkRateLimit() async throws {
@@ -228,4 +302,12 @@ class NetworkManager: ObservableObject {
         
         return formatter.date(from: dateString)!
     }
+}
+
+extension WKProcessPool {
+   static var shared = WKProcessPool()
+
+   func reset(){
+       WKProcessPool.shared = WKProcessPool()
+   }
 }

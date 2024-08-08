@@ -14,17 +14,19 @@ struct ChartViewForItem: View {
     let statsType: StatsType
     
     var chartData: [(Date, Int)] {
+        let calendar = Calendar.current
+        
         switch statsType {
         case .view:
-            return item.stats.map { ($0.updatedAt, $0.readCount) }
+            return item.stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.readCount) }
                 .sorted { $0.0 < $1.0 }
             
         case .comment:
-            return item.stats.map { ($0.updatedAt, $0.commentCount) }
+            return item.stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.commentCount) }
                 .sorted { $0.0 < $1.0 }
             
         case .like:
-            return item.stats.map { ($0.updatedAt, $0.likeCount) }
+            return item.stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.likeCount) }
                 .sorted { $0.0 < $1.0 }
         }
     }
@@ -41,38 +43,44 @@ struct ChartViewForItem: View {
     }
     
     var body: some View {
-        Chart {
-            ForEach(chartData, id: \.0) { dataPoint in
-                LineMark(
-                    x: .value("Date", dataPoint.0),
-                    y: .value("Count", dataPoint.1)
-                )
-                .foregroundStyle(lineColor)
-                
-                PointMark(
-                    x: .value("Date", dataPoint.0),
-                    y: .value("Count", dataPoint.1)
-                )
-                .foregroundStyle(lineColor)
-            }
-        }
-        .chartXScale(domain: chartXDomain)
-        .chartXAxis {
-            AxisMarks(preset: .aligned, values: .stride(by: .day)) { value in
-                if let date = value.as(Date.self) {
-                    let isInDataRange = chartData.contains { Calendar.current.isDate($0.0, inSameDayAs: date) }
-                    if isInDataRange {
-                        AxisValueLabel(format: .dateTime.month(.twoDigits).day(.twoDigits))
-                    }
-                    AxisTick()
-                    AxisGridLine()
+        ScrollView(.horizontal) {
+            Chart {
+                ForEach(chartData, id: \.0) { dataPoint in
+                    LineMark(
+                        x: .value("Date", dataPoint.0),
+                        y: .value("Count", dataPoint.1)
+                    )
+                    .foregroundStyle(lineColor)
+                    
+                    PointMark(
+                        x: .value("Date", dataPoint.0),
+                        y: .value("Count", dataPoint.1)
+                    )
+                    .foregroundStyle(lineColor)
                 }
             }
+            .chartXScale(domain: chartXDomain)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day)) { value in
+                    if let date = value.as(Date.self) {
+                        AxisValueLabel {
+                            Text(dateFormatter.string(from: date))
+                                .rotationEffect(.degrees(-90)) // テキストを90度回転
+                                .fixedSize() // テキストの省略を防ぐ
+                                .frame(width: 30) // 必要に応じて幅を調整
+                                .padding(.bottom, 10) // 下部に余白を追加
+                        }
+                        AxisTick()
+                        AxisGridLine()
+                    }
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading)
+            }
+            .chartYScale(domain: chartYDomain)
+            .frame(minWidth: 500) // 最小幅を500に設定
         }
-        .chartYAxis {
-            AxisMarks(position: .leading)
-        }
-        .chartYScale(domain: chartYDomain)
     }
     
     var chartXDomain: ClosedRange<Date> {
@@ -89,5 +97,11 @@ struct ChartViewForItem: View {
         }
         let padding = max(1, (maxCount - minCount) / 10)
         return (minCount - padding)...(maxCount + padding)
+    }
+    
+    var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd"
+        return formatter
     }
 }

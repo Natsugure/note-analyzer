@@ -14,27 +14,26 @@ struct ChartViewForAll: View {
     let statsType: StatsType
     
     var chartData: [(Date, Int)] {
-        let allStats = items.flatMap { $0.stats }
-        let groupedStats = Dictionary(grouping: allStats) { stat in
-            Calendar.current.startOfDay(for: stat.updatedAt)
+        var dataDict: [Date: Int] = [:]
+        let calendar = Calendar.current
+        
+        for item in items {
+            for stat in item.stats {
+                let date = calendar.startOfDay(for: stat.updatedAt) // 日付のみを使用
+                let value: Int
+                switch statsType {
+                case .view:
+                    value = stat.readCount
+                case .comment:
+                    value = stat.commentCount
+                case .like:
+                    value = stat.likeCount
+                }
+                dataDict[date, default: 0] += value
+            }
         }
         
-        let sortedStats = groupedStats.map { (date, stats) in
-            switch statsType {
-            case .view:
-                let totalReadCount = stats.reduce(0) { $0 + $1.readCount }
-                return (date, totalReadCount)
-            case .comment:
-                let totalCommentCount = stats.reduce(0) { $0 + $1.commentCount }
-                return (date, totalCommentCount)
-            case .like:
-                let totalLikeCount = stats.reduce(0) { $0 + $1.likeCount }
-                return (date, totalLikeCount)
-            }
-        }.sorted { $0.0 < $1.0 }
-        
-        // 直近7データ分に絞る
-        return Array(sortedStats.suffix(7))
+        return dataDict.sorted { $0.key < $1.key }
     }
     
     var lineColor: Color {
@@ -49,35 +48,46 @@ struct ChartViewForAll: View {
     }
     
     var body: some View {
-        Chart {
-            ForEach(chartData, id: \.0) { dataPoint in
-                LineMark(
-                    x: .value("Date", dataPoint.0),
-                    y: .value("Total Count", dataPoint.1)
-                )
-                .foregroundStyle(lineColor)
-                
-                PointMark(
-                    x: .value("Date", dataPoint.0),
-                    y: .value("Total Count", dataPoint.1)
-                )
-                .foregroundStyle(lineColor)
-            }
-        }
-        .chartXScale(domain: chartXDomain)
-        .chartXAxis {
-            AxisMarks(values: chartData.map { $0.0 }) { value in
-                if let date = value.as(Date.self) {
-                    AxisValueLabel(format: .dateTime.month(.twoDigits).day(.twoDigits))
-                    AxisTick()
-                    AxisGridLine()
+        ScrollView(.horizontal) {
+            Chart {
+                ForEach(chartData, id: \.0) { dataPoint in
+                    LineMark(
+                        x: .value("Date", dataPoint.0),
+                        y: .value("Count", dataPoint.1)
+                    )
+                    .foregroundStyle(lineColor)
+                    
+                    PointMark(
+                        x: .value("Date", dataPoint.0),
+                        y: .value("Count", dataPoint.1)
+                    )
+                    .foregroundStyle(lineColor)
                 }
             }
+            .chartXScale(domain: chartXDomain)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day)) { value in
+                    if let date = value.as(Date.self) {
+                        AxisValueLabel {
+                            Text(dateFormatter.string(from: date))
+                                .rotationEffect(.degrees(-90)) // テキストを90度回転
+                                .fixedSize()
+                                .frame(width: 30) // 必要に応じて幅を調整
+                                .padding(.bottom, 10)
+                        }
+                        AxisTick()
+                        AxisGridLine()
+                    }
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading)
+            }
+            .chartYScale(domain: chartYDomain)
+            .frame(minWidth: 500) // 最小幅を500に設定
+            .padding(.trailing, 10)
+            .padding(.top, 10)
         }
-        .chartYAxis {
-            AxisMarks(position: .leading)
-        }
-        .chartYScale(domain: chartYDomain)
     }
     
     var chartXDomain: ClosedRange<Date> {
@@ -95,8 +105,10 @@ struct ChartViewForAll: View {
         let padding = max(1, (maxCount - minCount) / 10)
         return (minCount - padding)...(maxCount + padding)
     }
+    
+    var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd"
+        return formatter
+    }
 }
-
-//#Preview {
-//    ChartView()
-//}

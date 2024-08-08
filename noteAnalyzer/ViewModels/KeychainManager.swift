@@ -33,4 +33,13 @@ class KeychainManager {
         
         return (status == errSecSuccess) ? (result as? Data) : nil
     }
+    
+    static func delete(forKey key: String) -> OSStatus {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key
+        ]
+        
+        return SecItemDelete(query as CFDictionary)
+    }
 }

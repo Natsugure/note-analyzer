@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         do {
             _ = try Realm()
-            print(Realm.Configuration.defaultConfiguration.fileURL!)
+//            print(Realm.Configuration.defaultConfiguration.fileURL!)
         } catch {
             fatalError("Error initializing new realm: \(error)")
         }

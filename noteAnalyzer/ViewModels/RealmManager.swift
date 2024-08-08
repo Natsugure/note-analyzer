@@ -15,7 +15,7 @@ class RealmManager {
         realm = try Realm()
     }
     
-    func updateStats(stats: [FetchedStatsData.Content], publishedDate: [FetchedContentsData.Content]) throws {
+    func updateStats(stats: [APIStatsResponse.APIStatsItem], publishedDate: [APIContentsResponse.APIContentItem]) throws {
         let updateDateTime = Date()
         
         try realm.write {
@@ -30,12 +30,12 @@ class RealmManager {
         print("Stats saved to Realm")
     }
     
-    private func updateExistingItem(_ item: Item, with stat: FetchedStatsData.Content, at date: Date) throws {
+    private func updateExistingItem(_ item: Item, with stat: APIStatsResponse.APIStatsItem, at date: Date) throws {
         let newStats = createStats(from: stat, at: date)
         item.stats.append(newStats)
     }
     
-    private func createNewItem(from stat: FetchedStatsData.Content, publishedDate: [FetchedContentsData.Content], at date: Date) throws {
+    private func createNewItem(from stat: APIStatsResponse.APIStatsItem, publishedDate: [APIContentsResponse.APIContentItem], at date: Date) throws {
         let newItem = Item()
         newItem.id = stat.id
         newItem.title = stat.type == .talk ? stat.body ?? "" : stat.name ?? "（不明なタイトル）"
@@ -59,7 +59,7 @@ class RealmManager {
         realm.add(newItem)
     }
     
-    private func createStats(from stat: FetchedStatsData.Content, at date: Date) -> Stats {
+    private func createStats(from stat: APIStatsResponse.APIStatsItem, at date: Date) -> Stats {
         let newStats = Stats()
         newStats.updatedAt = date
         newStats.readCount = stat.readCount
@@ -68,10 +68,17 @@ class RealmManager {
         return newStats
     }
     
+    func deleteAll() throws {
+        try realm.write {
+            realm.deleteAll()
+        }
+    }
+    
     func getItems() -> Results<Item>? {
         return realm.objects(Item.self)
     }
 }
+    
 
 enum RealmError: Error {
     case publishedDateNotFound
