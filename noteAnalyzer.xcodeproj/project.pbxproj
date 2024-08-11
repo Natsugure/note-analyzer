@@ -12,7 +12,6 @@
 		1A06C8FA2C62229A00838DD5 /* MarkdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A06C8F92C62229A00838DD5 /* MarkdownView.swift */; };
 		1A06C8FD2C6224BC00838DD5 /* term_of_service.md in Resources */ = {isa = PBXBuildFile; fileRef = 1A06C8FB2C6224BC00838DD5 /* term_of_service.md */; };
 		1A06C8FE2C6224BC00838DD5 /* privacy_policy.md in Resources */ = {isa = PBXBuildFile; fileRef = 1A06C8FC2C6224BC00838DD5 /* privacy_policy.md */; };
-		1A06C9012C62277600838DD5 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = 1A06C9002C62277600838DD5 /* Markdown */; };
 		1A25C67F2C4770C400403215 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A25C67E2C4770C400403215 /* KeychainManager.swift */; };
 		1A2AC3AC2C5496DC0046C921 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3AB2C5496DC0046C921 /* Constants.swift */; };
 		1A2AC3B92C55CEFC0046C921 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3B82C55CEFC0046C921 /* ArticleDetailView.swift */; };
@@ -81,7 +80,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AE3CA362C3A2D4700C30A89 /* RealmSwift in Frameworks */,
-				1A06C9012C62277600838DD5 /* Markdown in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,7 +183,6 @@
 			name = noteAnalyzer;
 			packageProductDependencies = (
 				1AE3CA352C3A2D4700C30A89 /* RealmSwift */,
-				1A06C9002C62277600838DD5 /* Markdown */,
 			);
 			productName = noteAnalyzer;
 			productReference = 1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */;
@@ -217,8 +214,6 @@
 			mainGroup = 1AE3CA182C3A26D600C30A89;
 			packageReferences = (
 				1AE3CA322C3A2D4700C30A89 /* XCRemoteSwiftPackageReference "realm-swift" */,
-				1AE3CA4C2C43A86400C30A89 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				1A06C8FF2C62277600838DD5 /* XCRemoteSwiftPackageReference "swift-markdown" */,
 			);
 			productRefGroup = 1AE3CA222C3A26D600C30A89 /* Products */;
 			projectDirPath = "";
@@ -475,14 +470,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1A06C8FF2C62277600838DD5 /* XCRemoteSwiftPackageReference "swift-markdown" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/swiftlang/swift-markdown.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
-			};
-		};
 		1AE3CA322C3A2D4700C30A89 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
@@ -491,22 +478,9 @@
 				kind = branch;
 			};
 		};
-		1AE3CA4C2C43A86400C30A89 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.9.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1A06C9002C62277600838DD5 /* Markdown */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1A06C8FF2C62277600838DD5 /* XCRemoteSwiftPackageReference "swift-markdown" */;
-			productName = Markdown;
-		};
 		1AE3CA352C3A2D4700C30A89 /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1AE3CA322C3A2D4700C30A89 /* XCRemoteSwiftPackageReference "realm-swift" */;
