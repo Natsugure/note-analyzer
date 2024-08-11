@@ -27,7 +27,7 @@ class NetworkManager: ObservableObject {
     private var requestTimestamps: [Date] = [] // リクエストのタイムスタンプを格納する配列
     
     init() {
-        let configuration = URLSessionConfiguration.default
+        let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
@@ -85,6 +85,7 @@ class NetworkManager: ObservableObject {
         let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
         if let headers = request.allHTTPHeaderFields {
             request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
+            print(headers)
         } else {
             request.allHTTPHeaderFields = cookieHeaders
         }
@@ -102,7 +103,7 @@ class NetworkManager: ObservableObject {
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
-        self.session = URLSession(configuration: configuration)
+        self.session = URLSession(configuration: .ephemeral)
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
@@ -113,6 +114,8 @@ class NetworkManager: ObservableObject {
         
         var request = URLRequest(url: url)
         addCookiesToRequest(&request)
+        
+        
         
         let (data, _) = try await session.data(for: request)
         
@@ -168,6 +171,7 @@ class NetworkManager: ObservableObject {
             
             do {
                 let fetchedData = try await fetchData(url: urlString)
+                print(fetchedData)
                 try await parseStatsJSON(fetchedData)
                 
                 if page == 1 && !isUpdated {
@@ -204,6 +208,11 @@ class NetworkManager: ObservableObject {
         
         isUpdated = false
         session.finishTasksAndInvalidate() //セッションを都度終了させる
+        
+        DispatchQueue.main.async {
+            self.contents.removeAll()
+            self.publishedDateArray.removeAll()
+        }
     }
     
     func getPublishedDate() async {
@@ -249,21 +258,26 @@ class NetworkManager: ObservableObject {
         // HTTPCookieStorageからクッキーを削除
         if let cookies = HTTPCookieStorage.shared.cookies {
             for cookie in cookies {
-                print(cookie)
+                print("before delete: \(cookie)")
                 HTTPCookieStorage.shared.deleteCookie(cookie)
             }
+
         }
         
-        // セッションをリセット
-        URLSession.shared.reset {}
-        
-        session.invalidateAndCancel()
-        let configuration = URLSessionConfiguration.default
-        configuration.httpShouldSetCookies = true
-        configuration.httpCookieAcceptPolicy = .always
-        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
-        session = URLSession(configuration: configuration)
-        
+        URLSession.shared.reset {
+            DispatchQueue.main.async {
+                //セッションを再設定
+                self.session.invalidateAndCancel()
+                self.session.configuration.urlCache?.removeAllCachedResponses()
+                URLCache.shared.removeAllCachedResponses() //キャッシュをすべて削除
+                let configuration = URLSessionConfiguration.ephemeral
+                configuration.httpShouldSetCookies = true
+                configuration.httpCookieAcceptPolicy = .never
+                configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+                self.session = URLSession(configuration: configuration)
+            }
+        } //セッションをクリア
+
         WKProcessPool.shared.reset()
         cookies.removeAll()
         
@@ -272,8 +286,22 @@ class NetworkManager: ObservableObject {
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
             dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
                 print("WebView cookies cleared")
+                
+                // セッションの再設定をここで行う
+                DispatchQueue.main.async {
+                    let configuration = URLSessionConfiguration.ephemeral
+                    configuration.httpShouldSetCookies = true
+                    configuration.httpCookieAcceptPolicy = .always
+                    configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+                    self.session = URLSession(configuration: configuration)
+                }
             }
         }
+        
+        UserDefaults.standard.set("1970/1/1 00:00", forKey: "lastCalculateAt")
+        
+        print("after delete: \(HTTPCookieStorage.shared.cookies ?? [])")
+        print(cookies)
 
     }
     
