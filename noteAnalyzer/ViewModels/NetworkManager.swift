@@ -33,6 +33,7 @@ class NetworkManager: ObservableObject {
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
         self.session = URLSession(configuration: configuration)
         
+        // KeychainからCookieを読み込む
         if let cookieData = KeychainManager.load(forKey: "noteCookies") {
             print("Keychain load successful: \(cookieData)")
             if let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
@@ -47,14 +48,6 @@ class NetworkManager: ObservableObject {
         } catch {
             fatalError("Failed to initialize RealmManager: \(error)")
         }
-    }
-    
-    private func createSession() {
-        let configuration = URLSessionConfiguration.default
-        configuration.httpShouldSetCookies = true
-        configuration.httpCookieAcceptPolicy = .always
-        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
-        self.session = URLSession(configuration: configuration)
     }
     
     func authenticate() {
@@ -85,26 +78,14 @@ class NetworkManager: ObservableObject {
         let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
         if let headers = request.allHTTPHeaderFields {
             request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
-            print(headers)
         } else {
             request.allHTTPHeaderFields = cookieHeaders
         }
-        
-        let cookiesStorage = HTTPCookieStorage.shared.cookies
-        print("Current cookies: \(String(describing: cookiesStorage))")
-        
-        request.cachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
     }
     
     private func fetchData(url urlString: String) async throws -> Data {
         print(urlString)
-        
-        let configuration = URLSessionConfiguration.default
-        configuration.httpShouldSetCookies = true
-        configuration.httpCookieAcceptPolicy = .always
-        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
-        self.session = URLSession(configuration: .ephemeral)
-        
+
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
@@ -113,9 +94,9 @@ class NetworkManager: ObservableObject {
         try await checkRateLimit()
         
         var request = URLRequest(url: url)
+        request.allHTTPHeaderFields = nil
+        request.cachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
         addCookiesToRequest(&request)
-        
-        
         
         let (data, _) = try await session.data(for: request)
         
@@ -131,6 +112,7 @@ class NetworkManager: ObservableObject {
             let thisTime = self.stringToDate(results.data.lastCalculateAt)
             let lastTime = self.stringToDate(UserDefaults.standard.string(forKey: "lastCalculateAt")!)
             
+            // lastCalculateAtがUSerDefaultsに保存されている値よりも古い場合、更新されていないと判断
             if thisTime <= lastTime {
                 self.isUpdated = false
                 return
@@ -171,7 +153,6 @@ class NetworkManager: ObservableObject {
             
             do {
                 let fetchedData = try await fetchData(url: urlString)
-                print(fetchedData)
                 try await parseStatsJSON(fetchedData)
                 
                 if page == 1 && !isUpdated {
@@ -207,7 +188,6 @@ class NetworkManager: ObservableObject {
         }
         
         isUpdated = false
-        session.finishTasksAndInvalidate() //セッションを都度終了させる
         
         DispatchQueue.main.async {
             self.contents.removeAll()
@@ -217,7 +197,7 @@ class NetworkManager: ObservableObject {
     
     func getPublishedDate() async {
         let maxLoopCount = 200
-        let urlName = UserDefaults.standard.string(forKey: "urlname")!
+        let urlName = UserDefaults.standard.string(forKey: "urlname") ?? "（不明なユーザー名）"
         for page in 1...maxLoopCount {
             let urlString = "https://note.com/api/v2/creators/\(urlName)/contents?kind=note&page=\(page)"
             
@@ -240,69 +220,56 @@ class NetworkManager: ObservableObject {
         print("取得完了, 総アイテム数: \(publishedDateArray.count)")
     }
     
-    //アプリ内のすべてのデータを消去する。Realmはデータベース自体破棄し、Keychainは関連するデータを全て削除する。
-    func clearAllData() {
-        do {
-            try realmManager.deleteAll()
-        } catch {
-            print("Failed to delete all data: \(error)")
-        }
-        
-        let status = KeychainManager.delete(forKey: "noteCookies")
-        if status == errSecSuccess {
-            print("Keychain delete successful")
-        } else {
-            print("Keychain delete failed with status: \(status)")
-        }
-        
-        // HTTPCookieStorageからクッキーを削除
-        if let cookies = HTTPCookieStorage.shared.cookies {
-            for cookie in cookies {
-                print("before delete: \(cookie)")
-                HTTPCookieStorage.shared.deleteCookie(cookie)
+    //アプリ内のすべてのデータを消去する。Realmはデータベース自体破棄し、KeychainやURLSession、UserDefaultsから関連するデータを全て削除する。
+    func clearAllData() async {
+        await MainActor.run {
+            do {
+                try realmManager.deleteAll()
+            } catch {
+                print("Failed to delete all data: \(error)")
             }
-
-        }
-        
-        URLSession.shared.reset {
-            DispatchQueue.main.async {
-                //セッションを再設定
-                self.session.invalidateAndCancel()
-                self.session.configuration.urlCache?.removeAllCachedResponses()
-                URLCache.shared.removeAllCachedResponses() //キャッシュをすべて削除
-                let configuration = URLSessionConfiguration.ephemeral
-                configuration.httpShouldSetCookies = true
-                configuration.httpCookieAcceptPolicy = .never
-                configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
-                self.session = URLSession(configuration: configuration)
+            
+            let status = KeychainManager.delete(forKey: "noteCookies")
+            if status == errSecSuccess {
+                print("Keychain delete successful")
+            } else {
+                print("Keychain delete failed with status: \(status)")
             }
-        } //セッションをクリア
-
-        WKProcessPool.shared.reset()
-        cookies.removeAll()
-        
-        // WebViewのCookieをクリア
-        let dataStore = WKWebsiteDataStore.default()
-        dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
-                print("WebView cookies cleared")
-                
-                // セッションの再設定をここで行う
+            
+            // HTTPCookieStorageからクッキーを削除
+            if let cookies = HTTPCookieStorage.shared.cookies {
+                for cookie in cookies {
+                    print("before delete: \(cookie)")
+                    HTTPCookieStorage.shared.deleteCookie(cookie)
+                }
+            }
+            cookies.removeAll()
+            
+            // URLSessionをリセットして、URLSessionConfigurationを再定義
+            URLSession.shared.reset {
                 DispatchQueue.main.async {
                     let configuration = URLSessionConfiguration.ephemeral
                     configuration.httpShouldSetCookies = true
                     configuration.httpCookieAcceptPolicy = .always
-                    configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+                    configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
                     self.session = URLSession(configuration: configuration)
                 }
             }
+            
+            // WebViewのCookieとキャッシュをクリア
+            WKProcessPool.shared.reset()
+            
+            let dataStore = WKWebsiteDataStore.default()
+            dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+                dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
+                    print("WebView cookies cleared")
+                }
+            }
+            
+            // UserDefaultsをリセット
+            UserDefaults.standard.set("1970/1/1 00:00", forKey: "lastCalculateAt")
+            UserDefaults.standard.set("", forKey: "urlname")
         }
-        
-        UserDefaults.standard.set("1970/1/1 00:00", forKey: "lastCalculateAt")
-        
-        print("after delete: \(HTTPCookieStorage.shared.cookies ?? [])")
-        print(cookies)
-
     }
     
     // レート制限をチェックし、必要に応じて待機する関数
