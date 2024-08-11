@@ -12,10 +12,12 @@ import RealmSwift
 struct noteAnalyzerApp: SwiftUI.App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject var networkManager = NetworkManager()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(networkManager)
         }
     }
 }

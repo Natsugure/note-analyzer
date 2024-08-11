@@ -9,7 +9,7 @@ import SwiftUI
 import RealmSwift
 
 struct SettingsView: View {
-    @ObservedObject var networkManager = NetworkManager()
+    @EnvironmentObject var networkManager: NetworkManager
     @State var path = NavigationPath()
     
     var body: some View {
@@ -20,14 +20,16 @@ struct SettingsView: View {
                     NavigationLink("プライバシーポリシー", destination: MarkdownView(filename: "privacy_policy"))
                 }
                 Section {
+//                    Button(action: {
+//                        //                        networkManager.logout()
+//                    }) {
+//                        Text("ログアウト")
+//                            .foregroundColor(.red)
+//                    }
                     Button(action: {
-                        //                        networkManager.logout()
-                    }) {
-                        Text("ログアウト")
-                            .foregroundColor(.red)
-                    }
-                    Button(action: {
-                        networkManager.clearAllData()
+                        Task {
+                            await networkManager.clearAllData()
+                        }
                     }) {
                         Text("すべてのデータを消去")
                             .foregroundColor(.red)
@@ -46,4 +48,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environmentObject(NetworkManager())
 }

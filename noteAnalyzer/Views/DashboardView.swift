@@ -15,14 +15,13 @@ enum StatsType {
 }
 
 struct DashboardView: View {
-    @ObservedObject var networkManager = NetworkManager()
+    @EnvironmentObject var networkManager: NetworkManager
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
     @State private var selection: StatsType = .view
     @State private var sortType: SortType = .view
 
-    
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
@@ -100,7 +99,6 @@ struct DashboardView: View {
                     //フィルターボタン
                     ToolbarItem(placement: .topBarLeading) {
                         Button(action: {
-                            
                         }) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                         }
@@ -164,4 +162,5 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView()
+        .environmentObject(NetworkManager())
 }
