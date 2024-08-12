@@ -108,7 +108,6 @@
 			children = (
 				1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */,
 				1AE3CA382C3A2D5B00C30A89 /* Models */,
-				1AE3CA3B2C3A352600C30A89 /* ViewModels */,
 				1AE3CA372C3A2D5000C30A89 /* Views */,
 				1AE3CA282C3A26D700C30A89 /* Assets.xcassets */,
 				1AE3CA2A2C3A26D700C30A89 /* Preview Content */,
@@ -150,18 +149,11 @@
 			children = (
 				1AE3CA462C3B649500C30A89 /* APIResponses.swift */,
 				1AE3CA3E2C3A35BC00C30A89 /* RealmModel.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		1AE3CA3B2C3A352600C30A89 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
 				1A25C67E2C4770C400403215 /* KeychainManager.swift */,
 				1AE3CA442C3B63CA00C30A89 /* NetworkManager.swift */,
 				1AC95B262C4CC26A0049E6AA /* RealmManager.swift */,
 			);
-			path = ViewModels;
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
