@@ -12,7 +12,7 @@ noteAnalyzerは、noteというブログサイトから各記事のアクセス�
 
 ## インストール
 
-1. Xcodeで以下のこのリポジトリをクローンします。
+1. XcodeでこのリポジトリをCloneします。
 ```
 https://github.com/Natsugure/note-analyzer.git
 ```
