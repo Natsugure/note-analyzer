@@ -12,10 +12,10 @@ class NetworkService: ObservableObject {
     private let realmManager: RealmManager
     private let authManager: AuthenticationManager
     
-    @Published var contents = [APIStatsResponse.APIStatsItem]()
-    @Published var publishedDateArray = [APIContentsResponse.APIContentItem]()
-    @Published var isAuthenticated = false
-    @Published var showAuthWebView = false
+//    @Published var contents = [APIStatsResponse.APIStatsItem]()
+//    @Published var publishedDateArray = [APIContentsResponse.APIContentItem]()
+//    @Published var isAuthenticated = false
+//    @Published var showAuthWebView = false
     
     private var isLastPage = false
     private var isUpdated = false
@@ -96,6 +96,8 @@ class NetworkService: ObservableObject {
     
     //inoutは参照渡しを意味する。関数内で引数の値を変更しても、元の変数の値も変わる。
     private func addCookiesToRequest(_ request: inout URLRequest) {
+        let cookies = authManager.getCookies()
+        
         let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
         if let headers = request.allHTTPHeaderFields {
             request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
