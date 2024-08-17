@@ -12,27 +12,28 @@ import RealmSwift
 struct noteAnalyzerApp: SwiftUI.App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject var networkManager = NetworkManager()
+    @StateObject var viewModel: NoteViewModel
+    
+    init() {
+        let authManager = AuthenticationManager()
+        let networkService = NetworkService(authManager: authManager)
+        let realmManager = RealmManager()
+        
+        _viewModel = StateObject(wrappedValue: NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(networkManager)
+                .environmentObject(viewModel)
         }
     }
 }
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
-        migration()
-        
-        do {
-            _ = try Realm()
-//            print(Realm.Configuration.defaultConfiguration.fileURL!)
-        } catch {
-            fatalError("Error initializing new realm: \(error)")
-        }
-        
+        setupRealm()
+
         UserDefaults.standard.register(defaults: ["lastCalculateAt" : "1970/1/1 00:00"])
         UserDefaults.standard.register(defaults: ["urlname" : ""])
         
@@ -40,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     
-    func migration() {
+    func setupRealm() {
         // マイグレーションの設定
         let config = Realm.Configuration(
             schemaVersion: 2, // スキーマバージョンをインクリメント
@@ -57,8 +58,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         )
-
         // Realmのデフォルト設定を更新
         Realm.Configuration.defaultConfiguration = config
+        
+        do {
+            _ = try Realm()
+//            print(Realm.Configuration.defaultConfiguration.fileURL!)
+        } catch {
+            fatalError("Error initializing new realm: \(error)")
+        }
+        
     }
 }

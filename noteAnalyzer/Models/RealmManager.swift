@@ -9,21 +9,36 @@ import Foundation
 import RealmSwift
 
 class RealmManager {
-    private let realm: Realm
+    private var realm: Realm?
     
-    init() throws {
-        realm = try Realm()
-    }
+//    init() throws {
+//        realm = try Realm()
+//    }
+    
+    private func getRealm() throws -> Realm {
+         if let realm = self.realm {
+             return realm
+         } else {
+             do {
+                 let realm = try Realm()
+                 self.realm = realm
+                 return realm
+             } catch {
+                 fatalError("Failed to initialize Realm on RealmManager: \(error)")
+             }
+         }
+     }
     
     func updateStats(stats: [APIStatsResponse.APIStatsItem], publishedDate: [APIContentsResponse.APIContentItem]) throws {
         let updateDateTime = Date()
+        let realm = try getRealm()
         
         try realm.write {
             for stat in stats {
                 if let existingItem = realm.object(ofType: Item.self, forPrimaryKey: stat.id) {
                     try updateExistingItem(existingItem, with: stat, at: updateDateTime)
                 } else {
-                    try createNewItem(from: stat, publishedDate: publishedDate, at: updateDateTime)
+                    try createNewItem(in: realm, from: stat, publishedDate: publishedDate, at: updateDateTime)
                 }
             }
         }
@@ -35,7 +50,7 @@ class RealmManager {
         item.stats.append(newStats)
     }
     
-    private func createNewItem(from stat: APIStatsResponse.APIStatsItem, publishedDate: [APIContentsResponse.APIContentItem], at date: Date) throws {
+    private func createNewItem(in realm: Realm, from stat: APIStatsResponse.APIStatsItem, publishedDate: [APIContentsResponse.APIContentItem], at date: Date) throws {
         let newItem = Item()
         newItem.id = stat.id
         newItem.title = stat.type == .talk ? stat.body ?? "" : stat.name ?? "（不明なタイトル）"
@@ -69,14 +84,15 @@ class RealmManager {
     }
     
     func deleteAll() throws {
+        let realm = try getRealm()
         try realm.write {
             realm.deleteAll()
         }
     }
     
-    func getItems() -> Results<Item>? {
-        return realm.objects(Item.self)
-    }
+//    func getItems() -> Results<Item>? {
+//        return realm.objects(Item.self)
+//    }
 }
     
 

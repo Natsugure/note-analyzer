@@ -15,7 +15,7 @@ enum StatsType {
 }
 
 struct DashboardView: View {
-    @EnvironmentObject var networkManager: NetworkManager
+    @EnvironmentObject var viewModel: NoteViewModel
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
@@ -108,7 +108,7 @@ struct DashboardView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             Task {
-                                await networkManager.getStats()
+                                await viewModel.getStats()
                             }
                         }) {
                             Image(systemName: "arrow.counterclockwise")
@@ -160,7 +160,11 @@ struct DashboardView: View {
 }
     
 
-#Preview {
-    DashboardView()
-        .environmentObject(NetworkManager())
-}
+//#Preview {
+//    let authManager = AuthenticationManager()
+//    let networkService = NetworkService(authManager: authManager)
+//    let realmManager = RealmManager()
+//    
+//    DashboardView()
+//        .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//}

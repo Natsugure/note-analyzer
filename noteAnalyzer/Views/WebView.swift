@@ -12,8 +12,7 @@ struct WebView: UIViewRepresentable {
     typealias UIViewType = WKWebView
     
     @Binding var isPresented: Bool
-    @ObservedObject var networkManager: NetworkManager
-    
+    var viewModel: NoteViewModel
     let urlString: String?
     private let observable = WebViewURLObservable()
     
@@ -51,7 +50,7 @@ extension WebView {
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             if webView.url?.absoluteString == "https://note.com/" {
-                parent.networkManager.checkAuthentication(webView: webView)
+                parent.viewModel.checkAuthentication(webView: webView)
             }
         }
     }

@@ -9,11 +9,11 @@ import SwiftUI
 
 struct OnboardingView: View {
     @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
-    @ObservedObject var networkManager = NetworkManager()
+    @EnvironmentObject var viewModel: NoteViewModel
     
     var body: some View {
         VStack {
-            if networkManager.isAuthenticated {
+            if viewModel.isAuthenticated {
                 MainView()
             } else {
                 Text("noteAnalyzer")
@@ -31,19 +31,19 @@ struct OnboardingView: View {
                     .padding(.horizontal)
                 
                 Button("ログイン画面を開く") {
-                    networkManager.authenticate()
+                    viewModel.authenticate()
                 }
                 .frame(maxWidth: .infinity, minHeight: 50)
                 .background(Color.blue)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
                 .padding()
-                .sheet(isPresented: $networkManager.showAuthWebView) {
-                    WebView(isPresented: $networkManager.isAuthenticated, networkManager: networkManager, urlString: "https://note.com/login")
+                .sheet(isPresented: $viewModel.showAuthWebView) {
+                    WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
                 }
             }
         }
-        .onChange(of: networkManager.isAuthenticated) { newValue in
+        .onChange(of: viewModel.isAuthenticated) { newValue in
             if newValue {
                 isFirstLaunch = false
             }
@@ -51,6 +51,11 @@ struct OnboardingView: View {
     }
 }
 
-#Preview {
-    OnboardingView()
-}
+//#Preview {
+//    let authManager = AuthenticationManager()
+//    let networkService = NetworkService(authManager: authManager)
+//    let realmManager = RealmManager()
+//    
+//    OnboardingView()
+//        .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//}

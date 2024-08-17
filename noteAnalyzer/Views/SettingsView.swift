@@ -9,7 +9,7 @@ import SwiftUI
 import RealmSwift
 
 struct SettingsView: View {
-    @EnvironmentObject var networkManager: NetworkManager
+    @EnvironmentObject var viewModel: NoteViewModel
     @State var path = NavigationPath()
     
     var body: some View {
@@ -28,7 +28,7 @@ struct SettingsView: View {
 //                    }
                     Button(action: {
                         Task {
-                            await networkManager.clearAllData()
+                            await viewModel.clearAllData()
                         }
                     }) {
                         Text("すべてのデータを消去")
@@ -36,10 +36,10 @@ struct SettingsView: View {
                     }
                 }
                         Button("ログイン") {
-                            networkManager.authenticate()
+                            viewModel.authenticate()
                         }
-                        .sheet(isPresented: $networkManager.showAuthWebView) {
-                            WebView(isPresented: $networkManager.isAuthenticated, networkManager: networkManager, urlString: "https://note.com/login")
+                        .sheet(isPresented: $viewModel.showAuthWebView) {
+                            WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
                         }
             }
         }
@@ -48,5 +48,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(NetworkManager())
+//        .environmentObject(NetworkService())
 }
