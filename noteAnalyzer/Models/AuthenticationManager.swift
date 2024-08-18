@@ -10,6 +10,11 @@ import WebKit
 import Security
 import Combine
 
+enum KeychainError: Error {
+    case unexpectedStatus(OSStatus)
+    case unhandledError(Error)
+}
+
 class AuthenticationManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var showAuthWebView = false
@@ -57,18 +62,42 @@ class AuthenticationManager: ObservableObject {
         }
     }
     
+    private func deleteKeychainItem(forKey key: String) throws {
+        let status = KeychainManager.delete(forKey: key)
+        guard status == errSecSuccess else {
+            throw KeychainError.unexpectedStatus(status)
+        }
+    }
+    
     func getCookies() -> [HTTPCookie] {
         return cookies
     }
     
-    func clearAuthentication() {
+    func clearAuthentication() throws {
         cookies.removeAll()
         isAuthenticated = false
         
-        let status = KeychainManager.delete(forKey: "noteCookies")
-        if status == errSecSuccess {
+        do {
+            try deleteKeychainItem(forKey: "noteCookies")
             print("Keychain delete successful")
-        } else {
+        } catch KeychainError.unexpectedStatus(let status) {
+            handleKeychainError(status: status)
+            throw KeychainError.unexpectedStatus(status)
+        } catch {
+            print("Unexpected error: \(error.localizedDescription)")
+            throw KeychainError.unhandledError(error)
+        }
+    }
+    
+    private func handleKeychainError(status: OSStatus) {
+        switch status {
+        case errSecItemNotFound:
+            print("Keychain item not found. It may have been already deleted.")
+        case errSecDuplicateItem:
+            print("Duplicate item found in Keychain.")
+        case errSecAuthFailed:
+            print("Authentication failed. Check Keychain access permissions.")
+        default:
             print("Keychain delete failed with status: \(status)")
         }
     }

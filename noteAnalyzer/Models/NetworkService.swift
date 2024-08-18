@@ -94,7 +94,6 @@ class NetworkService: ObservableObject {
         return data
     }
     
-    //inoutは参照渡しを意味する。関数内で引数の値を変更しても、元の変数の値も変わる。
     private func addCookiesToRequest(_ request: inout URLRequest) {
         let cookies = authManager.getCookies()
         
@@ -106,169 +105,36 @@ class NetworkService: ObservableObject {
         }
     }
     
-//    private func parseStatsJSON(_ data: Data) async throws {
-//        let decoder = JSONDecoder()
-//        decoder.keyDecodingStrategy = .convertFromSnakeCase
-//        let results = try decoder.decode(APIStatsResponse.self, from: data)
-//        
-//        await MainActor.run {
-//            let thisTime = self.stringToDate(results.data.lastCalculateAt)
-//            let lastTime = self.stringToDate(UserDefaults.standard.string(forKey: "lastCalculateAt")!)
-//            
-//            // lastCalculateAtがUserDefaultsに保存されている値よりも古い場合、更新されていないと判断
-//            if thisTime <= lastTime {
-//                self.isUpdated = false
-//                return
-//            } else {
-//                self.isUpdated = true
-//                self.contents += results.data.noteStats
-//                self.isLastPage = results.data.lastPage
-//                
-//                if self.isLastPage {
-//                    UserDefaults.standard.set(results.data.lastCalculateAt, forKey: "lastCalculateAt")
-//                    UserDefaults.standard.set(self.contents[0].user.urlname, forKey: "urlname")
-//                }
-//            }
-//        }
-//    }
-    
-//    private func parseContentsJSON(_ data: Data) async throws {
-//        let decoder = JSONDecoder()
-//        decoder.keyDecodingStrategy = .convertFromSnakeCase
-//        let results = try decoder.decode(APIContentsResponse.self, from: data)
-//        
-//        await MainActor.run {
-//            self.publishedDateArray += results.data.contents
-//            self.isLastPage = results.data.isLastPage
-//        }
-//        
-//        // リクエストのタイムスタンプを記録
-//        requestTimestamps.append(Date())
-//    }
-    
-//    func getStats() async {
-//        let maxLoopCount = 100
-//        for page in 1...maxLoopCount {
-//            let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
-//            
-//            do {
-//                let fetchedData = try await fetchData(url: urlString)
-//                try await parseStatsJSON(fetchedData)
-//                
-//                if page == 1 && !isUpdated {
-//                    print("更新されていません")
-//                    break
-//                }
-//                
-//                if isLastPage {
-//                    print("最後のページに到達しました - 総ページ数: \(page)")
-//                    break
-//                }
-//                
-//                // リクエスト間に1秒の遅延を追加
-//                try await Task.sleep(nanoseconds: 1_000_000_000)
-//            } catch {
-//                print("Error: \(error)")
-//                break
-//            }
-//        }
-//
-//        if isUpdated {
-//            print("取得完了, 総アイテム数: \(contents.count)")
-//            
-//            await getPublishedDate()
-//            
-//            await MainActor.run {
-//                do {
-//                     try realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
-//                } catch {
-//                    print(error)
-//                }
-//            }
-//        }
-//        
-//        isUpdated = false
-//        
-//        DispatchQueue.main.async {
-//            self.contents.removeAll()
-//            self.publishedDateArray.removeAll()
-//        }
-//    }
-    
-//    func getPublishedDate() async {
-//        let maxLoopCount = 200
-//        let urlName = UserDefaults.standard.string(forKey: "urlname") ?? "（不明なユーザー名）"
-//        for page in 1...maxLoopCount {
-//            let urlString = "https://note.com/api/v2/creators/\(urlName)/contents?kind=note&page=\(page)"
-//            
-//            do {
-//                let fetchedData = try await fetchData(url: urlString)
-//                try await parseContentsJSON(fetchedData)
-//                
-//                if isLastPage {
-//                    print("最後のページに到達しました - 総ページ数: \(page)")
-//                    break
-//                }
-//                
-//                // リクエスト間に1秒の遅延を追加
-//                try await Task.sleep(nanoseconds: 1_000_000_000)
-//            } catch {
-//                print("Error: \(error)")
-//                break
-//            }
-//        }
-//        print("取得完了, 総アイテム数: \(publishedDateArray.count)")
-//    }
-    
-    //アプリ内のすべてのデータを消去する。Realmはデータベース自体破棄し、KeychainやURLSession、UserDefaultsから関連するデータを全て削除する。
-    func clearAllData() async {
-        await MainActor.run {
-//            do {
-//                try realmManager.deleteAll()
-//            } catch {
-//                print("Failed to delete all data: \(error)")
-//            }
-            
-//            let status = KeychainManager.delete(forKey: "noteCookies")
-//            if status == errSecSuccess {
-//                print("Keychain delete successful")
-//            } else {
-//                print("Keychain delete failed with status: \(status)")
-//            }
-            
-            // HTTPCookieStorageからクッキーを削除
-            if let cookies = HTTPCookieStorage.shared.cookies {
-                for cookie in cookies {
-                    print("before delete: \(cookie)")
-                    HTTPCookieStorage.shared.deleteCookie(cookie)
-                }
+    //URLSession、WKWebViewから関連するデータを全て削除して再定義。
+    func resetWebComponents() {
+        // HTTPCookieStorageからクッキーを削除
+        if let cookies = HTTPCookieStorage.shared.cookies {
+            for cookie in cookies {
+                print("before delete: \(cookie)")
+                HTTPCookieStorage.shared.deleteCookie(cookie)
             }
-            cookies.removeAll()
-            
-            // URLSessionをリセットして、URLSessionConfigurationを再定義
-            URLSession.shared.reset {
-                DispatchQueue.main.async {
-                    let configuration = URLSessionConfiguration.ephemeral
-                    configuration.httpShouldSetCookies = true
-                    configuration.httpCookieAcceptPolicy = .always
-                    configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
-                    self.session = URLSession(configuration: configuration)
-                }
+        }
+        cookies.removeAll()
+        
+        // URLSessionをリセットして、URLSessionConfigurationを再定義
+        URLSession.shared.reset {
+            DispatchQueue.main.async {
+                let configuration = URLSessionConfiguration.ephemeral
+                configuration.httpShouldSetCookies = true
+                configuration.httpCookieAcceptPolicy = .always
+                configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
+                self.session = URLSession(configuration: configuration)
             }
-            
-            // WebViewのCookieとキャッシュをクリア
-            WKProcessPool.shared.reset()
-            
-            let dataStore = WKWebsiteDataStore.default()
-            dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-                dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
-                    print("WebView cookies cleared")
-                }
+        }
+        
+        // WebViewのCookieとキャッシュをクリア
+        WKProcessPool.shared.reset()
+        
+        let dataStore = WKWebsiteDataStore.default()
+        dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
+                print("WebView cookies cleared")
             }
-            
-            // UserDefaultsをリセット
-            UserDefaults.standard.set("1970/1/1 00:00", forKey: "lastCalculateAt")
-            UserDefaults.standard.set("", forKey: "urlname")
         }
     }
     
