@@ -18,6 +18,7 @@
 		1A2AC3BB2C55D4420046C921 /* ChartViewForAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3BA2C55D4420046C921 /* ChartViewForAll.swift */; };
 		1A2AC3BD2C55DE3C0046C921 /* ChartViewForItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3BC2C55DE3C0046C921 /* ChartViewForItem.swift */; };
 		1A8E9C792C5F081300A97D31 /* DailyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8E9C782C5F081300A97D31 /* DailyView.swift */; };
+		1A8FC21C2C718BD800AA5A03 /* AlertObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8FC21B2C718BD800AA5A03 /* AlertObject.swift */; };
 		1A9A7B032C708698005CCA61 /* NoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A7B022C708698005CCA61 /* NoteViewModel.swift */; };
 		1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */; };
 		1AC95B272C4CC26A0049E6AA /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B262C4CC26A0049E6AA /* RealmManager.swift */; };
@@ -61,6 +62,7 @@
 		1A2AC3BC2C55DE3C0046C921 /* ChartViewForItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViewForItem.swift; sourceTree = "<group>"; };
 		1A7E450B2C64590A002A4B82 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1A8E9C782C5F081300A97D31 /* DailyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyView.swift; sourceTree = "<group>"; };
+		1A8FC21B2C718BD800AA5A03 /* AlertObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertObject.swift; sourceTree = "<group>"; };
 		1A9A7B022C708698005CCA61 /* NoteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteViewModel.swift; sourceTree = "<group>"; };
 		1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1AC95B262C4CC26A0049E6AA /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
@@ -88,6 +90,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A8FC21A2C718BC200AA5A03 /* Alert */ = {
+			isa = PBXGroup;
+			children = (
+				1A8FC21B2C718BD800AA5A03 /* AlertObject.swift */,
+			);
+			path = Alert;
+			sourceTree = "<group>";
+		};
+		1A8FC21D2C718BF900AA5A03 /* Charts */ = {
+			isa = PBXGroup;
+			children = (
+				1A2AC3BA2C55D4420046C921 /* ChartViewForAll.swift */,
+				1A2AC3BC2C55DE3C0046C921 /* ChartViewForItem.swift */,
+			);
+			path = Charts;
+			sourceTree = "<group>";
+		};
 		1A9A7B012C70867C005CCA61 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -147,10 +166,10 @@
 				1A2AC3B82C55CEFC0046C921 /* ArticleDetailView.swift */,
 				1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */,
 				1A06C8F92C62229A00838DD5 /* MarkdownView.swift */,
-				1A2AC3BA2C55D4420046C921 /* ChartViewForAll.swift */,
-				1A2AC3BC2C55DE3C0046C921 /* ChartViewForItem.swift */,
 				1AE3CA422C3A692600C30A89 /* WebView.swift */,
 				1A06C8F52C60524C00838DD5 /* OnboardingView.swift */,
+				1A8FC21A2C718BC200AA5A03 /* Alert */,
+				1A8FC21D2C718BF900AA5A03 /* Charts */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -265,6 +284,7 @@
 				1AE3CA472C3B649500C30A89 /* APIResponses.swift in Sources */,
 				1A9A7B032C708698005CCA61 /* NoteViewModel.swift in Sources */,
 				1A2AC3AC2C5496DC0046C921 /* Constants.swift in Sources */,
+				1A8FC21C2C718BD800AA5A03 /* AlertObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

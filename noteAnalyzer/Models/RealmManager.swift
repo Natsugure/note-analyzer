@@ -89,10 +89,6 @@ class RealmManager {
             realm.deleteAll()
         }
     }
-    
-//    func getItems() -> Results<Item>? {
-//        return realm.objects(Item.self)
-//    }
 }
     
 

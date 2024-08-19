@@ -16,6 +16,7 @@ enum StatsType {
 
 struct DashboardView: View {
     @EnvironmentObject var viewModel: NoteViewModel
+    @ObservedObject var alertObject = AlertObject()
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
@@ -108,11 +109,19 @@ struct DashboardView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             Task {
-                                await viewModel.getStats()
+                                do {
+                                    try await viewModel.getStats()
+                                    alertObject.showAlert(title: "取得完了", message: "統計情報の取得が完了しました。")
+                                } catch NoteViewModelError.statsNotUpdated {
+                                    alertObject.showAlert(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
+                                } catch {
+                                    alertObject.showAlert(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
+                                }
                             }
                         }) {
                             Image(systemName: "arrow.counterclockwise")
                         }
+                        .customAlert(for: alertObject)
                     }
                 }
             }

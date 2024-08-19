@@ -8,6 +8,11 @@
 import SwiftUI
 import WebKit
 
+enum NoteViewModelError: Error {
+    case statsNotUpdated //API上のstatsデータがまだ更新されていない
+    case networkError(Error)
+}
+
 class NoteViewModel: ObservableObject {
     @Published var contents = [APIStatsResponse.APIStatsItem]()
     @Published var publishedDateArray = [APIContentsResponse.APIContentItem]()
@@ -39,52 +44,61 @@ class NoteViewModel: ObservableObject {
         authManager.checkAuthentication(webView: webView)
     }
     
-    func getStats() async {
+    func getStats() async throws {
         let maxLoopCount = 100
-        for page in 1...maxLoopCount {
-            let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
-            
-            do {
-                let fetchedData = try await networkService.fetchData(url: urlString)
-                try await parseStatsJSON(fetchedData)
+        
+        do {
+            for page in 1...maxLoopCount {
+                let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
                 
-                if page == 1 && !isUpdated {
-                    print("更新されていません")
-                    break
+                do {
+                    let fetchedData = try await networkService.fetchData(url: urlString)
+                    try await parseStatsJSON(fetchedData)
+                    
+                    if page == 1 && !isUpdated {
+                        print("更新されていません")
+                        throw NoteViewModelError.statsNotUpdated
+                    }
+                    
+                    if isLastPage {
+                        print("最後のページに到達しました - 総ページ数: \(page)")
+                        break
+                    }
+                    
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch NoteViewModelError.statsNotUpdated {
+                    throw NoteViewModelError.statsNotUpdated
+                } catch {
+                    print("Error: \(error)")
+                    throw NoteViewModelError.networkError(error)
                 }
-                
-                if isLastPage {
-                    print("最後のページに到達しました - 総ページ数: \(page)")
-                    break
-                }
-                
-                try await Task.sleep(nanoseconds: 1_000_000_000)
-            } catch {
-                print("Error: \(error)")
-                break
             }
+
+            if isUpdated {
+                print("取得完了, 総アイテム数: \(contents.count)")
+                
+                await getPublishedDate()
+                
+                await MainActor.run {
+                    do {
+                         try realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
+            
+            isUpdated = false
+            
+            DispatchQueue.main.async {
+                self.contents.removeAll()
+                self.publishedDateArray.removeAll()
+            }
+        } catch {
+            print(error)
+            throw error
         }
 
-        if isUpdated {
-            print("取得完了, 総アイテム数: \(contents.count)")
-            
-            await getPublishedDate()
-            
-            await MainActor.run {
-                do {
-                     try realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
-                } catch {
-                    print(error)
-                }
-            }
-        }
-        
-        isUpdated = false
-        
-        DispatchQueue.main.async {
-            self.contents.removeAll()
-            self.publishedDateArray.removeAll()
-        }
     }
     
     private func parseStatsJSON(_ data: Data) async throws {
