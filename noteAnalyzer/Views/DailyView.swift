@@ -243,6 +243,35 @@ struct DailyView: View {
     }
 }
 
-//#Preview {
-//    DailyView()
-//}
+
+struct DailyView_Previews: PreviewProvider {
+    @State static var mockPath: [Item] = []
+    @State static var mockSelection: StatsType = .view
+
+    static var previews: some View {
+        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "PreviewRealm"))
+        
+        let mockUpdateAt = Date()
+
+        let mockItem = Item()
+        mockItem.id = 999
+        mockItem.title = "Sample Item"
+        mockItem.publishedAt = mockUpdateAt - 87740
+
+        let mockStats = Stats()
+        mockStats.updatedAt = mockUpdateAt
+        mockStats.readCount = 100
+        mockStats.likeCount = 50
+        mockStats.commentCount = 10
+
+        if realm.object(ofType: Item.self, forPrimaryKey: mockItem.id) == nil {
+            try! realm.write {
+                mockItem.stats.append(mockStats)
+                realm.add(mockItem)
+            }
+        }
+
+        return DailyView(path: $mockPath, selection: $mockSelection, selectedDate: mockUpdateAt)
+            .environment(\.realmConfiguration, realm.configuration)
+    }
+}

@@ -20,6 +20,13 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
+struct Content_Previews: PreviewProvider {
+    static let authManager = AuthenticationManager()
+    static let networkService = NetworkService(authManager: authManager)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        ContentView()
+            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+    }
 }

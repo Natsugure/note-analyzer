@@ -27,6 +27,13 @@ struct MainView: View {
     }
 }
 
-#Preview {
-    MainView()
+struct MainView_Previews: PreviewProvider {
+    static let authManager = AuthenticationManager()
+    static let networkService = NetworkService(authManager: authManager)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        MainView()
+            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+    }
 }

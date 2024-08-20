@@ -52,7 +52,6 @@ class AuthenticationManager: ObservableObject {
             self.cookies = cookies
             self.isAuthenticated = !cookies.isEmpty
         }
-        print("isAuthenticated: \(isAuthenticated)")
     }
     
     private func saveCookiesToKeychain() {

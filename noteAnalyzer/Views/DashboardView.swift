@@ -169,11 +169,13 @@ struct DashboardView: View {
 }
     
 
-//#Preview {
-//    let authManager = AuthenticationManager()
-//    let networkService = NetworkService(authManager: authManager)
-//    let realmManager = RealmManager()
-//    
-//    DashboardView()
-//        .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-//}
+struct DashboardView_Previews: PreviewProvider {
+    static let authManager = AuthenticationManager()
+    static let networkService = NetworkService(authManager: authManager)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        DashboardView()
+            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+    }
+}

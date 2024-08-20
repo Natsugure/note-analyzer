@@ -51,11 +51,13 @@ struct OnboardingView: View {
     }
 }
 
-//#Preview {
-//    let authManager = AuthenticationManager()
-//    let networkService = NetworkService(authManager: authManager)
-//    let realmManager = RealmManager()
-//    
-//    OnboardingView()
-//        .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-//}
+struct OnboardingView_Previews: PreviewProvider {
+    static let authManager = AuthenticationManager()
+    static let networkService = NetworkService(authManager: authManager)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        OnboardingView()
+            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+    }
+}
