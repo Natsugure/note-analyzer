@@ -97,7 +97,7 @@ struct ArticleDetailView_Previews: PreviewProvider {
         "id": 1,
         "title": "サンプル記事タイトル",
         "type": ContentType.text.rawValue,
-        "publishedAt": "2023-10-01",
+        "publishedAt": Date() - 750000,
         "stats": [
             Stats(value: [
                 "id": UUID().uuidString,
