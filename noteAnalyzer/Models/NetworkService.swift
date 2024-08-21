@@ -35,41 +35,7 @@ class NetworkService: ObservableObject {
         configuration.httpCookieAcceptPolicy = .always
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
         self.session = URLSession(configuration: configuration)
-
-        
-//        // KeychainからCookieを読み込む
-//        if let cookieData = KeychainManager.load(forKey: "noteCookies") {
-//            print("Keychain load successful: \(cookieData)")
-//            if let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
-//                self.cookies = cookies
-//            }
-//        } else {
-//            print("Keychain load failed")
-//        }
     }
-    
-//    func authenticate() {
-//        showAuthWebView = true
-//    }
-//    
-//    func checkAuthentication(webView: WKWebView) {
-//        webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
-//            let noteCookies = cookies.filter { $0.domain.contains("note.com") }
-//            self.isAuthenticated = !noteCookies.isEmpty
-//            if self.isAuthenticated {
-//                self.cookies = noteCookies
-//                let cookieData = try? NSKeyedArchiver.archivedData(withRootObject: noteCookies, requiringSecureCoding: true)
-//                if let data = cookieData {
-//                    let status = KeychainManager.save(cookieData: data, forKey: "noteCookies")
-//                    print("Keychain save status: \(status)")
-//                }
-//                print("認証成功: \(noteCookies.count) cookies found")
-//                self.showAuthWebView = false
-//            } else {
-//                print("認証失敗: No note.com cookies found")
-//            }
-//        }
-//    }
     
     func fetchData(url urlString: String) async throws -> Data {
         print(urlString)

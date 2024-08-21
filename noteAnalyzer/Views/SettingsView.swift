@@ -10,7 +10,9 @@ import RealmSwift
 
 struct SettingsView: View {
     @EnvironmentObject var viewModel: NoteViewModel
+    @ObservedObject var alertObject = AlertObject()
     @State var path = NavigationPath()
+    @State var shouldNavigateToOnboarding = false
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -20,12 +22,23 @@ struct SettingsView: View {
                     NavigationLink("プライバシーポリシー", destination: MarkdownView(filename: "privacy_policy"))
                 }
                 Section {
-//                    Button(action: {
-//                        //                        networkManager.logout()
-//                    }) {
-//                        Text("ログアウト")
-//                            .foregroundColor(.red)
-//                    }
+                    Button(action: {
+                        Task {
+                            do {
+                                try await viewModel.logout()
+                                alertObject.showAlert(title: "ログアウト完了", message: "ログアウトが完了しました。初期設定画面に戻ります。") {
+                                    shouldNavigateToOnboarding.toggle()
+                                }
+                            } catch KeychainError.unexpectedStatus(let status) {
+                                alertObject.showAlert(title: "エラー", message: "ログアウト処理中にエラーが発生しました。\n Keychain error status: \(status)")
+                            } catch {
+                                alertObject.showAlert(title: "エラー", message: "ログアウト処理中に不明なエラーが発生しました。")
+                            }
+                        }
+                    }) {
+                        Text("ログアウト")
+                            .foregroundColor(.red)
+                    }
                     Button(action: {
                         Task {
                             await viewModel.clearAllData()
@@ -35,18 +48,25 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                     }
                 }
-                        Button("ログイン") {
-                            viewModel.authenticate()
-                        }
-                        .sheet(isPresented: $viewModel.showAuthWebView) {
-                            WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
-                        }
+                Button("ログイン") {
+                    viewModel.authenticate()
+                }
+                .sheet(isPresented: $viewModel.showAuthWebView) {
+                    WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
+                }
             }
+            .customAlert(for: alertObject)
         }
     }
 }
 
-#Preview {
-    SettingsView()
-//        .environmentObject(NetworkService())
+struct SettingsView_Previews: PreviewProvider {
+    static let authManager = AuthenticationManager()
+    static let networkService = NetworkService(authManager: authManager)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        SettingsView()
+            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+    }
 }

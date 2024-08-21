@@ -162,6 +162,19 @@ class NoteViewModel: ObservableObject {
             self.isLastPage = results.data.isLastPage
         }
     }
+    
+    func logout() async throws {
+        try await MainActor.run {
+            do {
+                try authManager.clearAuthentication()
+                networkService.resetWebComponents()
+            } catch KeychainError.unexpectedStatus(let status) {
+                throw KeychainError.unexpectedStatus(status)
+            } catch {
+                throw error
+            }
+        }
+    }
 
     func clearAllData() async {
         await MainActor.run {
