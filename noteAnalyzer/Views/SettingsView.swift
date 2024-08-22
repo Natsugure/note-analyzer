@@ -39,9 +39,22 @@ struct SettingsView: View {
                         Text("ログアウト")
                             .foregroundColor(.red)
                     }
+                    .navigationDestination(isPresented: $shouldNavigateToOnboarding) {
+                        OnboardingView()
+                    }
                     Button(action: {
                         Task {
-                            await viewModel.clearAllData()
+                            // NoteViewModel.clearAllData()にもあとでthrowsを要追加。
+                            do {
+                                try await viewModel.clearAllData()
+                                alertObject.showAlert(title: "消去完了", message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。") {
+                                    shouldNavigateToOnboarding.toggle()
+                                }
+                            } catch KeychainError.unexpectedStatus(let status) {
+                                alertObject.showAlert(title: "エラー", message: "処理中にエラーが発生しました。\n Keychain error status: \(status)")
+                            } catch {
+                                alertObject.showAlert(title: "エラー", message: "処理中に不明なエラーが発生しました。")
+                            }
                         }
                     }) {
                         Text("すべてのデータを消去")
@@ -54,6 +67,7 @@ struct SettingsView: View {
                 .sheet(isPresented: $viewModel.showAuthWebView) {
                     WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
                 }
+                
             }
             .customAlert(for: alertObject)
         }
