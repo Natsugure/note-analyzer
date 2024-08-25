@@ -32,9 +32,6 @@ class AlertObject: ObservableObject {
             case single(text: String, action: (() -> Void)? = nil)
             case double(text: String, action: (() -> Void)? = nil, cancelAction: (() -> Void)? = nil)
         }
-//        
-//        var text: String
-//        var action: (() -> Void)? = nil
         
         var body: some View {
             switch kind {

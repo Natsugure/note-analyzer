@@ -10,7 +10,7 @@ import RealmSwift
 
 struct SettingsView: View {
     @EnvironmentObject var viewModel: NoteViewModel
-    @ObservedObject var alertObject = AlertObject()
+    @ObservedObject var alertObject: AlertObject
     @State var path = NavigationPath()
     @State var shouldNavigateToOnboarding = false
     
@@ -26,13 +26,13 @@ struct SettingsView: View {
                         Task {
                             do {
                                 try await viewModel.logout()
-                                alertObject.showAlert(title: "ログアウト完了", message: "ログアウトが完了しました。初期設定画面に戻ります。") {
+                                alertObject.showSingle(title: "ログアウト完了", message: "ログアウトが完了しました。初期設定画面に戻ります。") {
                                     shouldNavigateToOnboarding.toggle()
                                 }
                             } catch KeychainError.unexpectedStatus(let status) {
-                                alertObject.showAlert(title: "エラー", message: "ログアウト処理中にエラーが発生しました。\n Keychain error status: \(status)")
+                                alertObject.showSingle(title: "エラー", message: "ログアウト処理中にエラーが発生しました。\n Keychain error status: \(status)")
                             } catch {
-                                alertObject.showAlert(title: "エラー", message: "ログアウト処理中に不明なエラーが発生しました。")
+                                alertObject.showSingle(title: "エラー", message: "ログアウト処理中に不明なエラーが発生しました。")
                             }
                         }
                     }) {
@@ -40,20 +40,19 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                     }
                     .navigationDestination(isPresented: $shouldNavigateToOnboarding) {
-                        OnboardingView()
+                        OnboardingView(alertObject: alertObject)
                     }
                     Button(action: {
                         Task {
-                            // NoteViewModel.clearAllData()にもあとでthrowsを要追加。
                             do {
                                 try await viewModel.clearAllData()
-                                alertObject.showAlert(title: "消去完了", message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。") {
+                                alertObject.showSingle(title: "消去完了", message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。") {
                                     shouldNavigateToOnboarding.toggle()
                                 }
                             } catch KeychainError.unexpectedStatus(let status) {
-                                alertObject.showAlert(title: "エラー", message: "処理中にエラーが発生しました。\n Keychain error status: \(status)")
+                                alertObject.showSingle(title: "エラー", message: "処理中にエラーが発生しました。\n Keychain error status: \(status)")
                             } catch {
-                                alertObject.showAlert(title: "エラー", message: "処理中に不明なエラーが発生しました。")
+                                alertObject.showSingle(title: "エラー", message: "処理中に不明なエラーが発生しました。")
                             }
                         }
                     }) {
@@ -78,9 +77,10 @@ struct SettingsView_Previews: PreviewProvider {
     static let authManager = AuthenticationManager()
     static let networkService = NetworkService(authManager: authManager)
     static let realmManager = RealmManager()
+    static let alertObject = AlertObject()
     
     static var previews: some View {
-        SettingsView()
+        SettingsView(alertObject: alertObject)
             .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

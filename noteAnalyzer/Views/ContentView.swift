@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage(K.UserDefaults.isFirstLaunch) var isFirstLaunch: Bool = true
+    @EnvironmentObject private var viewModel: NoteViewModel
+    @StateObject private var alertObject = AlertObject()
     
     var body: some View {
-        if isFirstLaunch {
-            OnboardingView()
+        if !viewModel.isAuthenticated {
+            OnboardingView(alertObject: alertObject)
         } else {
-            MainView()
+            MainView(alertObject: alertObject)
         }
     }
 }
