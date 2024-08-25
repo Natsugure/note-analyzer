@@ -8,14 +8,18 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
+    @AppStorage(K.UserDefaults.isFirstLaunch) var isFirstLaunch: Bool = true
     @EnvironmentObject var viewModel: NoteViewModel
+    
+    @State private var shouldShowMainView = false
     
     var body: some View {
         VStack {
             if viewModel.isAuthenticated {
                 MainView()
             } else {
+                Spacer()
+                
                 Text("noteAnalyzer")
                     .font(.largeTitle)
                     .fontWeight(.bold)
@@ -30,22 +34,33 @@ struct OnboardingView: View {
                 Text("ダッシュボードを取得するにはnoteへのログインが必要です。")
                     .padding(.horizontal)
                 
-                Button("ログイン画面を開く") {
-                    viewModel.authenticate()
+                Spacer()
+                
+                VStack {
+                    Button("続ける") {
+                        viewModel.authenticate()
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .background(Color.blue)
+                    .foregroundStyle(.white)
+                    .clipShape(Capsule())
+                    .sheet(isPresented: $viewModel.showAuthWebView) {
+                        AuthWebView()
+                            .interactiveDismissDisabled()
+                    }
+                    //「利用規約」と「プライバシーポリシー」の文字にリンクを付けたい。
+                    Text("サービスを利用開始すると、利用規約 と プライバシーポリシー に同意したこととなります。")
+                        .font(.system(size: 12))
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 5)
                 }
-                .frame(maxWidth: .infinity, minHeight: 50)
-                .background(Color.blue)
-                .foregroundStyle(.white)
-                .clipShape(Capsule())
                 .padding()
-                .sheet(isPresented: $viewModel.showAuthWebView) {
-                    WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
-                }
             }
         }
         .onChange(of: viewModel.isAuthenticated) { newValue in
             if newValue {
                 isFirstLaunch = false
+                
             }
         }
     }

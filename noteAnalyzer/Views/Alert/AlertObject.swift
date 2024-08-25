@@ -26,18 +26,41 @@ class AlertObject: ObservableObject {
     }
     
     struct ActionView: View {
-        var text: String
-        var action: (() -> Void)? = nil
+        var kind: Kind
+        
+        enum Kind {
+            case single(text: String, action: (() -> Void)? = nil)
+            case double(text: String, action: (() -> Void)? = nil, cancelAction: (() -> Void)? = nil)
+        }
+//        
+//        var text: String
+//        var action: (() -> Void)? = nil
         
         var body: some View {
-            Button(text, action: action ?? {})
+            switch kind {
+            case .single(let text, let action):
+                Button(text, action: action ?? {})
+                
+            case .double(let text, let action, let cancelAction):
+                Button("キャンセル", action: cancelAction ?? {})
+                Button(text, action: action ?? {})
+            }
         }
     }
     
-    func showAlert(title: String, message: String?, actionText: String? = nil, action: (() -> Void)? = nil) {
+    func showSingle(title: String, message: String?, actionText: String? = nil, action: (() -> Void)? = nil) {
         self.model = Model(title: title,
                            messageView: (message != nil) ? MessageView(message: message!) : nil,
-                           actionView: ActionView(text: actionText ?? "OK", action: action)
+                           actionView: ActionView(kind: .single(text: actionText ?? "OK", action: action))
+        )
+        
+        self.isShow.toggle()
+    }
+    
+    func showDouble(title: String, message: String?, actionText: String? = nil, action: (() -> Void)? = nil, calcelAction: (() -> Void)? = nil) {
+        self.model = Model(title: title,
+                           messageView: (message != nil) ? MessageView(message: message!) : nil,
+                           actionView: ActionView(kind: .double(text: actionText ?? "OK", action: action, cancelAction: calcelAction))
         )
         
         self.isShow.toggle()
