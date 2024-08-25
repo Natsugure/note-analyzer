@@ -74,11 +74,11 @@ class AuthenticationManager: ObservableObject {
     
     func clearAuthentication() throws {
         cookies.removeAll()
-        isAuthenticated = false
         
         do {
             try deleteKeychainItem(forKey: "noteCookies")
             print("Keychain delete successful")
+            isAuthenticated = false
         } catch KeychainError.unexpectedStatus(let status) {
             handleKeychainError(status: status)
             throw KeychainError.unexpectedStatus(status)

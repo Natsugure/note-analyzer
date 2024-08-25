@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct K {
-    static let lastCalculateAt = "lastCalculateAt"
+    static let authUrl = "https://note.com/login"
     
     struct BrandColor {
         static let read = Color(red: 105/255, green: 176/255, blue: 118/255)
@@ -23,5 +23,11 @@ struct K {
         static let sound = UIImage(systemName: "mic.fill")
         static let image = UIImage(systemName: "photo")
         static let movie = UIImage(systemName: "video.fill")
+    }
+    
+    struct UserDefaults {
+//        static let isFirstLaunch = "isFirstLaunch"
+        static let lastCalculateAt = "lastCalculateAt"
+        static let urlname = "urlname"
     }
 }

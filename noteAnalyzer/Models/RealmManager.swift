@@ -10,11 +10,7 @@ import RealmSwift
 
 class RealmManager {
     private var realm: Realm?
-    
-//    init() throws {
-//        realm = try Realm()
-//    }
-    
+        
     private func getRealm() throws -> Realm {
          if let realm = self.realm {
              return realm

@@ -92,6 +92,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A5852CC2C7B1E8500EDA5E2 /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				1A5852C92C7AFFD200EDA5E2 /* AuthWebView.swift */,
+				1AE3CA422C3A692600C30A89 /* WebView.swift */,
+			);
+			path = WebView;
+			sourceTree = "<group>";
+		};
 		1A8FC21A2C718BC200AA5A03 /* Alert */ = {
 			isa = PBXGroup;
 			children = (
@@ -167,12 +176,11 @@
 				1A8E9C782C5F081300A97D31 /* DailyView.swift */,
 				1A2AC3B82C55CEFC0046C921 /* ArticleDetailView.swift */,
 				1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */,
-				1A06C8F92C62229A00838DD5 /* MarkdownView.swift */,
 				1A06C8F52C60524C00838DD5 /* OnboardingView.swift */,
-				1A5852C92C7AFFD200EDA5E2 /* AuthWebView.swift */,
-				1AE3CA422C3A692600C30A89 /* WebView.swift */,
+				1A06C8F92C62229A00838DD5 /* MarkdownView.swift */,
 				1A8FC21A2C718BC200AA5A03 /* Alert */,
 				1A8FC21D2C718BF900AA5A03 /* Charts */,
+				1A5852CC2C7B1E8500EDA5E2 /* WebView */,
 			);
 			path = Views;
 			sourceTree = "<group>";

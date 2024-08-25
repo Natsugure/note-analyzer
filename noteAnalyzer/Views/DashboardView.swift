@@ -16,7 +16,7 @@ enum StatsType {
 
 struct DashboardView: View {
     @EnvironmentObject var viewModel: NoteViewModel
-    @ObservedObject var alertObject = AlertObject()
+    @ObservedObject var alertObject: AlertObject
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
@@ -109,22 +109,40 @@ struct DashboardView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             Task {
-                                do {
-                                    try await viewModel.getStats()
-                                    alertObject.showAlert(title: "取得完了", message: "統計情報の取得が完了しました。")
-                                } catch NoteViewModelError.statsNotUpdated {
-                                    alertObject.showAlert(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
-                                } catch {
-                                    alertObject.showAlert(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
-                                }
+                                await getStats()
                             }
                         }) {
                             Image(systemName: "arrow.counterclockwise")
+                        }
+                        .onAppear {
+                            if items.isEmpty {
+                                alertObject.showDouble(
+                                    title: "",
+                                    message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
+                                    actionText: "取得する",
+                                    action: {
+                                        Task {
+                                            await getStats()
+                                        }
+                                    }
+                                )
+                            }
                         }
                         .customAlert(for: alertObject)
                     }
                 }
             }
+        }
+    }
+    
+    private func getStats() async {
+        do {
+            try await viewModel.getStats()
+            alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
+        } catch NoteViewModelError.statsNotUpdated {
+            alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
+        } catch {
+            alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
         }
     }
     
@@ -173,9 +191,10 @@ struct DashboardView_Previews: PreviewProvider {
     static let authManager = AuthenticationManager()
     static let networkService = NetworkService(authManager: authManager)
     static let realmManager = RealmManager()
+    static let alertObject = AlertObject()
     
     static var previews: some View {
-        DashboardView()
+        DashboardView(alertObject: alertObject)
             .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

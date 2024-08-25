@@ -176,19 +176,21 @@ class NoteViewModel: ObservableObject {
         }
     }
 
-    func clearAllData() async {
-        await MainActor.run {
+    func clearAllData() async throws {
+        try await MainActor.run {
             do {
                 try realmManager.deleteAll()
                 try authManager.clearAuthentication()
                 networkService.resetWebComponents()
                 
-                UserDefaults.standard.set("1970/1/1 00:00", forKey: "lastCalculateAt")
-                UserDefaults.standard.set("", forKey: "urlname")
+                UserDefaults.standard.set("1970/1/1 00:00", forKey: K.UserDefaults.lastCalculateAt)
+                UserDefaults.standard.set("", forKey: K.UserDefaults.urlname)
             } catch KeychainError.unexpectedStatus(let status) {
                 print("Keychain error occurred. \n code: \(status), description: \(status.description)")
+                throw KeychainError.unexpectedStatus(status)
             } catch {
                 print("Failed to delete all data: \(error)")
+                throw error
             }
         }
     }
