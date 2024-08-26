@@ -12,11 +12,13 @@ struct ContentView: View {
     @StateObject private var alertObject = AlertObject()
     
     var body: some View {
-        if !viewModel.isAuthenticated {
+        // isAuthenticatedを使用してViewを分けていると、別のビューでログイン・ログアウト処理を行うと速攻で切り替わってしまう。
+        // 別の方法を検討する必要がある。
+//        if !viewModel.isAuthenticated {
             OnboardingView(alertObject: alertObject)
-        } else {
-            MainView(alertObject: alertObject)
-        }
+//        } else {
+//            MainView(alertObject: alertObject)
+//        }
     }
 }
 

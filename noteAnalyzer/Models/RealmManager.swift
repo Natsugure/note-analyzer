@@ -79,6 +79,11 @@ class RealmManager {
         return newStats
     }
     
+    func getItems() throws -> Results<Item> {
+        let realm = try getRealm()
+        return realm.objects(Item.self)
+    }
+    
     func deleteAll() throws {
         let realm = try getRealm()
         try realm.write {

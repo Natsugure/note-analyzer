@@ -132,6 +132,7 @@ struct DashboardView: View {
                     }
                 }
             }
+            .navigationBarBackButtonHidden(true)
         }
     }
     

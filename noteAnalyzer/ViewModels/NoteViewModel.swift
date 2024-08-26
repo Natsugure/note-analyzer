@@ -10,6 +10,7 @@ import WebKit
 
 enum NoteViewModelError: Error {
     case statsNotUpdated //API上のstatsデータがまだ更新されていない
+    case loginCredentialMismatch
     case networkError(Error)
 }
 
@@ -160,6 +161,30 @@ class NoteViewModel: ObservableObject {
         await MainActor.run {
             self.publishedDateArray += results.data.contents
             self.isLastPage = results.data.isLastPage
+        }
+    }
+    
+    func verifyLoginConsistency() async throws {
+        let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
+        
+        do {
+            let realmItems = try realmManager.getItems()
+            if realmItems.isEmpty {
+                return
+            }
+            
+            let fetchedData = try await networkService.fetchData(url: urlString)
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let results = try decoder.decode(APIStatsResponse.self, from: fetchedData)
+            
+            let firstArticle = results.data.noteStats[0]
+            guard let item = realmItems.first(where: { $0.id == firstArticle.id && $0.title == firstArticle.name }) else {
+                throw NoteViewModelError.loginCredentialMismatch
+            }
+        } catch {
+            throw error
         }
     }
     

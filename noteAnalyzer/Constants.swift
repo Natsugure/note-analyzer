@@ -26,7 +26,7 @@ struct K {
     }
     
     struct UserDefaults {
-//        static let isFirstLaunch = "isFirstLaunch"
+        static let authenticationConfigured = "authenticationConfigured"
         static let lastCalculateAt = "lastCalculateAt"
         static let urlname = "urlname"
     }
