@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainView: View {
     @State var selectedToolBar = 1
-    @ObservedObject var alertObject: AlertObject
+    @StateObject var alertObject = AlertObject()
 
     var body: some View {
             TabView {
@@ -25,6 +25,7 @@ struct MainView: View {
                     }
                     .tag(2)
             }
+            .navigationBarBackButtonHidden(true)
     }
 }
 

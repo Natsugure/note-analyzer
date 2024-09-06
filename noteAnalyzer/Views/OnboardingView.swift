@@ -9,7 +9,6 @@ import SwiftUI
 
 struct OnboardingView: View {
     @EnvironmentObject var viewModel: NoteViewModel
-    @ObservedObject var alertObject: AlertObject
     
     @State private var showTermModal = false
     @State private var showPrivacyModal = false
@@ -75,7 +74,6 @@ struct OnboardingView: View {
             .navigationBarBackButtonHidden(true)
             //        }
         }
-        .customAlert(for: alertObject)
     }
 }
 
@@ -83,10 +81,9 @@ struct OnboardingView_Previews: PreviewProvider {
     static let authManager = AuthenticationManager()
     static let networkService = NetworkService(authManager: authManager)
     static let realmManager = RealmManager()
-    static let alertObject = AlertObject()
     
     static var previews: some View {
-        OnboardingView(alertObject: alertObject)
+        OnboardingView()
             .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

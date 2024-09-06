@@ -40,7 +40,7 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                     }
                     .navigationDestination(isPresented: $shouldNavigateToOnboarding) {
-                        OnboardingView(alertObject: alertObject)
+                        OnboardingView()
                     }
                     Button(action: {
                         Task {

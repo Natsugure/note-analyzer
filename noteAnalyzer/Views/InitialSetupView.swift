@@ -27,10 +27,12 @@ struct InitialSetupView: View {
                 Button("ダッシュボードを取得する") {
                     Task {
                         do {
+                            isPresentedProgressView = true
                             try await viewModel.getStats()
+                            isPresentedProgressView = false
                             shouldShowIsCompleteInitialSetupView.toggle()
                         } catch {
-                            
+                            shouldShowIsCompleteInitialSetupView.toggle()
                         }
                     }
                 }
@@ -60,6 +62,9 @@ struct InitialSetupView: View {
             Task {
 //                await verifyLoginConsistency()
             }
+        }
+        .navigationDestination(isPresented: $shouldShowIsCompleteInitialSetupView) {
+            IsCompleteInitialSetupView()
         }
         .navigationBarBackButtonHidden(true)
         .customAlert(for: alertObject)

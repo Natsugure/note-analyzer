@@ -93,17 +93,17 @@ struct DashboardView: View {
                 }
                 .listStyle(PlainListStyle())
 
-                
                 .navigationTitle("全記事統計")
+                .navigationBarItems(leading: EmptyView())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     //フィルターボタン
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button(action: {
-                        }) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                        }
-                    }
+//                    ToolbarItem(placement: .topBarLeading) {
+//                        Button(action: {
+//                        }) {
+//                            Image(systemName: "line.3.horizontal.decrease.circle")
+//                        }
+//                    }
                     
                     //更新ボタン
                     ToolbarItem(placement: .topBarTrailing) {
@@ -132,7 +132,6 @@ struct DashboardView: View {
                     }
                 }
             }
-            .navigationBarBackButtonHidden(true)
         }
     }
     
