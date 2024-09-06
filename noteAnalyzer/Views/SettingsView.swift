@@ -11,8 +11,8 @@ import RealmSwift
 struct SettingsView: View {
     @EnvironmentObject var viewModel: NoteViewModel
     @ObservedObject var alertObject: AlertObject
+    @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State var path = NavigationPath()
-    @State var shouldNavigateToOnboarding = false
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -27,7 +27,7 @@ struct SettingsView: View {
                             do {
                                 try await viewModel.logout()
                                 alertObject.showSingle(title: "ログアウト完了", message: "ログアウトが完了しました。初期設定画面に戻ります。") {
-                                    shouldNavigateToOnboarding.toggle()
+                                    isAuthenticationConfigured = false
                                 }
                             } catch KeychainError.unexpectedStatus(let status) {
                                 alertObject.showSingle(title: "エラー", message: "ログアウト処理中にエラーが発生しました。\n Keychain error status: \(status)")
@@ -39,15 +39,13 @@ struct SettingsView: View {
                         Text("ログアウト")
                             .foregroundColor(.red)
                     }
-                    .navigationDestination(isPresented: $shouldNavigateToOnboarding) {
-                        OnboardingView()
-                    }
+
                     Button(action: {
                         Task {
                             do {
                                 try await viewModel.clearAllData()
                                 alertObject.showSingle(title: "消去完了", message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。") {
-                                    shouldNavigateToOnboarding.toggle()
+                                    isAuthenticationConfigured = false
                                 }
                             } catch KeychainError.unexpectedStatus(let status) {
                                 alertObject.showSingle(title: "エラー", message: "処理中にエラーが発生しました。\n Keychain error status: \(status)")
