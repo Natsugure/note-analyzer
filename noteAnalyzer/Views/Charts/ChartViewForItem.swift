@@ -79,7 +79,9 @@ struct ChartViewForItem: View {
                 AxisMarks(position: .leading)
             }
             .chartYScale(domain: chartYDomain)
-            .frame(minWidth: 500) // 最小幅を500に設定
+            .frame(width: calculatedChartWidth)
+            .padding(.trailing, 10)
+            .padding(.top, 10)
         }
     }
     
@@ -97,6 +99,14 @@ struct ChartViewForItem: View {
         }
         let padding = max(1, (maxCount - minCount) / 10)
         return (minCount - padding)...(maxCount + padding)
+    }
+    
+    ///データ点の数に基づいて計算されたChartViewの幅
+    var calculatedChartWidth: CGFloat {
+        let calendar = Calendar.current
+        let daysBetween = calendar.dateComponents([.day], from: chartXDomain.lowerBound, to: chartXDomain.upperBound).day ?? 0
+        let widthPerDay: CGFloat = 20
+        return max(500, CGFloat(daysBetween + 1) * widthPerDay) // +1 は終了日を含むため
     }
     
     var dateFormatter: DateFormatter {
