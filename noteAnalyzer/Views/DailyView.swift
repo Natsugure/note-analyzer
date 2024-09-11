@@ -22,6 +22,8 @@ struct DailyView: View {
     @Binding var selection: StatsType
     
     @State private var sortType: SortType = .view
+    @State private var isShowFilterSheet = false
+    @State var searchPrompt = ""
     
     var selectedDate: Date
     
@@ -65,6 +67,24 @@ struct DailyView: View {
         GeometryReader { geometry in
             VStack {
                 VStack {
+                    Button(action: {
+                        isShowFilterSheet.toggle()
+                    }, label: {
+                        Text(Image(systemName: "line.3.horizontal.decrease.circle")) + Text("記事を絞り込む")
+                            
+                    })
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .background(Color.cyan)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(radius: 1, x: 1, y: 1)
+                    .sheet(isPresented: $isShowFilterSheet) {
+                        FilterSelecterView()
+                            .presentationDetents([.medium])
+                            .presentationDragIndicator(.visible)
+                    }
+                    .padding(.vertical)
+                    
                     VStack {
                         Text("ビュー")
                             .frame(alignment: .top)
@@ -176,6 +196,18 @@ struct DailyView: View {
             }
             .navigationTitle("\(selectedDate, formatter: dateFormatter) 統計")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                //フィルターボタン
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: {
+                        isShowFilterSheet.toggle()
+                    }) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+
+                }
+            }
+
         }
     }
     
@@ -243,6 +275,13 @@ struct DailyView: View {
     }
 }
 
+struct FilterSelecterView: View {
+    var body: some View {
+        List {
+            
+        }
+    }
+}
 
 struct DailyView_Previews: PreviewProvider {
     @State static var mockPath: [Item] = []

@@ -23,6 +23,7 @@ struct DashboardView: View {
     @State private var selection: StatsType = .view
     @State private var sortType: SortType = .view
 
+
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
@@ -97,14 +98,6 @@ struct DashboardView: View {
                 .navigationBarItems(leading: EmptyView())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    //フィルターボタン
-//                    ToolbarItem(placement: .topBarLeading) {
-//                        Button(action: {
-//                        }) {
-//                            Image(systemName: "line.3.horizontal.decrease.circle")
-//                        }
-//                    }
-                    
                     //更新ボタン
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
@@ -185,6 +178,8 @@ struct DashboardView: View {
         return formatter
     }()
 }
+
+
     
 
 struct DashboardView_Previews: PreviewProvider {
