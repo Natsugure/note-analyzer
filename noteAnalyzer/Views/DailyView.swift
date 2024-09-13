@@ -22,7 +22,7 @@ struct DailyView: View {
     @Binding var selection: StatsType
     
     @State private var sortType: SortType = .view
-    @State private var isShowFilterSheet = false
+    @State var isShowFilterSheet = false
     @State var searchPrompt = ""
     
     var selectedDate: Date
@@ -79,9 +79,9 @@ struct DailyView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 1, x: 1, y: 1)
                     .sheet(isPresented: $isShowFilterSheet) {
-                        FilterSelecterView()
+                        FilterSelecterView(isShowFilterSheet: $isShowFilterSheet)
+                        //FIXME: なぜか2回目以降の出現でハーフモーダルにならない。
                             .presentationDetents([.medium])
-                            .presentationDragIndicator(.visible)
                     }
                     .padding(.vertical)
                     
@@ -276,9 +276,33 @@ struct DailyView: View {
 }
 
 struct FilterSelecterView: View {
+    @Binding var isShowFilterSheet: Bool
+    @State var startDate = Date()
+    @State var endDate = Date()
+    
     var body: some View {
-        List {
+        VStack {
+            GeometryReader { geometry in
+                ZStack(alignment: .top) {
+                    Text("絞り込み条件設定")
+                        .font(.system(.title3, weight: .bold))
+                        .frame(width: geometry.size.width, alignment: .center)
+                    
+                    Button("完了") {
+                        isShowFilterSheet.toggle()
+                    }
+                    .padding(.trailing)
+                    .frame(width: geometry.size.width, alignment: .trailing)
+                }
+                .frame(height: geometry.size.height)
+                .padding(.vertical, 8)
+            }
+            .frame(height: 44)
             
+            Form {
+                    DatePicker("開始日", selection: $startDate, displayedComponents: [.date])
+                    DatePicker("終了日", selection: $endDate, displayedComponents: [.date])
+            }
         }
     }
 }
@@ -312,5 +336,6 @@ struct DailyView_Previews: PreviewProvider {
 
         return DailyView(path: $mockPath, selection: $mockSelection, selectedDate: mockUpdateAt)
             .environment(\.realmConfiguration, realm.configuration)
+            .environment(\.locale, Locale(identifier: "ja_JP"))
     }
 }
