@@ -48,14 +48,57 @@ struct MarkdownView: View {
                 header.font = .system(size: 18, weight: .bold)
                 attributedString.append(header)
             } else {
-                let text = AttributedString(line)
-                attributedString.append(text)
+                let processedLine = processLinks(in: String(line))
+                attributedString.append(processedLine)
             }
             attributedString.append(AttributedString("\n"))
         }
         
         return attributedString
     }
+    
+    private func processLinks(in text: String) -> AttributedString {
+            var result = AttributedString()
+            let pattern = #"\[([^\]]+)\]\(([^\)]+)\)"#
+            let regex = try! NSRegularExpression(pattern: pattern, options: [])
+            let nsRange = NSRange(text.startIndex..., in: text)
+            
+            var lastIndex = text.startIndex
+            
+            regex.enumerateMatches(in: text, options: [], range: nsRange) { match, _, _ in
+                guard let match = match else { return }
+                
+                let beforeLink = text[lastIndex..<text.index(text.startIndex, offsetBy: match.range.lowerBound)]
+                if !beforeLink.isEmpty {
+                    result.append(AttributedString(String(beforeLink)))
+                }
+                
+                if let linkTextRange = Range(match.range(at: 1), in: text),
+                   let urlRange = Range(match.range(at: 2), in: text) {
+                    let linkText = String(text[linkTextRange])
+                    let urlString = String(text[urlRange])
+                    
+                    var linkAttribute = AttributedString(linkText)
+                    linkAttribute.foregroundColor = .blue
+                    linkAttribute.underlineStyle = .single
+                    
+                    if let url = URL(string: urlString) {
+                        linkAttribute.link = url
+                    }
+                    
+                    result.append(linkAttribute)
+                }
+                
+                lastIndex = text.index(text.startIndex, offsetBy: match.range.upperBound)
+            }
+            
+            let remainingText = text[lastIndex...]
+            if !remainingText.isEmpty {
+                result.append(AttributedString(String(remainingText)))
+            }
+            
+            return result
+        }
 }
 
 #Preview {

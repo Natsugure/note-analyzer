@@ -2,7 +2,7 @@
 //  LoginWebView.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/08/25.
+//  Created by Natsugure on 2024/08/25.
 //
 
 import SwiftUI

@@ -2,7 +2,7 @@
 //  IsCompleteInitialSetupView.swift
 //  noteAnalyzer
 //
-//  Created by 秋空 on 2024/09/06.
+//  Created by Natsugure on 2024/09/06.
 //
 
 import SwiftUI
