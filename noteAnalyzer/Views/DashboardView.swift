@@ -22,127 +22,152 @@ struct DashboardView: View {
     @State private var path = [Item]()
     @State private var selection: StatsType = .view
     @State private var sortType: SortType = .view
+    @State private var isPresentedProgressView = false
 
     var body: some View {
         NavigationStack(path: $path) {
-            VStack {
-                Picker(selection: $selection, label: Text("グラフ選択")) {
-                    Text("ビュー").tag(StatsType.view)
-                    Text("コメント").tag(StatsType.comment)
-                    Text("スキ").tag(StatsType.like)
-                }
-                .pickerStyle(.segmented)
-                
-                ChartViewForAll(items: items, statsType: selection)
-                    .frame(height: 300)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                
-                List {
-                    Section(header:
-                                HStack {
-                        Text("更新日").bold()
-                            .frame(maxWidth: .infinity)
-                        Text("記事数").bold()
-                            .frame(maxWidth: 40)
-                        Text("ビュー").bold()
-                            .frame(width: 80)
-                        Text("コメント").bold()
-                            .frame(width: 60)
-                        Text("スキ").bold()
-                            .frame(width: 60)
-                            .padding(.trailing, 27)
-
+            ZStack {
+                VStack {
+                    Picker(selection: $selection, label: Text("グラフ選択")) {
+                        Text("ビュー").tag(StatsType.view)
+                        Text("コメント").tag(StatsType.comment)
+                        Text("スキ").tag(StatsType.like)
                     }
-                        .font(.system(size: 12))
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.1))
-                        .listRowInsets(EdgeInsets())
-                    ) {
-                        ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
-                            NavigationLink(destination: DailyView(path: $path, selection: $selection, selectedDate: date)) {
-                                HStack {
-                                    VStack {
-                                        Text("\(date, formatter: dateFormatter)")
-                                        Text(dateToTimeString(date: date))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    Text("\(articleCount)")
-                                        .frame(width: 40)
-                                    ZStack {
-                                        K.BrandColor.read.opacity(0.5)
-                                        Text("\(readCount)")
-                                    }
-                                    .frame(width: 80)
-                                    ZStack {
-                                        K.BrandColor.comment.opacity(0.3)
-                                        Text("\(commentCount)")
-                                    }
-                                    .frame(width: 60)
-                                    ZStack {
-                                        K.BrandColor.likeBackground
-                                        Text("\(likeCount)")
-                                    }
-                                    .frame(width: 60)
-                                }
-                                .font(.system(size: 12))
-                            }
-                        }
-                        .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
-                    }
-                }
-                .listStyle(PlainListStyle())
-
-                .navigationTitle("全記事統計")
-                .navigationBarItems(leading: EmptyView())
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    //フィルターボタン
-//                    ToolbarItem(placement: .topBarLeading) {
-//                        Button(action: {
-//                        }) {
-//                            Image(systemName: "line.3.horizontal.decrease.circle")
-//                        }
-//                    }
+                    .pickerStyle(.segmented)
                     
-                    //更新ボタン
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: {
-                            Task {
-                                await getStats()
-                            }
-                        }) {
-                            Image(systemName: "arrow.counterclockwise")
-                        }
-                        .onAppear {
-                            if items.isEmpty {
-                                alertObject.showDouble(
-                                    title: "",
-                                    message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
-                                    actionText: "取得する",
-                                    action: {
-                                        Task {
-                                            await getStats()
-                                        }
-                                    }
-                                )
+                    ChartViewForAll(items: items, statsType: selection)
+                        .frame(height: 300)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                    
+                    statsList
+                    
+                    .navigationTitle("全記事統計")
+                    .navigationBarItems(leading: EmptyView())
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        //更新ボタン
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(action: {
+                                Task {
+                                    await getStats()
+                                }
+                            }) {
+                                Image(systemName: "arrow.counterclockwise")
                             }
                         }
-                        .customAlert(for: alertObject)
+                    }
+                    .onAppear {
+                        isNotStatsDataFetched()
+                    }
+                }
+                
+                if isPresentedProgressView {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea(edges: .top)
+                    VStack {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .padding()
+                            .tint(Color.white)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        Text("処理中です")
+                            .shadow(radius: 1, x: 1, y: 1)
                     }
                 }
             }
+            .customAlert(for: alertObject)
         }
     }
     
+    ///更新日ごとに統計情報を表示するリスト
+    private var statsList: some View {
+        List {
+            Section(header:
+                        HStack {
+                Text("更新日").bold()
+                    .frame(maxWidth: .infinity)
+                Text("記事数").bold()
+                    .frame(maxWidth: 40)
+                Text("ビュー").bold()
+                    .frame(width: 80)
+                Text("コメント").bold()
+                    .frame(width: 60)
+                Text("スキ").bold()
+                    .frame(width: 60)
+                    .padding(.trailing, 27)
+                
+            }
+                .font(.system(size: 12))
+                .padding(.vertical, 8)
+                .background(Color.gray.opacity(0.1))
+                .listRowInsets(EdgeInsets())
+            ) {
+                ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
+                    NavigationLink(destination: DailyView(path: $path, selection: $selection, selectedDate: date)) {
+                        HStack {
+                            VStack {
+                                Text("\(date, formatter: dateFormatter)")
+                                Text(dateToTimeString(date: date))
+                            }
+                            .frame(maxWidth: .infinity)
+                            Text("\(articleCount)")
+                                .frame(width: 40)
+                            ZStack {
+                                K.BrandColor.read.opacity(0.5)
+                                Text("\(readCount)")
+                            }
+                            .frame(width: 80)
+                            ZStack {
+                                K.BrandColor.comment.opacity(0.3)
+                                Text("\(commentCount)")
+                            }
+                            .frame(width: 60)
+                            ZStack {
+                                K.BrandColor.likeBackground
+                                Text("\(likeCount)")
+                            }
+                            .frame(width: 60)
+                        }
+                        .font(.system(size: 12))
+                    }
+                }
+                .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
+            }
+        }
+        .listStyle(PlainListStyle())
+    }
+    
     private func getStats() async {
+        isPresentedProgressView.toggle()
+        
         do {
             try await viewModel.getStats()
+            isPresentedProgressView.toggle()
             alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
         } catch NoteViewModelError.statsNotUpdated {
+            isPresentedProgressView.toggle()
             alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
         } catch {
+            isPresentedProgressView.toggle()
             alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
+        }
+    }
+    
+    private func isNotStatsDataFetched() {
+        if items.isEmpty {
+            alertObject.showDouble(
+                title: "",
+                message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
+                actionText: "取得する",
+                action: {
+                    Task {
+                        await getStats()
+                    }
+                }
+            )
         }
     }
     
