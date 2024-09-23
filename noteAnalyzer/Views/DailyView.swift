@@ -22,7 +22,7 @@ struct DailyView: View {
     @Binding var selection: StatsType
     
     @State private var sortType: SortType = .view
-    @State var isShowFilterSheet = false
+    @State var isShowFilterSheet = true
     @State var searchPrompt = ""
     
     var selectedDate: Date
@@ -78,11 +78,6 @@ struct DailyView: View {
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 1, x: 1, y: 1)
-                    .sheet(isPresented: $isShowFilterSheet) {
-                        FilterSelecterView(isShowFilterSheet: $isShowFilterSheet)
-                        //FIXME: なぜか2回目以降の出現でハーフモーダルにならない。
-                            .presentationDetents([.medium])
-                    }
                     .padding(.vertical)
                     
                     VStack {
@@ -196,18 +191,10 @@ struct DailyView: View {
             }
             .navigationTitle("\(selectedDate, formatter: dateFormatter) 統計")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                //フィルターボタン
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        isShowFilterSheet.toggle()
-                    }) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                    }
-
-                }
+            .sheet(isPresented: $isShowFilterSheet) {
+                FilterSelecterView(isShowFilterSheet: $isShowFilterSheet)
+                    .interactiveDismissDisabled()
             }
-
         }
     }
     
@@ -279,6 +266,7 @@ struct FilterSelecterView: View {
     @Binding var isShowFilterSheet: Bool
     @State var startDate = Date()
     @State var endDate = Date()
+    @State var selectionContentTypes: Set<ContentType> = [.text, .talk, .image, .sound, .movie]
     
     var body: some View {
         VStack {
@@ -299,10 +287,20 @@ struct FilterSelecterView: View {
             }
             .frame(height: 44)
             
-            Form {
+            List(selection: $selectionContentTypes) {
+                Section("投稿日") {
                     DatePicker("開始日", selection: $startDate, displayedComponents: [.date])
                     DatePicker("終了日", selection: $endDate, displayedComponents: [.date])
+                }
+                
+                Section("投稿の種類") {
+                    ForEach(ContentType.allCases, id: \.self) {
+                        Text($0.name)
+                    }
+                    .listRowBackground(Color.white)
+                }
             }
+            .environment(\.editMode, .constant(.active))
         }
     }
 }
