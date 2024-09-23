@@ -20,21 +20,21 @@ struct DashboardView: View {
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
-    @State private var selection: StatsType = .view
+    @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .view
 
 
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
-                Picker(selection: $selection, label: Text("グラフ選択")) {
+                Picker(selection: $selectionChartType, label: Text("グラフ選択")) {
                     Text("ビュー").tag(StatsType.view)
                     Text("コメント").tag(StatsType.comment)
                     Text("スキ").tag(StatsType.like)
                 }
                 .pickerStyle(.segmented)
                 
-                ChartViewForAll(items: items, statsType: selection)
+                ChartViewForAll(items: items, statsType: selectionChartType)
                     .frame(height: 300)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -61,7 +61,7 @@ struct DashboardView: View {
                         .listRowInsets(EdgeInsets())
                     ) {
                         ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
-                            NavigationLink(destination: DailyView(path: $path, selection: $selection, selectedDate: date)) {
+                            NavigationLink(destination: DailyView(path: $path, selectionChartType: $selectionChartType, selectedDate: date)) {
                                 HStack {
                                     VStack {
                                         Text("\(date, formatter: dateFormatter)")
