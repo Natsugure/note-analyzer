@@ -22,6 +22,7 @@ struct DashboardView: View {
     @State private var path = [Item]()
     @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .view
+    @State private var isPresentedProgressView = false
 
 
     var body: some View {
@@ -86,14 +87,34 @@ struct DashboardView: View {
                                     }
                                     .frame(width: 60)
                                 }
-                                .font(.system(size: 12))
+                            }) {
+                                Image(systemName: "arrow.counterclockwise")
                             }
                         }
-                        .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
+                    }
+                    .onAppear {
+                        isNotStatsDataFetched()
                     }
                 }
-                .listStyle(PlainListStyle())
-
+                if isPresentedProgressView {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea(edges: .top)
+                    VStack {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .padding()
+                            .tint(Color.white)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        Text("処理中です")
+                            .shadow(radius: 1, x: 1, y: 1)
+                    }
+                }
+            }
+            .customAlert(for: alertObject)
+        }
+    }
                 .navigationTitle("全記事統計")
                 .navigationBarItems(leading: EmptyView())
                 .navigationBarTitleDisplayMode(.inline)
@@ -104,38 +125,62 @@ struct DashboardView: View {
                             Task {
                                 await getStats()
                             }
-                        }) {
-                            Image(systemName: "arrow.counterclockwise")
-                        }
-                        .onAppear {
-                            if items.isEmpty {
-                                alertObject.showDouble(
-                                    title: "",
-                                    message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
-                                    actionText: "取得する",
-                                    action: {
-                                        Task {
-                                            await getStats()
-                                        }
-                                    }
-                                )
+                            .frame(maxWidth: .infinity)
+                            Text("\(articleCount)")
+                                .frame(width: 40)
+                            ZStack {
+                                K.BrandColor.read.opacity(0.5)
+                                Text("\(readCount)")
                             }
+                            .frame(width: 80)
+                            ZStack {
+                                K.BrandColor.comment.opacity(0.3)
+                                Text("\(commentCount)")
+                            }
+                            .frame(width: 60)
+                            ZStack {
+                                K.BrandColor.likeBackground
+                                Text("\(likeCount)")
+                            }
+                            .frame(width: 60)
                         }
-                        .customAlert(for: alertObject)
+                        .font(.system(size: 12))
                     }
                 }
+                .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
             }
         }
+        .listStyle(PlainListStyle())
     }
     
     private func getStats() async {
+        isPresentedProgressView.toggle()
+        
         do {
             try await viewModel.getStats()
+            isPresentedProgressView.toggle()
             alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
         } catch NoteViewModelError.statsNotUpdated {
+            isPresentedProgressView.toggle()
             alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
         } catch {
+            isPresentedProgressView.toggle()
             alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
+        }
+    }
+    
+    private func isNotStatsDataFetched() {
+        if items.isEmpty {
+            alertObject.showDouble(
+                title: "",
+                message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
+                actionText: "取得する",
+                action: {
+                    Task {
+                        await getStats()
+                    }
+                }
+            )
         }
     }
     
