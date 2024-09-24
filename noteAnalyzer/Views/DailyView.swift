@@ -19,20 +19,45 @@ enum SortType {
 struct DailyView: View {
     @ObservedResults(Item.self) var items
     @Binding var path: [Item]
-    @Binding var selection: StatsType
+    @Binding var selectionChartType: StatsType
+    
+    //絞り込み条件のプロパティ
+    @State var isShowFilterSheet = false
+    @State var isEnablePublishDateFliter = false
+    @State var startDate = Date()
+    @State var endDate = Date()
+    @State var selectionContentTypes: Set<ContentType> = [.text, .talk, .image, .sound, .movie]
     
     @State private var sortType: SortType = .view
     
     var selectedDate: Date
     
-    var sortedItems: [Item] {
-        items.filter { item in
+    var filteredItem: [Item] {
+        //まずDashboardViewで選択した取得日時のデータに絞り込む
+        items.filter { (item: Item) -> Bool in
             guard let stats = item.stats.first(where: { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }) else {
                 return false
             }
-            return item.publishedAt <= stats.updatedAt
+            let baseCondition = item.publishedAt <= stats.updatedAt
+            
+            // 投稿日フィルター
+            let publishDateCondition: Bool
+            if isEnablePublishDateFliter {
+                publishDateCondition = (startDate...endDate).contains(item.publishedAt)
+            } else {
+                publishDateCondition = true
+            }
+            
+            // ContentTypeフィルター
+            let contentTypeCondition = selectionContentTypes.contains(item.type)
+            
+            // すべての条件がtrueのみフィルターを通す
+            return baseCondition && publishDateCondition && contentTypeCondition
         }
-        .sorted { (item1, item2) -> Bool in
+    }
+    
+    var sortedItems: [Item] {
+        filteredItem.sorted { (item1, item2) -> Bool in
             let stats1 = item1.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
             let stats2 = item2.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
             
@@ -65,6 +90,19 @@ struct DailyView: View {
         GeometryReader { geometry in
             VStack {
                 VStack {
+                    Button(action: {
+                        isShowFilterSheet.toggle()
+                    }, label: {
+                        Text(Image(systemName: "line.3.horizontal.decrease.circle")) + Text("記事を絞り込む")
+                            
+                    })
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .background(Color.cyan)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(radius: 1, x: 1, y: 1)
+                    .padding(.vertical)
+                    
                     VStack {
                         Text("ビュー")
                             .frame(alignment: .top)
@@ -138,7 +176,7 @@ struct DailyView: View {
                     ) {
                         // データ行
                         ForEach(sortedItems) { item in
-                            NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selection)) {
+                            NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selectionChartType)) {
                                 HStack(alignment: .center) {
                                     VStack {
                                         Text(item.publishedAt, formatter: yearFormatter)
@@ -176,6 +214,10 @@ struct DailyView: View {
             }
             .navigationTitle("\(selectedDate, formatter: dateFormatter) 統計")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $isShowFilterSheet) {
+                FilterSelecterView(isShowFilterSheet: $isShowFilterSheet, isEnablePublishDateFliter: $isEnablePublishDateFliter, startDate: $startDate, endDate: $endDate, selectionContentTypes: $selectionContentTypes)
+                    .interactiveDismissDisabled()
+            }
         }
     }
     
@@ -198,7 +240,7 @@ struct DailyView: View {
     }()
     
     private func totalCount<T: Numeric>(for keyPath: KeyPath<Stats, T>) -> T {
-        items.map { $0.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?[keyPath: keyPath] ?? 0 }.reduce(0, +)
+        filteredItem.map { $0.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?[keyPath: keyPath] ?? 0 }.reduce(0, +)
     }
     
     private func previousUpdatedAt(for stats: [Stats], currentUpdatedAt: Date) -> Date? {
@@ -208,7 +250,7 @@ struct DailyView: View {
     
     private func differenceCount<T: Numeric & Comparable>(for keyPath: KeyPath<Stats, T>) -> T? {
         let currentTotal = totalCount(for: keyPath)
-        let previousTotal = items.map { item in
+        let previousTotal = filteredItem.map { item in
             guard let currentStats = item.stats.first(where: { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }),
                   let previousDate = previousUpdatedAt(for: Array(item.stats), currentUpdatedAt: currentStats.updatedAt),
                   let previousStats = item.stats.first(where: { Calendar.current.isDate($0.updatedAt, inSameDayAs: previousDate) }) else {
@@ -243,6 +285,58 @@ struct DailyView: View {
     }
 }
 
+struct FilterSelecterView: View {
+    @Binding var isShowFilterSheet: Bool
+    @Binding var isEnablePublishDateFliter: Bool
+    @Binding var startDate: Date
+    @Binding var endDate: Date
+    @Binding var selectionContentTypes: Set<ContentType>
+    
+    var body: some View {
+        VStack {
+            GeometryReader { geometry in
+                ZStack(alignment: .top) {
+                    Text("絞り込み条件設定")
+                        .font(.system(.title3, weight: .bold))
+                        .frame(width: geometry.size.width, alignment: .center)
+                    
+                    Button("完了") {
+                        isShowFilterSheet.toggle()
+                    }
+                    .padding(.trailing)
+                    .frame(width: geometry.size.width, alignment: .trailing)
+                }
+                .frame(height: geometry.size.height)
+                .padding(.vertical, 8)
+            }
+            .frame(height: 44)
+            
+            List(selection: $selectionContentTypes) {
+                Section("投稿日") {
+                    Toggle(isOn: $isEnablePublishDateFliter) {
+                        Text("投稿日による絞り込みを有効化")
+                    }
+                    
+                    VStack {
+                        DatePicker("開始日", selection: $startDate, displayedComponents: [.date])
+                        DatePicker("終了日", selection: $endDate, displayedComponents: [.date])
+                    }
+                    .opacity(isEnablePublishDateFliter ? 1 : 0.3)
+                    .animation(.default, value: isEnablePublishDateFliter)
+
+                }
+                
+                Section("投稿の種類") {
+                    ForEach(ContentType.allCases, id: \.self) {
+                        Text($0.name)
+                    }
+                    .listRowBackground(Color.white)
+                }
+            }
+            .environment(\.editMode, .constant(.active))
+        }
+    }
+}
 
 struct DailyView_Previews: PreviewProvider {
     @State static var mockPath: [Item] = []
@@ -271,7 +365,8 @@ struct DailyView_Previews: PreviewProvider {
             }
         }
 
-        return DailyView(path: $mockPath, selection: $mockSelection, selectedDate: mockUpdateAt)
+        return DailyView(path: $mockPath, selectionChartType: $mockSelection, selectedDate: mockUpdateAt)
             .environment(\.realmConfiguration, realm.configuration)
+            .environment(\.locale, Locale(identifier: "ja_JP"))
     }
 }

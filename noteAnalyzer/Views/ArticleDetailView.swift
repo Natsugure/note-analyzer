@@ -79,7 +79,7 @@ struct ArticleDetailView: View {
                 }
             }
             .listStyle(PlainListStyle())
-            
+
             .navigationTitle("記事詳細")
             .navigationBarTitleDisplayMode(.inline)
         }

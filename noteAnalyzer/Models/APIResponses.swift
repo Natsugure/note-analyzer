@@ -21,6 +21,16 @@ enum ContentType: String, Codable, RawRepresentable, PersistableEnum {
         }
         self = contentType
     }
+    
+    var name: String {
+        switch self {
+        case .text: return "通常記事"
+        case .talk: return "つぶやき"
+        case .sound: return "音声"
+        case .image: return "画像"
+        case .movie: return "動画"
+        }
+    }
 }
 
 struct APIStatsResponse: Codable {

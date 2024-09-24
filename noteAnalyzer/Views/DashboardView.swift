@@ -20,37 +20,72 @@ struct DashboardView: View {
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
-    @State private var selection: StatsType = .view
+    @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .view
     @State private var isPresentedProgressView = false
 
+
     var body: some View {
         NavigationStack(path: $path) {
-            ZStack {
-                VStack {
-                    Picker(selection: $selection, label: Text("グラフ選択")) {
-                        Text("ビュー").tag(StatsType.view)
-                        Text("コメント").tag(StatsType.comment)
-                        Text("スキ").tag(StatsType.like)
+            VStack {
+                Picker(selection: $selectionChartType, label: Text("グラフ選択")) {
+                    Text("ビュー").tag(StatsType.view)
+                    Text("コメント").tag(StatsType.comment)
+                    Text("スキ").tag(StatsType.like)
+                }
+                .pickerStyle(.segmented)
+                
+                ChartViewForAll(items: items, statsType: selectionChartType)
+                    .frame(height: 300)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                
+                List {
+                    Section(header:
+                                HStack {
+                        Text("更新日").bold()
+                            .frame(maxWidth: .infinity)
+                        Text("記事数").bold()
+                            .frame(maxWidth: 40)
+                        Text("ビュー").bold()
+                            .frame(width: 80)
+                        Text("コメント").bold()
+                            .frame(width: 60)
+                        Text("スキ").bold()
+                            .frame(width: 60)
+                            .padding(.trailing, 27)
+
                     }
-                    .pickerStyle(.segmented)
-                    
-                    ChartViewForAll(items: items, statsType: selection)
-                        .frame(height: 300)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                    
-                    statsList
-                    
-                    .navigationTitle("全記事統計")
-                    .navigationBarItems(leading: EmptyView())
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        //更新ボタン
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button(action: {
-                                Task {
-                                    await getStats()
+                        .font(.system(size: 12))
+                        .padding(.vertical, 8)
+                        .background(Color.gray.opacity(0.1))
+                        .listRowInsets(EdgeInsets())
+                    ) {
+                        ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
+                            NavigationLink(destination: DailyView(path: $path, selectionChartType: $selectionChartType, selectedDate: date)) {
+                                HStack {
+                                    VStack {
+                                        Text("\(date, formatter: dateFormatter)")
+                                        Text(dateToTimeString(date: date))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    Text("\(articleCount)")
+                                        .frame(width: 40)
+                                    ZStack {
+                                        K.BrandColor.read.opacity(0.5)
+                                        Text("\(readCount)")
+                                    }
+                                    .frame(width: 80)
+                                    ZStack {
+                                        K.BrandColor.comment.opacity(0.3)
+                                        Text("\(commentCount)")
+                                    }
+                                    .frame(width: 60)
+                                    ZStack {
+                                        K.BrandColor.likeBackground
+                                        Text("\(likeCount)")
+                                    }
+                                    .frame(width: 60)
                                 }
                             }) {
                                 Image(systemName: "arrow.counterclockwise")
@@ -61,7 +96,6 @@ struct DashboardView: View {
                         isNotStatsDataFetched()
                     }
                 }
-                
                 if isPresentedProgressView {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea(edges: .top)
@@ -81,36 +115,15 @@ struct DashboardView: View {
             .customAlert(for: alertObject)
         }
     }
-    
-    ///更新日ごとに統計情報を表示するリスト
-    private var statsList: some View {
-        List {
-            Section(header:
-                        HStack {
-                Text("更新日").bold()
-                    .frame(maxWidth: .infinity)
-                Text("記事数").bold()
-                    .frame(maxWidth: 40)
-                Text("ビュー").bold()
-                    .frame(width: 80)
-                Text("コメント").bold()
-                    .frame(width: 60)
-                Text("スキ").bold()
-                    .frame(width: 60)
-                    .padding(.trailing, 27)
-                
-            }
-                .font(.system(size: 12))
-                .padding(.vertical, 8)
-                .background(Color.gray.opacity(0.1))
-                .listRowInsets(EdgeInsets())
-            ) {
-                ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
-                    NavigationLink(destination: DailyView(path: $path, selection: $selection, selectedDate: date)) {
-                        HStack {
-                            VStack {
-                                Text("\(date, formatter: dateFormatter)")
-                                Text(dateToTimeString(date: date))
+                .navigationTitle("全記事統計")
+                .navigationBarItems(leading: EmptyView())
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    //更新ボタン
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            Task {
+                                await getStats()
                             }
                             .frame(maxWidth: .infinity)
                             Text("\(articleCount)")
@@ -210,6 +223,8 @@ struct DashboardView: View {
         return formatter
     }()
 }
+
+
     
 
 struct DashboardView_Previews: PreviewProvider {
