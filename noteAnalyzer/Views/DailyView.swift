@@ -40,7 +40,7 @@ struct DailyView: View {
             }
             let baseCondition = item.publishedAt <= stats.updatedAt
             
-            // 公開日フィルターの適用
+            // 投稿日フィルター
             let publishDateCondition: Bool
             if isEnablePublishDateFliter {
                 publishDateCondition = (startDate...endDate).contains(item.publishedAt)
@@ -48,10 +48,10 @@ struct DailyView: View {
                 publishDateCondition = true
             }
             
-            // コンテンツタイプフィルターの適用
+            // ContentTypeフィルター
             let contentTypeCondition = selectionContentTypes.contains(item.type)
             
-            // すべての条件を組み合わせる
+            // すべての条件がtrueのみフィルターを通す
             return baseCondition && publishDateCondition && contentTypeCondition
         }
     }
