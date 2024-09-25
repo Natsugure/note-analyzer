@@ -12,19 +12,14 @@ class NetworkService: ObservableObject {
     private let realmManager: RealmManager
     private let authManager: AuthenticationManager
     
-//    @Published var contents = [APIStatsResponse.APIStatsItem]()
-//    @Published var publishedDateArray = [APIContentsResponse.APIContentItem]()
-//    @Published var isAuthenticated = false
-//    @Published var showAuthWebView = false
-    
     private var isLastPage = false
     private var isUpdated = false
     private var session: URLSession
     private var cookies: [HTTPCookie] = []
     
     // レート制限のための変数
-    private let requestsPerMinute: Int = 60 // 1分あたりの最大リクエスト数
-    private var requestTimestamps: [Date] = [] // リクエストのタイムスタンプを格納する配列
+    private let requestsPerMinute: Int = 60
+    private var requestTimestamps: [Date] = []
     
     init(authManager: AuthenticationManager) {
         self.authManager = authManager
@@ -33,7 +28,7 @@ class NetworkService: ObservableObject {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
-        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         self.session = URLSession(configuration: configuration)
     }
     
@@ -44,17 +39,15 @@ class NetworkService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        // レート制限をチェック
         try await checkRateLimit()
         
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = nil
-        request.cachePolicy = .reloadIgnoringLocalCacheData // キャッシュを無視
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         addCookiesToRequest(&request)
         
         let (data, _) = try await session.data(for: request)
         
-        // リクエストのタイムスタンプを記録
         requestTimestamps.append(Date())
         
         return data
@@ -71,7 +64,7 @@ class NetworkService: ObservableObject {
         }
     }
     
-    //URLSession、WKWebViewから関連するデータを全て削除して再定義。
+    ///URLSession、WKWebViewから関連するデータを全て削除して再定義。
     func resetWebComponents() {
         // HTTPCookieStorageからクッキーを削除
         if let cookies = HTTPCookieStorage.shared.cookies {

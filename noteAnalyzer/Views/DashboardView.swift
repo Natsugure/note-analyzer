@@ -155,7 +155,7 @@ struct DashboardView: View {
         dateFormatter.dateFormat = "HH:mm"
         return dateFormatter.string(from: date)
     }
-    // 日付フォーマッター
+    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd"
