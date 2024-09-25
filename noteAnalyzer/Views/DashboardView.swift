@@ -22,8 +22,7 @@ struct DashboardView: View {
     @State private var path = [Item]()
     @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .view
-    @State private var isPresentedProgressView = false
-
+    @Binding var isPresentedProgressView: Bool
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -40,90 +39,60 @@ struct DashboardView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
                 
-                List {
-                    Section(header:
-                                HStack {
-                        Text("更新日").bold()
-                            .frame(maxWidth: .infinity)
-                        Text("記事数").bold()
-                            .frame(maxWidth: 40)
-                        Text("ビュー").bold()
-                            .frame(width: 80)
-                        Text("コメント").bold()
-                            .frame(width: 60)
-                        Text("スキ").bold()
-                            .frame(width: 60)
-                            .padding(.trailing, 27)
-
-                    }
-                        .font(.system(size: 12))
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.1))
-                        .listRowInsets(EdgeInsets())
-                    ) {
-                        ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
-                            NavigationLink(destination: DailyView(path: $path, selectionChartType: $selectionChartType, selectedDate: date)) {
-                                HStack {
-                                    VStack {
-                                        Text("\(date, formatter: dateFormatter)")
-                                        Text(dateToTimeString(date: date))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    Text("\(articleCount)")
-                                        .frame(width: 40)
-                                    ZStack {
-                                        K.BrandColor.read.opacity(0.5)
-                                        Text("\(readCount)")
-                                    }
-                                    .frame(width: 80)
-                                    ZStack {
-                                        K.BrandColor.comment.opacity(0.3)
-                                        Text("\(commentCount)")
-                                    }
-                                    .frame(width: 60)
-                                    ZStack {
-                                        K.BrandColor.likeBackground
-                                        Text("\(likeCount)")
-                                    }
-                                    .frame(width: 60)
-                                }
-                            }) {
-                                Image(systemName: "arrow.counterclockwise")
-                            }
-                        }
-                    }
+                statsList
+            }
+            .navigationTitle("全記事統計")
+            .navigationBarItems(leading: EmptyView())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                //更新ボタン
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { Task { await getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
                     .onAppear {
-                        isNotStatsDataFetched()
-                    }
-                }
-                if isPresentedProgressView {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea(edges: .top)
-                    VStack {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .padding()
-                            .tint(Color.white)
-                            .background(Color.black.opacity(0.5))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                        
-                        Text("処理中です")
-                            .shadow(radius: 1, x: 1, y: 1)
+                        if items.isEmpty {
+                            alertObject.showDouble(
+                                title: "",
+                                message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
+                                actionText: "取得する",
+                                action: { Task { await getStats() } }
+                            )
+                        }
                     }
                 }
             }
             .customAlert(for: alertObject)
         }
     }
-                .navigationTitle("全記事統計")
-                .navigationBarItems(leading: EmptyView())
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    //更新ボタン
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: {
-                            Task {
-                                await getStats()
+    
+    ///取得日ごとの統計情報を表示する`List`
+    private var statsList: some View {
+        List {
+            Section(header:
+                        HStack {
+                Text("更新日").bold()
+                    .frame(maxWidth: .infinity)
+                Text("記事数").bold()
+                    .frame(maxWidth: 40)
+                Text("ビュー").bold()
+                    .frame(width: 80)
+                Text("コメント").bold()
+                    .frame(width: 60)
+                Text("スキ").bold()
+                    .frame(width: 60)
+                    .padding(.trailing, 27)
+
+            }
+                .font(.system(size: 12))
+                .padding(.vertical, 8)
+                .background(Color.gray.opacity(0.1))
+                .listRowInsets(EdgeInsets())
+            ) {
+                ForEach(calculateTotalCounts(), id: \.0) { (date, readCount, likeCount, commentCount, articleCount) in
+                    NavigationLink(destination: DailyView(path: $path, selectionChartType: $selectionChartType, selectedDate: date)) {
+                        HStack {
+                            VStack {
+                                Text("\(date, formatter: dateFormatter)")
+                                Text(dateToTimeString(date: date))
                             }
                             .frame(maxWidth: .infinity)
                             Text("\(articleCount)")
@@ -153,37 +122,7 @@ struct DashboardView: View {
         .listStyle(PlainListStyle())
     }
     
-    private func getStats() async {
-        isPresentedProgressView.toggle()
-        
-        do {
-            try await viewModel.getStats()
-            isPresentedProgressView.toggle()
-            alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
-        } catch NoteViewModelError.statsNotUpdated {
-            isPresentedProgressView.toggle()
-            alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
-        } catch {
-            isPresentedProgressView.toggle()
-            alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
-        }
-    }
-    
-    private func isNotStatsDataFetched() {
-        if items.isEmpty {
-            alertObject.showDouble(
-                title: "",
-                message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
-                actionText: "取得する",
-                action: {
-                    Task {
-                        await getStats()
-                    }
-                }
-            )
-        }
-    }
-    
+    //MARK: - Calculating and Formatting Stats Methods
     private func calculateTotalCounts() -> [(Date, Int, Int, Int, Int)] {
         var countsByDate: [Date: (readCount: Int, likeCount: Int, commentCount: Int, articleCount: Int)] = [:]
         
@@ -222,19 +161,34 @@ struct DashboardView: View {
         formatter.dateFormat = "yyyy/MM/dd"
         return formatter
     }()
-}
-
-
     
+    //MARK: - The methods of connect to ViewModel
+    private func getStats() async {
+        isPresentedProgressView = true
+        do {
+            try await viewModel.getStats()
+            
+            isPresentedProgressView = false
+            alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
+        } catch NoteViewModelError.statsNotUpdated {
+            isPresentedProgressView = false
+            alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
+        } catch {
+            isPresentedProgressView = false
+            alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
+        }
+    }
+}
 
 struct DashboardView_Previews: PreviewProvider {
     static let authManager = AuthenticationManager()
     static let networkService = NetworkService(authManager: authManager)
     static let realmManager = RealmManager()
     static let alertObject = AlertObject()
+    @State static var isPresentedProgressView = false
     
     static var previews: some View {
-        DashboardView(alertObject: alertObject)
+        DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
             .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

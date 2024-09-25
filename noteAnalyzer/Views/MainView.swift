@@ -10,10 +10,12 @@ import SwiftUI
 struct MainView: View {
     @State var selectedToolBar = 1
     @StateObject var alertObject = AlertObject()
-
+    @State private var isPresentedProgressView = false
+    
     var body: some View {
+        ZStack {
             TabView {
-                DashboardView(alertObject: alertObject)
+                DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
                     .tabItem {
                         Label("ダッシュボード ", systemImage: "chart.bar.fill")
                     }
@@ -25,7 +27,24 @@ struct MainView: View {
                     }
                     .tag(2)
             }
-            .navigationBarBackButtonHidden(true)
+            
+            if isPresentedProgressView {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                VStack {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(Color.white)
+                        .padding()
+                    Text("処理中です")
+                        .foregroundStyle(.white)
+                }
+                .padding()
+                .background(Color.black.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+        }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
