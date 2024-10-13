@@ -71,3 +71,12 @@ struct APIContentsResponse: Codable {
         let publishAt: String
     }
 }
+
+struct APIErrorResponse: Codable {
+    let error: APIError
+    
+    struct APIError: Codable {
+        let code: String
+        let message: String
+    }
+}
