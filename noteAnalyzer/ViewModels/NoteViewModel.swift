@@ -8,11 +8,7 @@
 import SwiftUI
 import WebKit
 
-enum NoteViewModelError: Error {
-    case statsNotUpdated //API上のstatsデータがまだ更新されていない
-    case loginCredentialMismatch
-    case networkError(Error)
-}
+
 
 class NoteViewModel: ObservableObject {
     @Published var contents = [APIStatsResponse.APIStatsItem]()
@@ -58,7 +54,7 @@ class NoteViewModel: ObservableObject {
                     
                     if page == 1 && !isUpdated {
                         print("更新されていません")
-                        throw NoteViewModelError.statsNotUpdated
+                        throw NAError.Network.statsNotUpdated
                     }
                     
                     if isLastPage {
@@ -67,11 +63,11 @@ class NoteViewModel: ObservableObject {
                     }
                     
                     try await Task.sleep(nanoseconds: 1_000_000_000)
-                } catch NoteViewModelError.statsNotUpdated {
-                    throw NoteViewModelError.statsNotUpdated
+                } catch NAError.Network.statsNotUpdated {
+                    throw NAError.Network.statsNotUpdated
                 } catch {
                     print("Error: \(error)")
-                    throw NoteViewModelError.networkError(error)
+                    throw NAError.Network.unknownNetworkError(error)
                 }
             }
 
@@ -181,7 +177,7 @@ class NoteViewModel: ObservableObject {
             
             let firstArticle = results.data.noteStats[0]
             guard let item = realmItems.first(where: { $0.id == firstArticle.id && $0.title == firstArticle.name }) else {
-                throw NoteViewModelError.loginCredentialMismatch
+                throw NAError.Auth.loginCredentialMismatch
             }
         } catch {
             throw error

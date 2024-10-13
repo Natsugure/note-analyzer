@@ -17,6 +17,7 @@
 		1A2AC3B92C55CEFC0046C921 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3B82C55CEFC0046C921 /* ArticleDetailView.swift */; };
 		1A2AC3BB2C55D4420046C921 /* ChartViewForAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3BA2C55D4420046C921 /* ChartViewForAll.swift */; };
 		1A2AC3BD2C55DE3C0046C921 /* ChartViewForItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2AC3BC2C55DE3C0046C921 /* ChartViewForItem.swift */; };
+		1A4D8AC02CBBA18200BF353A /* NAError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4D8ABF2CBBA18200BF353A /* NAError.swift */; };
 		1A4E589B2C8B37BC009472A1 /* IsCompleteInitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4E589A2C8B37BC009472A1 /* IsCompleteInitialSetupView.swift */; };
 		1A5852CA2C7AFFD200EDA5E2 /* AuthWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5852C92C7AFFD200EDA5E2 /* AuthWebView.swift */; };
 		1A5852CE2C7C060600EDA5E2 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5852CD2C7C060600EDA5E2 /* InitialSetupView.swift */; };
@@ -63,6 +64,7 @@
 		1A2AC3B82C55CEFC0046C921 /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
 		1A2AC3BA2C55D4420046C921 /* ChartViewForAll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViewForAll.swift; sourceTree = "<group>"; };
 		1A2AC3BC2C55DE3C0046C921 /* ChartViewForItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViewForItem.swift; sourceTree = "<group>"; };
+		1A4D8ABF2CBBA18200BF353A /* NAError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NAError.swift; sourceTree = "<group>"; };
 		1A4E589A2C8B37BC009472A1 /* IsCompleteInitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsCompleteInitialSetupView.swift; sourceTree = "<group>"; };
 		1A5852C92C7AFFD200EDA5E2 /* AuthWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWebView.swift; sourceTree = "<group>"; };
 		1A5852CD2C7C060600EDA5E2 /* InitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupView.swift; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 				1A25C67E2C4770C400403215 /* AuthenticationManager.swift */,
 				1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */,
 				1AC95B262C4CC26A0049E6AA /* RealmManager.swift */,
+				1A4D8ABF2CBBA18200BF353A /* NAError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -299,6 +302,7 @@
 				1AC95B292C4F847A0049E6AA /* DashboardView.swift in Sources */,
 				1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */,
 				1A06C8F62C60524C00838DD5 /* OnboardingView.swift in Sources */,
+				1A4D8AC02CBBA18200BF353A /* NAError.swift in Sources */,
 				1AE3CA472C3B649500C30A89 /* APIResponses.swift in Sources */,
 				1A9A7B032C708698005CCA61 /* NoteViewModel.swift in Sources */,
 				1A2AC3AC2C5496DC0046C921 /* Constants.swift in Sources */,

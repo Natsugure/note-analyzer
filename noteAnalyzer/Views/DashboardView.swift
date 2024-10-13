@@ -23,6 +23,8 @@ struct DashboardView: View {
     @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .view
     @Binding var isPresentedProgressView: Bool
+    
+    @State var isShowAlert = false
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -51,8 +53,9 @@ struct DashboardView: View {
                     .onAppear {
                         if items.isEmpty {
                             alertObject.showDouble(
+                                isPresented: $isShowAlert,
                                 title: "",
-                                message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
+                                message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
                                 actionText: "取得する",
                                 action: { Task { await getStats() } }
                             )
@@ -60,8 +63,9 @@ struct DashboardView: View {
                     }
                 }
             }
-            .customAlert(for: alertObject)
         }
+        .customAlert(for: alertObject, isPresented: $isShowAlert)
+
     }
     
     ///取得日ごとの統計情報を表示する`List`
@@ -155,7 +159,7 @@ struct DashboardView: View {
         dateFormatter.dateFormat = "HH:mm"
         return dateFormatter.string(from: date)
     }
-    // 日付フォーマッター
+    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd"
@@ -169,22 +173,45 @@ struct DashboardView: View {
             try await viewModel.getStats()
             
             isPresentedProgressView = false
-            alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
-        } catch NoteViewModelError.statsNotUpdated {
-            isPresentedProgressView = false
-            alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
+            alertObject.showSingle(
+                isPresented: $isShowAlert,
+                title: "取得完了",
+                message:  "統計情報の取得が完了しました。"
+            )
         } catch {
-            isPresentedProgressView = false
-            alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
+            handleGetStatsError(error)
         }
     }
+    
+    private func handleGetStatsError(_ error: Error) {
+        let title: String
+        let detail: String
+        
+        switch error {
+        case NAError.network(_):
+            title = "取得エラー"
+            detail = error.localizedDescription
+            
+        case NAError.auth(_):
+            title = "認証エラー"
+            detail = error.localizedDescription
+            
+        default:
+            title = "不明なエラー"
+            detail = "統計情報の取得中に不明なエラーが発生しました。\n\(error.localizedDescription)"
+        }
+        
+        alertObject.showSingle(isPresented: $isShowAlert, title: title, message: detail)
+    }
+    
+
 }
 
 struct DashboardView_Previews: PreviewProvider {
     static let authManager = AuthenticationManager()
     static let networkService = NetworkService(authManager: authManager)
     static let realmManager = RealmManager()
-    static let alertObject = AlertObject()
+    @StateObject static var alertObject = AlertObject()
     @State static var isPresentedProgressView = false
     
     static var previews: some View {

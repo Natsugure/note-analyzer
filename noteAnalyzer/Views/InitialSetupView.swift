@@ -13,6 +13,7 @@ struct InitialSetupView: View {
     @State private var isPresentedProgressView = false
     @State private var shouldShowLoginCredentialMismatchView = false
     @State private var shouldShowIsCompleteInitialSetupView = false
+    @State var isShowAlert = false
     
     var body: some View {
         ZStack {
@@ -67,7 +68,7 @@ struct InitialSetupView: View {
             IsCompleteInitialSetupView()
         }
         .navigationBarBackButtonHidden(true)
-        .customAlert(for: alertObject)
+        .customAlert(for: alertObject, isPresented: $isShowAlert)
     }
     
     private func verifyLoginConsistency() async {
@@ -76,7 +77,7 @@ struct InitialSetupView: View {
         do {
             try await viewModel.verifyLoginConsistency()
             isPresentedProgressView = false
-        } catch NoteViewModelError.loginCredentialMismatch {
+        } catch NAError.Auth.loginCredentialMismatch {
             shouldShowLoginCredentialMismatchView.toggle()
         } catch {
             print(error)
