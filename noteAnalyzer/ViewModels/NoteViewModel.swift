@@ -64,10 +64,10 @@ class NoteViewModel: ObservableObject {
                     
                     try await Task.sleep(nanoseconds: 1_000_000_000)
                 } catch NAError.Network.statsNotUpdated {
-                    throw NAError.Network.statsNotUpdated
+                    throw NAError.network(.statsNotUpdated)
                 } catch {
                     print("Error: \(error)")
-                    throw NAError.Network.unknownNetworkError(error)
+                    throw NAError.network(.unknownNetworkError(error))
                 }
             }
 

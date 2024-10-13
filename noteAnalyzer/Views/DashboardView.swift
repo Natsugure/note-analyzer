@@ -179,6 +179,7 @@ struct DashboardView: View {
                 message:  "統計情報の取得が完了しました。"
             )
         } catch {
+            isPresentedProgressView = false
             handleGetStatsError(error)
         }
     }
