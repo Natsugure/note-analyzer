@@ -15,7 +15,7 @@ struct MainView: View {
     var body: some View {
         ZStack {
             TabView {
-                DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
+                DashboardView(isPresentedProgressView: $isPresentedProgressView)
                     .tabItem {
                         Label("ダッシュボード ", systemImage: "chart.bar.fill")
                     }

@@ -16,13 +16,16 @@ enum StatsType {
 
 struct DashboardView: View {
     @EnvironmentObject var viewModel: NoteViewModel
-    @ObservedObject var alertObject: AlertObject
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
     @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .view
     @Binding var isPresentedProgressView: Bool
+    
+    @State private var isShowAlertSingle = false
+    @State private var isShowAlertDouble = false
+    @State private var alertEntity: AlertEntity?
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -50,9 +53,9 @@ struct DashboardView: View {
                     Button(action: { Task { await getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
                     .onAppear {
                         if items.isEmpty {
-                            alertObject.showDouble(
+                            showAlertDouble(
                                 title: "",
-                                message: "統計情報を利用するには、noteからダッシュボードを取得する必要があります。\n今すぐ取得しますか？",
+                                message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
                                 actionText: "取得する",
                                 action: { Task { await getStats() } }
                             )
@@ -60,8 +63,20 @@ struct DashboardView: View {
                     }
                 }
             }
-            .customAlert(for: alertObject)
         }
+        .alert(alertEntity?.title ?? "", isPresented: $isShowAlertSingle, presenting: alertEntity) {
+            Button($0.actionText, action: $0.action ?? {})
+        } message: {
+            Text($0.message)
+        }
+        
+        .alert(alertEntity?.title ?? "", isPresented: $isShowAlertDouble, presenting: alertEntity) {
+            Button($0.cancelText, role: $0.cancelButtonRole, action: $0.cancelAction ?? {})
+            Button($0.actionText, role: $0.actionButtonRole, action: $0.action ?? {})
+        } message: {
+            Text($0.message)
+        }
+
     }
     
     ///取得日ごとの統計情報を表示する`List`
@@ -169,14 +184,52 @@ struct DashboardView: View {
             try await viewModel.getStats()
             
             isPresentedProgressView = false
-            alertObject.showSingle(title: "取得完了", message: "統計情報の取得が完了しました。")
+            showAlertSingle(title: "取得完了", message:  "統計情報の取得が完了しました。")
         } catch NoteViewModelError.statsNotUpdated {
             isPresentedProgressView = false
-            alertObject.showSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
+            showAlertSingle(title: "取得エラー", message: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。")
         } catch {
             isPresentedProgressView = false
-            alertObject.showSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
+            showAlertSingle(title: "取得エラー", message: "ネットワーク上でエラーが発生しました。\n \(error)")
         }
+    }
+    
+    private func showAlertSingle(title: String, message: String, actionText: String? = nil, action: (() -> Void)? = nil) {
+        alertEntity = AlertEntity(
+            title: title,
+            message: message,
+            actionText: actionText ?? "OK",
+            action: action,
+            actionButtonRole: nil,
+            cancelText: "",
+            cancelAction: nil,
+            cancelButtonRole: nil
+        )
+        
+        isShowAlertSingle = true
+
+    }
+    
+    private func showAlertDouble(title: String, message: String, actionText: String?, action: (() -> Void)? = nil, actionButtonRole: ButtonRole? = nil, cancelText: String? = nil, cancelAction: (() -> Void)? = nil, cancelButtonRole: ButtonRole? = nil) {
+        let cancelRole: ButtonRole?
+        if cancelButtonRole == nil && actionButtonRole == .destructive {
+            cancelRole = .cancel
+        } else {
+            cancelRole = nil
+        }
+        
+        alertEntity = AlertEntity(
+            title: title,
+            message: message,
+            actionText: actionText ?? "OK",
+            action: action,
+            actionButtonRole: actionButtonRole,
+            cancelText: cancelText ?? "キャンセル",
+            cancelAction: cancelAction,
+            cancelButtonRole: cancelButtonRole ?? cancelRole
+        )
+        
+        isShowAlertDouble = true
     }
 }
 
@@ -184,11 +237,10 @@ struct DashboardView_Previews: PreviewProvider {
     static let authManager = AuthenticationManager()
     static let networkService = NetworkService(authManager: authManager)
     static let realmManager = RealmManager()
-    static let alertObject = AlertObject()
     @State static var isPresentedProgressView = false
     
     static var previews: some View {
-        DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
+        DashboardView(isPresentedProgressView: $isPresentedProgressView)
             .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }
