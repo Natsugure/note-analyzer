@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InitialSetupView: View {
-    @EnvironmentObject private var viewModel: NoteViewModel
+    @EnvironmentObject private var viewModel: ViewModel
     @StateObject private var alertObject = AlertObject()
     @State private var isPresentedProgressView = false
     @State private var shouldShowLoginCredentialMismatchView = false
@@ -92,6 +92,6 @@ struct InitialSetupView_Previews: PreviewProvider {
     
     static var previews: some View {
         InitialSetupView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

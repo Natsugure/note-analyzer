@@ -56,6 +56,6 @@ struct MainView_Previews: PreviewProvider {
     
     static var previews: some View {
         MainView(alertObject: alertObject)
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

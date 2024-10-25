@@ -15,7 +15,7 @@ enum StatsType {
 }
 
 struct DashboardView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     @ObservedObject var alertObject: AlertObject
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
@@ -217,6 +217,6 @@ struct DashboardView_Previews: PreviewProvider {
     
     static var previews: some View {
         DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

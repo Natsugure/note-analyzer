@@ -8,7 +8,12 @@
 import SwiftUI
 import WebKit
 
-class NetworkService: ObservableObject {
+protocol NetworkServiceProtocol {
+    func fetchData(url: String) async throws -> Data
+    func resetWebComponents()
+}
+
+class NetworkService: NetworkServiceProtocol {
     private let realmManager: RealmManager
     private let authManager: AuthenticationManager
     
@@ -36,7 +41,7 @@ class NetworkService: ObservableObject {
         print(urlString)
 
         guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
+            fatalError("Invalid URL: \(urlString)")
         }
         
         try await checkRateLimit()

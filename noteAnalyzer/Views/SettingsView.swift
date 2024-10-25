@@ -9,7 +9,7 @@ import SwiftUI
 import RealmSwift
 
 struct SettingsView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     @Environment(\.openURL) private var openURL
     @ObservedObject var alertObject: AlertObject
     @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
@@ -135,6 +135,6 @@ struct SettingsView_Previews: PreviewProvider {
     
     static var previews: some View {
         SettingsView(alertObject: alertObject)
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

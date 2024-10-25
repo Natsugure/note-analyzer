@@ -36,14 +36,40 @@ enum NAError: LocalizedError {
         }
     }
     
+    enum Decoding: LocalizedError {
+        case decodingFailed(Error)
+        
+        var errorDescription: String? {
+            switch self {
+            case .decodingFailed:
+                return "JSONのデコーディングに失敗"
+            }
+        }
+    }
+    
+    enum Realm: LocalizedError {
+        
+        var errorDescription: String? {
+            switch self {
+                
+            }
+        }
+    }
+    
     case network(_ detail: Network)
     case auth(_ detail: Auth)
+    case decoding(_ detail: Decoding)
+    case realm(_ detail: Realm)
 
     var errorDescription: String? {
         switch self {
         case .network(let detail):
             return detail.errorDescription
         case .auth(let detail):
+            return detail.errorDescription
+        case .decoding(let detail):
+            return detail.errorDescription
+        case .realm(let detail):
             return detail.errorDescription
         }
     }

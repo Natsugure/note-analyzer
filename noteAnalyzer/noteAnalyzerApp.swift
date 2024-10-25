@@ -12,14 +12,19 @@ import RealmSwift
 struct noteAnalyzerApp: SwiftUI.App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject var viewModel: NoteViewModel
+    @StateObject var viewModel: ViewModel
     
     init() {
+        #if DEBUG
+        _viewModel = StateObject(wrappedValue: DemoViewModel())
+        
+        #else
         let authManager = AuthenticationManager()
         let networkService = NetworkService(authManager: authManager)
         let realmManager = RealmManager()
         
-        _viewModel = StateObject(wrappedValue: NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        #endif
     }
     
     var body: some Scene {

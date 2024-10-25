@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AuthWebView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     
     var body: some View {
         NavigationStack {
@@ -35,7 +35,7 @@ struct AuthWebView_Previews: PreviewProvider {
     
     static var previews: some View {
         AuthWebView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }
 

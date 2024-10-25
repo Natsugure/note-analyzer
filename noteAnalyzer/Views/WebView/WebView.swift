@@ -12,7 +12,7 @@ struct WebView: UIViewRepresentable {
     typealias UIViewType = WKWebView
     
     @Binding var isPresented: Bool
-    var viewModel: NoteViewModel
+    var viewModel: ViewModel
     let urlString: String?
     private let observable = WebViewURLObservable()
     
