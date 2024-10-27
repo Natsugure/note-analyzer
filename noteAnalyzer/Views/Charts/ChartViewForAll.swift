@@ -14,36 +14,93 @@ struct ChartViewForAll: View {
     let statsType: StatsType
     
     var chartData: [(Date, Int)] {
-        var dataDict: [Date: Int] = [:]
-        let calendar = Calendar.current
+        // 日付のみを取得する関数
+        func dateOnly(from date: Date) -> Date {
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.year, .month, .day], from: date)
+            return calendar.date(from: components) ?? date
+        }
+        
+        // まず日付ごとに最新の統計データをグループ化
+        var latestStatsByDate: [Date: [Stats]] = [:]
         
         for item in items {
             for stat in item.stats {
-                let date = calendar.startOfDay(for: stat.updatedAt) // 日付のみを使用
-                let value: Int
-                switch statsType {
-                case .view:
-                    value = stat.readCount
-                case .comment:
-                    value = stat.commentCount
-                case .like:
-                    value = stat.likeCount
+                let dateKey = dateOnly(from: stat.updatedAt)
+                
+                if latestStatsByDate[dateKey] == nil {
+                    latestStatsByDate[dateKey] = [stat]
+                } else {
+                    // 同じ日付の場合、時間を比較
+                    if let existingStats = latestStatsByDate[dateKey],
+                       let existingTime = existingStats.first?.updatedAt,
+                       stat.updatedAt > existingTime {
+                        // より新しい時間のデータで更新
+                        latestStatsByDate[dateKey] = [stat]
+                    } else if let existingStats = latestStatsByDate[dateKey],
+                              let existingTime = existingStats.first?.updatedAt,
+                              stat.updatedAt == existingTime {
+                        // 同じ時間のデータは追加
+                        latestStatsByDate[dateKey]?.append(stat)
+                    }
                 }
-                dataDict[date, default: 0] += value
             }
         }
         
-        return dataDict.sorted { $0.key < $1.key }
+        // 各日付の最新データで集計
+        var result: [(Date, Int)] = []
+        
+        for (date, dayStats) in latestStatsByDate {
+            let totalValue = dayStats.reduce(0) { total, stat in
+                switch statsType {
+                case .view:
+                    return total + stat.readCount
+                case .comment:
+                    return total + stat.commentCount
+                case .like:
+                    return total + stat.likeCount
+                }
+            }
+            
+            // 時間情報を保持したまま結果に追加
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((latestTime, totalValue))
+            }
+        }
+        
+        // 日付でソート（昇順）
+        return result.sorted { $0.0 < $1.0 }
+        
+//        var dataDict: [Date: Int] = [:]
+//        let calendar = Calendar.current
+//
+//        for item in items {
+//            for stat in item.stats {
+//                let date = calendar.startOfDay(for: stat.updatedAt) // 日付のみを使用
+//                let value: Int
+//                switch statsType {
+//                case .view:
+//                    value = stat.readCount
+//                case .comment:
+//                    value = stat.commentCount
+//                case .like:
+//                    value = stat.likeCount
+//                }
+//                dataDict[date, default: 0] += value
+//            }
+//        }
+//
+//        return dataDict.sorted { $0.key < $1.key }
     }
     
     var lineColor: Color {
         switch statsType {
         case .view:
-            return K.BrandColor.read
+            return AppConstants.BrandColor.read
         case .comment:
-            return K.BrandColor.comment
+            return AppConstants.BrandColor.comment
         case .like:
-            return K.BrandColor.like
+            return AppConstants.BrandColor.like
         }
     }
     

@@ -34,11 +34,11 @@ struct ChartViewForItem: View {
     var lineColor: Color {
         switch statsType {
         case .view:
-            return K.BrandColor.read
+            return AppConstants.BrandColor.read
         case .comment:
-            return K.BrandColor.comment
+            return AppConstants.BrandColor.comment
         case .like:
-            return K.BrandColor.like
+            return AppConstants.BrandColor.like
         }
     }
     

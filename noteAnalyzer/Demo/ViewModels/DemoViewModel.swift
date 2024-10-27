@@ -20,4 +20,14 @@ class DemoViewModel: ViewModel {
         )
         print("DemoViewModel initialized")
     }
+    
+    override func clearAllData() async throws {
+        try await MainActor.run {
+            try realmManager.deleteAll()
+            
+            UserDefaults.standard.set("1970/1/1 00:00", forKey: AppConstants.UserDefaults.lastCalculateAt)
+            UserDefaults.standard.set("", forKey: AppConstants.UserDefaults.urlname)
+
+        }
+    }
 }

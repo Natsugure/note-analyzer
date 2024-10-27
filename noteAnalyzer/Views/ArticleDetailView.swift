@@ -56,17 +56,17 @@ struct ArticleDetailView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, 10)
                             ZStack {
-                                K.BrandColor.read.opacity(0.5)
+                                AppConstants.BrandColor.read.opacity(0.5)
                                 Text(String(stats.readCount))
                             }
                             .frame(width: 60)
                             ZStack {
-                                K.BrandColor.comment.opacity(0.5)
+                                AppConstants.BrandColor.comment.opacity(0.5)
                                 Text(String(stats.commentCount))
                             }
                             .frame(width: 40)
                             ZStack {
-                                K.BrandColor.likeBackground
+                                AppConstants.BrandColor.likeBackground
                                 Text(String(stats.likeCount))
                             }
                             .frame(width: 40)

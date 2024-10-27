@@ -16,7 +16,7 @@ class ViewModel: ObservableObject {
     
     private let authManager: AuthenticationProtocol
     private let networkService: NetworkServiceProtocol
-    private let realmManager: RealmManager
+    let realmManager: RealmManager
     
     private var isLastPage = false
     private var isUpdated = false
@@ -36,6 +36,7 @@ class ViewModel: ObservableObject {
         if let authManager = authManager as? AuthenticationManager {
             authManager.$isAuthenticated.assign(to: &$isAuthenticated)
             authManager.$showAuthWebView.assign(to: &$showAuthWebView)
+            print("Normal ViewModel initialized")
         } else if let mockAuthManager = authManager as? MockAuthenticationManager {
             mockAuthManager.$isAuthenticated.assign(to: &$isAuthenticated)
             mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
@@ -218,8 +219,8 @@ class ViewModel: ObservableObject {
                 try authManager.clearAuthentication()
                 networkService.resetWebComponents()
                 
-                UserDefaults.standard.set("1970/1/1 00:00", forKey: K.UserDefaults.lastCalculateAt)
-                UserDefaults.standard.set("", forKey: K.UserDefaults.urlname)
+                UserDefaults.standard.set("1970/1/1 00:00", forKey: AppConstants.UserDefaults.lastCalculateAt)
+                UserDefaults.standard.set("", forKey: AppConstants.UserDefaults.urlname)
             } catch KeychainError.unexpectedStatus(let status) {
                 print("Keychain error occurred. \n code: \(status), description: \(status.description)")
                 throw KeychainError.unexpectedStatus(status)

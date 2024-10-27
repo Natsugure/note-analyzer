@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var viewModel: ViewModel
-    @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     
     var body: some View {
         if !isAuthenticationConfigured {

@@ -112,7 +112,7 @@ struct DailyView: View {
                             .font(.system(size: 12))
                     }
                     .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 4)
-                    .background(K.BrandColor.read.opacity(0.5))
+                    .background(AppConstants.BrandColor.read.opacity(0.5))
                     
                     HStack {
                         VStack {
@@ -123,7 +123,7 @@ struct DailyView: View {
                                 .font(.system(size: 12))
                         }
                         .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 4)
-                        .background(K.BrandColor.comment.opacity(0.3))
+                        .background(AppConstants.BrandColor.comment.opacity(0.3))
                         
                         VStack {
                             Text("スキ")
@@ -133,7 +133,7 @@ struct DailyView: View {
                                 .font(.system(size: 12))
                         }
                         .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 4)
-                        .background(K.BrandColor.likeBackground)
+                        .background(AppConstants.BrandColor.likeBackground)
                     }
                 }
                 .padding()
@@ -188,17 +188,17 @@ struct DailyView: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(.leading, 10)
                                     ZStack {
-                                        K.BrandColor.read.opacity(0.5)
+                                        AppConstants.BrandColor.read.opacity(0.5)
                                         Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.readCount ?? 0))
                                     }
                                     .frame(width: 60)
                                     ZStack {
-                                        K.BrandColor.comment.opacity(0.3)
+                                        AppConstants.BrandColor.comment.opacity(0.3)
                                         Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.commentCount ?? 0))
                                     }
                                     .frame(width: 40)
                                     ZStack {
-                                        K.BrandColor.likeBackground
+                                        AppConstants.BrandColor.likeBackground
                                         Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.likeCount ?? 0))
                                     }
                                     .frame(width: 60)

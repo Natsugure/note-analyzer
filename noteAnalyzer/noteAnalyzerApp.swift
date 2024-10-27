@@ -16,7 +16,16 @@ struct noteAnalyzerApp: SwiftUI.App {
     
     init() {
         #if DEBUG
-        _viewModel = StateObject(wrappedValue: DemoViewModel())
+        @AppStorage(AppConstants.UserDefaults.demoModekey) var isDemoMode = false
+        if isDemoMode {
+            _viewModel = StateObject(wrappedValue: DemoViewModel())
+        } else {
+            let authManager = AuthenticationManager()
+            let networkService = NetworkService(authManager: authManager)
+            let realmManager = RealmManager()
+            
+            _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        }
         
         #else
         let authManager = AuthenticationManager()

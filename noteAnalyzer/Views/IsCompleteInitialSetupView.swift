@@ -9,7 +9,7 @@ import SwiftUI
 
 struct IsCompleteInitialSetupView: View {
     @EnvironmentObject private var viewModel: ViewModel
-    @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State private var shouldShowMainView = false
     
     var body: some View {

@@ -102,17 +102,17 @@ struct DashboardView: View {
                             Text("\(articleCount)")
                                 .frame(width: 40)
                             ZStack {
-                                K.BrandColor.read.opacity(0.5)
+                                AppConstants.BrandColor.read.opacity(0.5)
                                 Text("\(readCount)")
                             }
                             .frame(width: 80)
                             ZStack {
-                                K.BrandColor.comment.opacity(0.3)
+                                AppConstants.BrandColor.comment.opacity(0.3)
                                 Text("\(commentCount)")
                             }
                             .frame(width: 60)
                             ZStack {
-                                K.BrandColor.likeBackground
+                                AppConstants.BrandColor.likeBackground
                                 Text("\(likeCount)")
                             }
                             .frame(width: 60)
@@ -128,27 +128,53 @@ struct DashboardView: View {
     
     //MARK: - Calculating and Formatting Stats Methods
     private func calculateTotalCounts() -> [(Date, Int, Int, Int, Int)] {
-        var countsByDate: [Date: (readCount: Int, likeCount: Int, commentCount: Int, articleCount: Int)] = [:]
+        // 日付のみを取得する関数
+        func dateOnly(from date: Date) -> Date {
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.year, .month, .day], from: date)
+            return calendar.date(from: components) ?? date
+        }
+        
+        // 日付でグループ化し、各日付の最新データを保持
+        var latestStatsByDate: [Date: [Stats]] = [:]
         
         for stat in stats {
-            let date = stat.updatedAt
+            let dateKey = dateOnly(from: stat.updatedAt)
             
-            if countsByDate[date] == nil {
-                countsByDate[date] = (readCount: 0, likeCount: 0, commentCount: 0, articleCount: 0)
+            if latestStatsByDate[dateKey] == nil {
+                latestStatsByDate[dateKey] = [stat]
+            } else {
+                // 同じ日付の場合、時間を比較
+                if let existingStats = latestStatsByDate[dateKey],
+                   let existingTime = existingStats.first?.updatedAt,
+                   stat.updatedAt > existingTime {
+                    // より新しい時間のデータに更新
+                    latestStatsByDate[dateKey] = [stat]
+                } else if let existingStats = latestStatsByDate[dateKey],
+                          let existingTime = existingStats.first?.updatedAt,
+                          stat.updatedAt == existingTime {
+                    // 同じ時間のデータは追加
+                    latestStatsByDate[dateKey]?.append(stat)
+                }
             }
+        }
+        
+        // 各日付の最新データで集計
+        var result: [(Date, Int, Int, Int, Int)] = []
+        
+        for (date, dayStats) in latestStatsByDate {
+            let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
+            let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            let articleCount = dayStats.count
             
-            countsByDate[date]?.readCount += stat.readCount
-            countsByDate[date]?.likeCount += stat.likeCount
-            countsByDate[date]?.commentCount += stat.commentCount
-            countsByDate[date]?.articleCount += 1 //記事の数をカウント
+            // 時間情報を保持したまま結果に追加
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((latestTime, totalReadCount, totalLikeCount, totalCommentCount, articleCount))
+            }
         }
         
-        // 結果を配列に変換
-        var result = countsByDate.map { (date, counts) in
-            return (date, counts.readCount, counts.likeCount, counts.commentCount, counts.articleCount)
-        }
-        
-        // 更新日でソート
+        // 更新日でソート（降順）
         result.sort { $0.0 > $1.0 }
         
         return result
