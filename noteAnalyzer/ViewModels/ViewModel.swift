@@ -54,52 +54,52 @@ class ViewModel: ObservableObject {
     func getStats() async throws {
         let maxLoopCount = 100
         
-            for page in 1...maxLoopCount {
-                let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
+        for page in 1...maxLoopCount {
+            let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
+            
+            do {
+                let fetchedData = try await networkService.fetchData(url: urlString)
+                try await parseStatsJSON(fetchedData)
                 
-                do {
-                    let fetchedData = try await networkService.fetchData(url: urlString)
-                    try await parseStatsJSON(fetchedData)
-                    
-                    if page == 1 && !isUpdated {
-                        print("更新されていません")
-                        throw NAError.network(.statsNotUpdated)
-                    }
-                    
-                    if isLastPage {
-                        print("最後のページに到達しました - 総ページ数: \(page)")
-                        break
-                    }
-                    
-                    try await Task.sleep(nanoseconds: 1_000_000_000)
-                } catch NAError.network(.statsNotUpdated) {
+                if page == 1 && !isUpdated {
+                    print("更新されていません")
                     throw NAError.network(.statsNotUpdated)
+                }
+                
+                if isLastPage {
+                    print("最後のページに到達しました - 総ページ数: \(page)")
+                    break
+                }
+                
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+            } catch NAError.network(.statsNotUpdated) {
+                throw NAError.network(.statsNotUpdated)
+            } catch {
+                print("Error: \(error)")
+                throw NAError.network(.unknownNetworkError(error))
+            }
+        }
+        
+        if isUpdated {
+            print("取得完了, 総アイテム数: \(contents.count)")
+            
+            try await getPublishedDate()
+            
+            await MainActor.run {
+                do {
+                    try realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
                 } catch {
-                    print("Error: \(error)")
-                    throw NAError.network(.unknownNetworkError(error))
+                    print(error)
                 }
             }
-
-            if isUpdated {
-                print("取得完了, 総アイテム数: \(contents.count)")
-                
-                try await getPublishedDate()
-                
-                await MainActor.run {
-                    do {
-                         try realmManager.updateStats(stats: contents, publishedDate: publishedDateArray)
-                    } catch {
-                        print(error)
-                    }
-                }
-            }
-            
-            isUpdated = false
-            
-            DispatchQueue.main.async {
-                self.contents.removeAll()
-                self.publishedDateArray.removeAll()
-            }
+        }
+        
+        isUpdated = false
+        
+        DispatchQueue.main.async {
+            self.contents.removeAll()
+            self.publishedDateArray.removeAll()
+        }
     }
     
     private func parseStatsJSON(_ data: Data) async throws {

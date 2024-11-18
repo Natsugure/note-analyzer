@@ -57,11 +57,11 @@ class RealmManager {
             if let newValue = dateFormatter.date(from: publishedAt) {
                 newItem.publishedAt =  newValue
             } else {
-                throw RealmError.publishedDateNotFound
+                throw NAError.realm(.publishedDateNotFound)
             }
 
         } else {
-            throw RealmError.publishedDateNotFound
+            throw NAError.realm(.publishedDateNotFound)
         }
         
         let newStats = createStats(from: stat, at: date)
@@ -90,9 +90,4 @@ class RealmManager {
             realm.deleteAll()
         }
     }
-}
-    
-
-enum RealmError: Error {
-    case publishedDateNotFound
 }

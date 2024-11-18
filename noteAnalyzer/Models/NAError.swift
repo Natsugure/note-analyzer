@@ -9,13 +9,16 @@ import Foundation
 
 enum NAError: LocalizedError {
     enum Network: LocalizedError {
-        case statsNotUpdated //API上のstatsデータがまだ更新されていない
+        case statsNotUpdated
+        case networkNotConnected
         case unknownNetworkError(Error)
         
         var errorDescription: String? {
             switch self {
             case .statsNotUpdated:
                 return "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。"
+            case .networkNotConnected:
+                return "ネットワークに接続されていません。"
             case .unknownNetworkError(let error):
                 return "不明なエラーが発生しました。\n\(error)"
             }
@@ -28,10 +31,8 @@ enum NAError: LocalizedError {
         
         var errorDescription: String? {
             switch self {
-            case .authenticationFailed:
-                return "noteへのログインに失敗しました。"
-            case .loginCredentialMismatch:
-                return "保存済みの認証情報と、今回入力された認証情報が一致しません。"
+            case .authenticationFailed: "noteへのログインに失敗しました。"
+            case .loginCredentialMismatch: "保存済みの認証情報と、今回入力された認証情報が一致しません。"
             }
         }
     }
@@ -41,17 +42,19 @@ enum NAError: LocalizedError {
         
         var errorDescription: String? {
             switch self {
-            case .decodingFailed:
-                return "JSONのデコーディングに失敗"
+            case .decodingFailed: "JSONのデコーディングに失敗"
             }
         }
     }
     
     enum Realm: LocalizedError {
-        
+        case publishedDateNotFound
+        case realmError(Error)
+
         var errorDescription: String? {
             switch self {
-                
+            case .publishedDateNotFound: "投稿日データが見つかりませんでした。"
+            case .realmError(let error): "データベースの書き込み中にエラーが発生しました。\(error)"
             }
         }
     }
