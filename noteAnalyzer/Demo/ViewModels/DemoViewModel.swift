@@ -26,7 +26,7 @@ class DemoViewModel: ViewModel {
             try realmManager.deleteAll()
             
             UserDefaults.standard.set("1970/1/1 00:00", forKey: AppConstants.UserDefaults.lastCalculateAt)
-            UserDefaults.standard.set("", forKey: AppConstants.UserDefaults.urlname)
+            UserDefaults.standard.set("不明なユーザー名", forKey: AppConstants.UserDefaults.urlname)
 
         }
     }

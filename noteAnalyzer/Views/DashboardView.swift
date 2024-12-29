@@ -57,7 +57,8 @@ struct DashboardView: View {
                                 title: "",
                                 message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
                                 actionText: "取得する",
-                                action: { Task { await getStats() } }
+                                action: { 
+                                    Task { await getStats() } }
                             )
                         }
                     }
@@ -196,6 +197,7 @@ struct DashboardView: View {
     private func getStats() async {
         isPresentedProgressView = true
         do {
+            try await viewModel.getArticleCount()
             try await viewModel.getStats()
             
             isPresentedProgressView = false
@@ -211,17 +213,20 @@ struct DashboardView: View {
     }
     
     private func handleGetStatsError(_ error: Error) {
+        print(error)
         let title: String
         let detail: String
         
         switch error {
-        case NAError.network(_):
+        case NAError.network(_), NAError.decoding(_):
+            let naError = error as! NAError
             title = "取得エラー"
-            detail = error.localizedDescription
+            detail = naError.userMessage
             
         case NAError.auth(_):
+            let naError = error as! NAError
             title = "認証エラー"
-            detail = error.localizedDescription
+            detail = naError.userMessage
             
         default:
             title = "不明なエラー"

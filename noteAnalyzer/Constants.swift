@@ -29,6 +29,7 @@ struct AppConstants {
         static let authenticationConfigured = "authenticationConfigured"
         static let lastCalculateAt = "lastCalculateAt"
         static let urlname = "urlname"
+        static let contentsCount = "contentsCount"
         
         static let demoModekey = "demoModeKey"
     }

@@ -80,3 +80,62 @@ struct APIErrorResponse: Codable {
         let message: String
     }
 }
+
+struct APIUserDetailResponse: Codable {
+    let noteCount: Int
+}
+
+struct APIResponse<T: Codable>: Codable {
+    enum CodingKeys: String, CodingKey {
+        case data
+    }
+    
+    let data: DataOrError
+    
+    init(data: DataOrError) {
+        self.data = data
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container: KeyedDecodingContainer<APIResponse<T>.CodingKeys> = try decoder.container(keyedBy: APIResponse<T>.CodingKeys.self)
+        self.data = try container.decode(DataOrError.self, forKey: APIResponse<T>.CodingKeys.data)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container: KeyedEncodingContainer<APIResponse<T>.CodingKeys> = encoder.container(keyedBy: APIResponse<T>.CodingKeys.self)
+        try container.encode(data, forKey: .data)
+    }
+}
+
+enum DataOrError: Codable {
+    case success(APIUserDetailResponse)
+    case error(String)
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        if let userData = try? container.decode(APIUserDetailResponse.self) {
+            print("DataOrError: .success(\(userData)")
+            self = .success(userData)
+            
+        } else if let errorMessage = try? container.decode(String.self) {
+            print("DataOrError: .failure(\(errorMessage)")
+            self = .error(errorMessage)
+            
+        } else {
+            throw NAError.decoding(.decodingFailed(
+                DecodingError.dataCorruptedError(in: container, debugDescription: "Data was neither valid user data nor error message")
+            ))
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .success(let userData):
+            try container.encode(userData)
+        case .error(let message):
+            try container.encode(message)
+        }
+    }
+}

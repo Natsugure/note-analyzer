@@ -29,6 +29,7 @@ struct InitialSetupView: View {
                     Task {
                         do {
                             isPresentedProgressView = true
+                            try await viewModel.getArticleCount()
                             try await viewModel.getStats()
                             isPresentedProgressView = false
                             shouldShowIsCompleteInitialSetupView.toggle()
@@ -47,16 +48,8 @@ struct InitialSetupView: View {
             
             if isPresentedProgressView {
                 Color.white
-                VStack {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .padding()
-                        .tint(Color.white)
-                        .background(Color.black.opacity(0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                    Text("処理中です")
-                }
+                ProgressBarView(progress: $viewModel.progressValue)
+                    .padding()
             }
         }
         .onAppear {

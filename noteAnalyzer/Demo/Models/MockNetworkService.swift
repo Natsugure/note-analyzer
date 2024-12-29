@@ -8,11 +8,29 @@
 import Foundation
 
 class MockNetworkService: NetworkServiceProtocol {
+    enum MockResponseType {
+        case success
+        case error
+        case network
+    }
+
+        // モックの動作をコントロールするためのプロパティ
+    var responseType: MockResponseType = .success
+
     /// 実際のAPIをフェッチする代わりに、URLに基づいた適切なモックデータを返す
     func fetchData(url urlString: String) async throws -> Data {
         if urlString.contains("stats/pv") {
             return createMockStatsData()
         } else if urlString.contains("creators") {
+            switch responseType {
+            case .success:
+                return createMockContentsCountData(isSuccess: true)
+            case .error:
+                return createMockContentsCountData(isSuccess: false)
+            case .network:
+                throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
+            }
+        } else if urlString.contains("contents?kind=note") {
             return createMockContentsData()
         }
         throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
@@ -60,7 +78,15 @@ class MockNetworkService: NetworkServiceProtocol {
         
         return try! JSONEncoder().encode(mockStats)
     }
-    
+
+    private func createMockContentsCountData(isSuccess: Bool) -> Data {
+        let mockData = isSuccess 
+            ? APIResponse<APIUserDetailResponse>(data: .success(APIUserDetailResponse(noteCount: 3)))
+            : APIResponse<APIUserDetailResponse>(data: .error("リソースが見つかりません"))
+        
+        return try! JSONEncoder().encode(mockData)
+    }
+
     private func createMockContentsData() -> Data {
         let mockContents = APIContentsResponse(
             data: APIContentsResponse.APIContentsData(

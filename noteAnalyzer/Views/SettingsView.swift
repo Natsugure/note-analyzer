@@ -88,6 +88,9 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                     }
                 }
+                .onAppear(perform: {
+                    print("settingView: \(isDemoMode)")
+                })
                 
                 Section {
                     Toggle("デモモード", isOn: $isDemoMode)

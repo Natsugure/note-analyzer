@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
+    @EnvironmentObject var viewModel: ViewModel
     @State var selectedToolBar = 1
     @StateObject var alertObject = AlertObject()
     @State private var isPresentedProgressView = false
@@ -31,17 +32,8 @@ struct MainView: View {
             if isPresentedProgressView {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
-                VStack {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .tint(Color.white)
-                        .padding()
-                    Text("処理中です")
-                        .foregroundStyle(.white)
-                }
-                .padding()
-                .background(Color.black.opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                ProgressBarView(progress: $viewModel.progressValue)
+                    .padding()
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -59,3 +51,5 @@ struct MainView_Previews: PreviewProvider {
             .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }
+
+

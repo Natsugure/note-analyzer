@@ -13,10 +13,14 @@ class ViewModel: ObservableObject {
     @Published var publishedDateArray = [APIContentsResponse.APIContentItem]()
     @Published var isAuthenticated = false
     @Published var showAuthWebView = false
+    @Published var progressValue = 0.0
+    private var contentsCount = 0
     
     private let authManager: AuthenticationProtocol
     private let networkService: NetworkServiceProtocol
     let realmManager: RealmManager
+    
+    let urlName = UserDefaults.standard.string(forKey: AppConstants.UserDefaults.urlname) ?? "（不明なユーザー名）"
     
     private var isLastPage = false
     private var isUpdated = false
@@ -41,6 +45,8 @@ class ViewModel: ObservableObject {
             mockAuthManager.$isAuthenticated.assign(to: &$isAuthenticated)
             mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
         }
+        
+        contentsCount = UserDefaults.standard.integer(forKey: AppConstants.UserDefaults.contentsCount)
     }
     
     func authenticate() {
@@ -51,10 +57,68 @@ class ViewModel: ObservableObject {
         authManager.checkAuthentication(webView: webView)
     }
     
+    func getArticleCount() async throws {
+        try await getUrlName()
+        
+        let urlString = "https://note.com/api/v2/creators/\(urlName)"
+        let fetchedData = try await networkService.fetchData(url: urlString)
+        
+        let parsedResult = parseUserDetailJSON(data: fetchedData)
+        
+        switch parsedResult {
+        case .success(let noteCount):
+            self.contentsCount = noteCount
+            
+        case .failure(let error):
+            switch error {
+            case NAError.decoding(.userNotFound(_)):
+                return
+            default:
+                throw error
+            }
+        }
+    }
+    
+    private func getUrlName() async throws {
+        let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
+        
+        let fetchedData = try await networkService.fetchData(url: urlString)
+        let results: APIStatsResponse = try decodeAPIResponse(fetchedData)
+        
+        UserDefaults.standard.set(results.data.noteStats[0].user.urlname, forKey: AppConstants.UserDefaults.urlname)
+    }
+    
+    private func parseUserDetailJSON(data: Data) -> Result<Int, Error> {
+        do {
+            let results = try decoder.decode(APIResponse<APIUserDetailResponse>.self, from: data)
+            
+            switch results.data {
+            case .success(let userData):
+                return .success(userData.noteCount)
+                
+            case .error(let message):
+                return .failure(NAError.decoding(.userNotFound(message)))
+            }
+        } catch {
+            return .failure(error)
+        }
+    }
+    
     func getStats() async throws {
+        if contentsCount == 0 {
+            throw NAError.decoding(.notContents)
+        }
+        
         let maxLoopCount = 100
+        // 記事数の余りを切り上げて、取得ページ数とする
+        let totalPageCount = Int(ceil(Double(contentsCount) / 10))
         
         for page in 1...maxLoopCount {
+            await MainActor.run {
+                // ダッシュボートの取得は前半50%分なので、進捗数値は半分にする
+                self.progressValue = Double(page) / Double(totalPageCount) * 0.5
+            }
+            
             let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
             
             do {
@@ -74,8 +138,9 @@ class ViewModel: ObservableObject {
                 try await Task.sleep(nanoseconds: 1_000_000_000)
             } catch NAError.network(.statsNotUpdated) {
                 throw NAError.network(.statsNotUpdated)
+            } catch NAError.auth(let detail) {
+                throw NAError.auth(detail)
             } catch {
-                print("Error: \(error)")
                 throw NAError.network(.unknownNetworkError(error))
             }
         }
@@ -96,9 +161,10 @@ class ViewModel: ObservableObject {
         
         isUpdated = false
         
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.contents.removeAll()
             self.publishedDateArray.removeAll()
+            self.progressValue = 1.0
         }
     }
     
@@ -107,7 +173,7 @@ class ViewModel: ObservableObject {
         
         await MainActor.run {
             let thisTime = self.stringToDate(results.data.lastCalculateAt)
-            let lastTime = self.stringToDate(UserDefaults.standard.string(forKey: "lastCalculateAt")!)
+            let lastTime = self.stringToDate(UserDefaults.standard.string(forKey: AppConstants.UserDefaults.lastCalculateAt)!)
             
             // lastCalculateAtがUserDefaultsに保存されている値よりも古い場合、更新されていないと判断
             if thisTime <= lastTime {
@@ -119,8 +185,10 @@ class ViewModel: ObservableObject {
                 self.isLastPage = results.data.lastPage
                 
                 if self.isLastPage {
-                    UserDefaults.standard.set(results.data.lastCalculateAt, forKey: "lastCalculateAt")
-                    UserDefaults.standard.set(self.contents[0].user.urlname, forKey: "urlname")
+                    UserDefaults.standard.set(results.data.lastCalculateAt, forKey: AppConstants.UserDefaults.lastCalculateAt)
+                    
+                    UserDefaults.standard.setValue(self.contents.count, forKey: AppConstants.UserDefaults.contentsCount)
+                    self.contentsCount = self.contents.count
                 }
             }
         }
@@ -141,15 +209,22 @@ class ViewModel: ObservableObject {
                 }
             } catch {
                 // エラーレスポンスのデコードにも失敗した場合
-                throw NAError.decoding(.decodingFailed(error))
+                throw error
             }
         }
     }
     
     private func getPublishedDate() async throws {
         let maxLoopCount = 200
-        let urlName = UserDefaults.standard.string(forKey: "urlname") ?? "（不明なユーザー名）"
+        // 記事数の余りを切り上げて、取得ページ数とする
+        let totalPageCount = Int(ceil(Double(contentsCount) / 5))
+        let urlName = UserDefaults.standard.string(forKey: AppConstants.UserDefaults.urlname) ?? "（不明なユーザー名）"
         for page in 1...maxLoopCount {
+            await MainActor.run {
+                let progress = Double(page) / Double(totalPageCount)
+                progressValue = 0.5 + (progress * 0.5)  // 50%から始めて、残りの50%を進める
+            }
+            
             let urlString = "https://note.com/api/v2/creators/\(urlName)/contents?kind=note&page=\(page)"
             
             let fetchedData = try await networkService.fetchData(url: urlString)
@@ -160,8 +235,8 @@ class ViewModel: ObservableObject {
                 break
             }
             
-            // リクエスト間に1秒の遅延を追加
-            try await Task.sleep(nanoseconds: 1_000_000_000)
+            // リクエスト間に0.5秒の遅延を追加
+            try await Task.sleep(nanoseconds: 500_000_000)
         }
         print("取得完了, 総アイテム数: \(publishedDateArray.count)")
     }
@@ -220,7 +295,7 @@ class ViewModel: ObservableObject {
                 networkService.resetWebComponents()
                 
                 UserDefaults.standard.set("1970/1/1 00:00", forKey: AppConstants.UserDefaults.lastCalculateAt)
-                UserDefaults.standard.set("", forKey: AppConstants.UserDefaults.urlname)
+                UserDefaults.standard.set("（不明なユーザー名）", forKey: AppConstants.UserDefaults.urlname)
             } catch KeychainError.unexpectedStatus(let status) {
                 print("Keychain error occurred. \n code: \(status), description: \(status.description)")
                 throw KeychainError.unexpectedStatus(status)
