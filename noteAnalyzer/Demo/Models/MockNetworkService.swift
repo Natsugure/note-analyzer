@@ -7,111 +7,65 @@
 
 import Foundation
 
-class MockNetworkService: NetworkServiceProtocol {
+protocol MockableNetworkServiceProtocol: NetworkServiceProtocol {
+    func updateMockItems()
+}
+
+class MockNetworkService: MockableNetworkServiceProtocol {
     enum MockResponseType {
         case success
         case error
         case network
     }
 
-        // モックの動作をコントロールするためのプロパティ
+    /// モックの動作をコントロールするためのプロパティ
     var responseType: MockResponseType = .success
-
+    
+    private var mockDataProvider = MockDataProvider()
+    
+    init() {
+        mockDataProvider.updateLastCalculatedAt()
+    }
+    
     /// 実際のAPIをフェッチする代わりに、URLに基づいた適切なモックデータを返す
     func fetchData(url urlString: String) async throws -> Data {
+        let page = extractPageNumber(from: urlString)
+        
         if urlString.contains("stats/pv") {
-            return createMockStatsData()
+            return mockDataProvider.createMockStatsData(page: page)
+        } else if urlString.contains("contents?kind=note") {
+            return mockDataProvider.createMockContentsData(page: page)
         } else if urlString.contains("creators") {
             switch responseType {
             case .success:
-                return createMockContentsCountData(isSuccess: true)
+                return mockDataProvider.createMockContentsCountData(isSuccess: true)
             case .error:
-                return createMockContentsCountData(isSuccess: false)
+                return mockDataProvider.createMockContentsCountData(isSuccess: false)
             case .network:
                 throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
             }
-        } else if urlString.contains("contents?kind=note") {
-            return createMockContentsData()
         }
         throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
     }
     
-    private func createMockStatsData() -> Data {
-        let mockStats = APIStatsResponse(
-            data: APIStatsResponse.APIStatsData(
-                noteStats: [
-                    APIStatsResponse.APIStatsItem(
-                        id: 1,
-                        name: "サンプル記事1",
-                        body: "これはサンプル記事の本文です。",
-                        type: .text,
-                        readCount: 1200,
-                        likeCount: 90,
-                        commentCount: 10,
-                        user: APIStatsResponse.APIUserInfo(urlname: "demo_user")
-                    ),
-                    APIStatsResponse.APIStatsItem(
-                        id: 2,
-                        name: "サンプル記事2",
-                        body: "2つ目のサンプル記事です。",
-                        type: .text,
-                        readCount: 800,
-                        likeCount: 30,
-                        commentCount: 5,
-                        user: APIStatsResponse.APIUserInfo(urlname: "demo_user")
-                    ),
-                    APIStatsResponse.APIStatsItem(
-                        id: 3,
-                        name: nil,
-                        body: "これはつぶやきのサンプルです。",
-                        type: .talk,
-                        readCount: 150,
-                        likeCount: 15,
-                        commentCount: 1,
-                        user: APIStatsResponse.APIUserInfo(urlname: "demo_user")
-                    )
-                ],
-                lastPage: true,
-                lastCalculateAt: "2024/10/25 12:00"
-            )
-        )
-        
-        return try! JSONEncoder().encode(mockStats)
-    }
-
-    private func createMockContentsCountData(isSuccess: Bool) -> Data {
-        let mockData = isSuccess 
-            ? APIResponse<APIUserDetailResponse>(data: .success(APIUserDetailResponse(noteCount: 3)))
-            : APIResponse<APIUserDetailResponse>(data: .error("リソースが見つかりません"))
-        
-        return try! JSONEncoder().encode(mockData)
-    }
-
-    private func createMockContentsData() -> Data {
-        let mockContents = APIContentsResponse(
-            data: APIContentsResponse.APIContentsData(
-                contents: [
-                    APIContentsResponse.APIContentItem(
-                        id: 1,
-                        publishAt: "2024-10-20T12:00:00+09:00"
-                    ),
-                    APIContentsResponse.APIContentItem(
-                        id: 2,
-                        publishAt: "2024-10-22T15:00:00+09:00"
-                    ),
-                    APIContentsResponse.APIContentItem(
-                        id: 3,
-                        publishAt: "2024/10/24T19:00:00+09:00"
-                    )
-                ],
-                isLastPage: true
-            )
-        )
-        
-        return try! JSONEncoder().encode(mockContents)
-    }
-    
     func resetWebComponents() {
         // デモ用なので何もしない
+    }
+    
+    /// URLからページ番号を抽出する。
+    ///
+    /// 例: "page=2" というクエリパラメータがある場合は2を返す。
+    /// クエリパラメータがない場合は1を返す。
+    private func extractPageNumber(from url: String) -> Int {
+        if let pageStr = url.components(separatedBy: "page=").last,
+           let page = Int(pageStr) {
+            return page
+        }
+        return 1
+    }
+    
+    func updateMockItems() {
+        mockDataProvider.updateLastCalculatedAt()
+        mockDataProvider.updateExistingItems()
     }
 }

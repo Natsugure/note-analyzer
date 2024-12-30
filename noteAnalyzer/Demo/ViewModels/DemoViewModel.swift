@@ -8,9 +8,13 @@
 import Foundation
 
 class DemoViewModel: ViewModel {
+    private let mockNetworkService: MockableNetworkServiceProtocol
+    
     init() {
-        let mockAuthManager = MockAuthenticationManager()
         let mockNetworkService = MockNetworkService()
+        self.mockNetworkService = mockNetworkService
+        
+        let mockAuthManager = MockAuthenticationManager()
         let realmManager = RealmManager()
         
         super.init(
@@ -21,13 +25,18 @@ class DemoViewModel: ViewModel {
         print("DemoViewModel initialized")
     }
     
+    override func getStats() async throws {
+        try await super.getStats()
+        
+        mockNetworkService.updateMockItems()
+    }
+    
     override func clearAllData() async throws {
         try await MainActor.run {
             try realmManager.deleteAll()
             
             UserDefaults.standard.set("1970/1/1 00:00", forKey: AppConstants.UserDefaults.lastCalculateAt)
             UserDefaults.standard.set("不明なユーザー名", forKey: AppConstants.UserDefaults.urlname)
-
         }
     }
 }
