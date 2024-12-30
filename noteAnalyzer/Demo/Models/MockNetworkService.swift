@@ -31,16 +31,18 @@ class MockNetworkService: MockableNetworkServiceProtocol {
     func fetchData(url urlString: String) async throws -> Data {
         let page = extractPageNumber(from: urlString)
         
+        try await Task.sleep(nanoseconds: 500_000_000)
+        
         if urlString.contains("stats/pv") {
-            return mockDataProvider.createMockStatsData(page: page)
+            return await mockDataProvider.createMockStatsData(page: page)
         } else if urlString.contains("contents?kind=note") {
-            return mockDataProvider.createMockContentsData(page: page)
+            return await mockDataProvider.createMockContentsData(page: page)
         } else if urlString.contains("creators") {
             switch responseType {
             case .success:
-                return mockDataProvider.createMockContentsCountData(isSuccess: true)
+                return await mockDataProvider.createMockContentsCountData(isSuccess: true)
             case .error:
-                return mockDataProvider.createMockContentsCountData(isSuccess: false)
+                return await mockDataProvider.createMockContentsCountData(isSuccess: false)
             case .network:
                 throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
             }
@@ -55,13 +57,15 @@ class MockNetworkService: MockableNetworkServiceProtocol {
     /// URLからページ番号を抽出する。
     ///
     /// 例: "page=2" というクエリパラメータがある場合は2を返す。
-    /// クエリパラメータがない場合は1を返す。
+    /// pageクエリパラメータがない場合は1を返す。
     private func extractPageNumber(from url: String) -> Int {
-        if let pageStr = url.components(separatedBy: "page=").last,
-           let page = Int(pageStr) {
-            return page
+        guard let urlComponents = URLComponents(string: url),
+              let queryItems = urlComponents.queryItems,
+              let pageItem = queryItems.first(where: { $0.name == "page" }),
+              let page = Int(pageItem.value ?? "") else {
+            return 1
         }
-        return 1
+        return page
     }
     
     func updateMockItems() {

@@ -195,6 +195,7 @@ struct DashboardView: View {
     
     //MARK: - The methods of connect to ViewModel
     private func getStats() async {
+        viewModel.resetProgressValue()
         isPresentedProgressView = true
         do {
             try await viewModel.getArticleCount()

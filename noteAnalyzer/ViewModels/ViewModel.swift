@@ -57,6 +57,10 @@ class ViewModel: ObservableObject {
         authManager.checkAuthentication(webView: webView)
     }
     
+    func resetProgressValue() {
+        progressValue = 0.0
+    }
+    
     func getArticleCount() async throws {
         try await getUrlName()
         
@@ -135,7 +139,7 @@ class ViewModel: ObservableObject {
                     break
                 }
                 
-                try await Task.sleep(nanoseconds: 1_000_000_000)
+                try await Task.sleep(nanoseconds: 500_000_000)
             } catch NAError.network(.statsNotUpdated) {
                 throw NAError.network(.statsNotUpdated)
             } catch NAError.auth(let detail) {

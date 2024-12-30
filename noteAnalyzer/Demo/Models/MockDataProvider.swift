@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import RealmSwift
 
 class MockDataProvider {
+    //TODO: このObservedResultsを使って、DB内の既存のデータをmockItemsを加える。（ここにObeservedResultsを置くんじゃなくて、DemoViewModelから注入したほうがいい可能性はある）
+    @ObservedResults(Item.self) private var items
     private var lastCalculatedAt: Date
     private var mockItems: [MockItem] = []
     private var currentNoteCount = 0
@@ -51,7 +54,7 @@ class MockDataProvider {
         }
     }
     
-    func createMockStatsData(page: Int) -> Data {
+    func createMockStatsData(page: Int) async -> Data {
         let startIndex = (page - 1) * 10
         let endIndex = min(startIndex + 10, mockItems.count)
         let pageItems = Array(mockItems[startIndex..<endIndex])
@@ -78,7 +81,7 @@ class MockDataProvider {
         return try! JSONEncoder().encode(mockStats)
     }
     
-    func createMockContentsCountData(isSuccess: Bool) -> Data {
+    func createMockContentsCountData(isSuccess: Bool) async -> Data {
         let mockData = isSuccess
         ? APIResponse<APIUserDetailResponse>(data: .success(APIUserDetailResponse(noteCount: currentNoteCount)))
             : APIResponse<APIUserDetailResponse>(data: .error("リソースが見つかりません"))
@@ -86,7 +89,7 @@ class MockDataProvider {
         return try! JSONEncoder().encode(mockData)
     }
     
-    func createMockContentsData(page: Int = 1) -> Data {
+    func createMockContentsData(page: Int = 1) async -> Data {
         let startIndex = (page - 1) * 5
         let endIndex = min(startIndex + 5, mockItems.count)
         let pageItems = Array(mockItems[startIndex..<endIndex])

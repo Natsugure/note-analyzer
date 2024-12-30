@@ -50,6 +50,7 @@ struct ArticleDetailView: View {
                     .background(Color.gray.opacity(0.1))
                     .listRowInsets(EdgeInsets())
                 ) {
+                    //TODO: 1日の中で最新のデータのみ参照するように変更
                     ForEach(item.stats.sorted(by: { $0.updatedAt > $1.updatedAt })) { stats in
                         HStack {
                             Text(formatDate(stats.updatedAt))

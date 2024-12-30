@@ -27,8 +27,9 @@ struct InitialSetupView: View {
                 
                 Button("ダッシュボードを取得する") {
                     Task {
+                        viewModel.resetProgressValue()
+                        isPresentedProgressView = true
                         do {
-                            isPresentedProgressView = true
                             try await viewModel.getArticleCount()
                             try await viewModel.getStats()
                             isPresentedProgressView = false
