@@ -21,9 +21,10 @@ class MockNetworkService: MockableNetworkServiceProtocol {
     /// モックの動作をコントロールするためのプロパティ
     var responseType: MockResponseType = .success
     
-    private var mockDataProvider = MockDataProvider()
+    private var mockDataProvider: MockDataProvider
     
-    init() {
+    init(realmItems: [Item]) {
+        self.mockDataProvider = MockDataProvider(realmItems: realmItems)
         mockDataProvider.updateLastCalculatedAt()
     }
     
@@ -67,6 +68,10 @@ class MockNetworkService: MockableNetworkServiceProtocol {
         }
         return page
     }
+//    
+//    func injectExistingItems(realmItems: [Item]) {
+//        mockDataProvider.appendExistingItems(realmItems: realmItems)
+//    }
     
     func updateMockItems() {
         mockDataProvider.updateLastCalculatedAt()

@@ -11,7 +11,7 @@ import RealmSwift
 class RealmManager {
     private var realm: Realm?
         
-    private func getRealm() throws -> Realm {
+    private func getRealm() -> Realm {
          if let realm = self.realm {
              return realm
          } else {
@@ -27,7 +27,7 @@ class RealmManager {
     
     func updateStats(stats: [APIStatsResponse.APIStatsItem], publishedDate: [APIContentsResponse.APIContentItem]) throws {
         let updateDateTime = Date()
-        let realm = try getRealm()
+        let realm = getRealm()
         
         try realm.write {
             for stat in stats {
@@ -79,13 +79,17 @@ class RealmManager {
         return newStats
     }
     
-    func getItems() throws -> Results<Item> {
-        let realm = try getRealm()
-        return realm.objects(Item.self)
+    func getItemArray() -> [Item] {
+        let realm = getRealm()
+        
+        let result = realm.objects(Item.self)
+        let array = Array(result)
+        print("array: \(array)")
+        return Array(result)
     }
     
     func deleteAll() throws {
-        let realm = try getRealm()
+        let realm = getRealm()
         try realm.write {
             realm.deleteAll()
         }

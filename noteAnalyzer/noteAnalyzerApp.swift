@@ -15,7 +15,7 @@ struct noteAnalyzerApp: SwiftUI.App {
     @StateObject var viewModel: ViewModel
     
     init() {
-        print("init")
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
         UserDefaults.standard.register(defaults: [
             AppConstants.UserDefaults.lastCalculateAt : "1970/1/1 00:00",
             AppConstants.UserDefaults.urlname : "（不明なユーザー名）",

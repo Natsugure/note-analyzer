@@ -11,17 +11,19 @@ class DemoViewModel: ViewModel {
     private let mockNetworkService: MockableNetworkServiceProtocol
     
     init() {
-        let mockNetworkService = MockNetworkService()
-        self.mockNetworkService = mockNetworkService
-        
         let mockAuthManager = MockAuthenticationManager()
         let realmManager = RealmManager()
+        
+        let mockNetworkService = MockNetworkService(realmItems: realmManager.getItemArray())
+        self.mockNetworkService = mockNetworkService
         
         super.init(
             authManager: mockAuthManager,
             networkService: mockNetworkService,
             realmManager: realmManager
         )
+        
+//        mockNetworkService.injectExistingItems(realmItems: realmManager.getItemArray())
         print("DemoViewModel initialized")
     }
     

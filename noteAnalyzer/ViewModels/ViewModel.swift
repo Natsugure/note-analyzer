@@ -255,27 +255,27 @@ class ViewModel: ObservableObject {
     }
     
     func verifyLoginConsistency() async throws {
-        let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
-        
-        do {
-            let realmItems = try realmManager.getItems()
-            if realmItems.isEmpty {
-                return
-            }
-            
-            let fetchedData = try await networkService.fetchData(url: urlString)
-            
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            let results = try decoder.decode(APIStatsResponse.self, from: fetchedData)
-            
-            let firstArticle = results.data.noteStats[0]
-            guard let _ = realmItems.first(where: { $0.id == firstArticle.id && $0.title == firstArticle.name }) else {
-                throw NAError.Auth.loginCredentialMismatch
-            }
-        } catch {
-            throw error
-        }
+//        let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
+//        
+//        do {
+//            let realmItems = try realmManager.getItemList()
+//            if realmItems.isEmpty {
+//                return
+//            }
+//            
+//            let fetchedData = try await networkService.fetchData(url: urlString)
+//            
+//            let decoder = JSONDecoder()
+//            decoder.keyDecodingStrategy = .convertFromSnakeCase
+//            let results = try decoder.decode(APIStatsResponse.self, from: fetchedData)
+//            
+//            let firstArticle = results.data.noteStats[0]
+//            guard let _ = realmItems.first(where: { $0.id == firstArticle.id && $0.title == firstArticle.name }) else {
+//                throw NAError.Auth.loginCredentialMismatch
+//            }
+//        } catch {
+//            throw error
+//        }
     }
     
     func logout() async throws {

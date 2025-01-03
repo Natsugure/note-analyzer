@@ -6,11 +6,8 @@
 //
 
 import Foundation
-import RealmSwift
 
 class MockDataProvider {
-    //TODO: このObservedResultsを使って、DB内の既存のデータをmockItemsを加える。（ここにObeservedResultsを置くんじゃなくて、DemoViewModelから注入したほうがいい可能性はある）
-    @ObservedResults(Item.self) private var items
     private var lastCalculatedAt: Date
     private var mockItems: [MockItem] = []
     private var currentNoteCount = 0
@@ -27,10 +24,45 @@ class MockDataProvider {
         let publishAt: String
     }
     
-    init() {
+    init(realmItems: [Item]) {
         let date = Date()
         // 即時更新できるように、イニシャライズした1時間前に設定
         lastCalculatedAt = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
+        
+        // デバイス内のデータをmockItemに変換し、サーバー(MockDataProvider)も同じ記事データを持っているようにする
+        appendExistingItems(realmItems: realmItems)
+    }
+    
+    func appendExistingItems(realmItems: [Item]) {
+        mockItems += realmItemsToMockItems(realmItems: realmItems)
+        updateExistingItems()
+        
+        currentNoteCount = mockItems.count
+        
+        print("MockProvider: \(mockItems)")
+    }
+    
+    private func realmItemsToMockItems(realmItems: [Item]) -> [MockItem] {
+        var result: [MockItem] = []
+        
+        for item in realmItems {
+            let latestStats = item.stats.max(by: { $0.updatedAt < $1.updatedAt })!
+            
+            let mockItem = MockItem(
+                id: item.id,
+                name: item.type == .text ? item.title : nil,
+                body: item.type == .talk ? item.title : "",
+                type: item.type,
+                readCount: latestStats.readCount,
+                likeCount: latestStats.likeCount,
+                commentCount: latestStats.commentCount,
+                publishAt: self.dateToString2(date: item.publishedAt)
+                )
+            
+            result.append(mockItem)
+        }
+        
+        return result
     }
     
     private func generateNewMockItems() {
