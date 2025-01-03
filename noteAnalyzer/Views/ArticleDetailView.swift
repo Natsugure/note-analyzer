@@ -51,24 +51,24 @@ struct ArticleDetailView: View {
                     .listRowInsets(EdgeInsets())
                 ) {
                     //TODO: 1日の中で最新のデータのみ参照するように変更
-                    ForEach(item.stats.sorted(by: { $0.updatedAt > $1.updatedAt })) { stats in
+                    ForEach(calculateTotalCounts(), id: \.0) { (updatedAt, readCount, likeCount, commentCount) in
                         HStack {
-                            Text(formatDate(stats.updatedAt))
+                            Text(formatDate(updatedAt))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, 10)
                             ZStack {
                                 AppConstants.BrandColor.read.opacity(0.5)
-                                Text(String(stats.readCount))
+                                Text(String(readCount))
                             }
                             .frame(width: 60)
                             ZStack {
                                 AppConstants.BrandColor.comment.opacity(0.5)
-                                Text(String(stats.commentCount))
+                                Text(String(commentCount))
                             }
                             .frame(width: 40)
                             ZStack {
                                 AppConstants.BrandColor.likeBackground
-                                Text(String(stats.likeCount))
+                                Text(String(likeCount))
                             }
                             .frame(width: 40)
                         .padding(.trailing, 10)
@@ -90,6 +90,58 @@ struct ArticleDetailView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd HH:mm"
         return formatter.string(from: date)
+    }
+    
+    private func calculateTotalCounts() -> [(Date, Int, Int, Int)] {
+        // 日付のみを取得する関数
+        func dateOnly(from date: Date) -> Date {
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.year, .month, .day], from: date)
+            return calendar.date(from: components) ?? date
+        }
+        
+        // 日付でグループ化し、各日付の最新データを保持
+        var latestStatsByDate: [Date: [Stats]] = [:]
+        
+        for stat in item.stats {
+            let dateKey = dateOnly(from: stat.updatedAt)
+            
+            if latestStatsByDate[dateKey] == nil {
+                latestStatsByDate[dateKey] = [stat]
+            } else {
+                // 同じ日付の場合、時間を比較
+                if let existingStats = latestStatsByDate[dateKey],
+                   let existingTime = existingStats.first?.updatedAt,
+                   stat.updatedAt > existingTime {
+                    // より新しい時間のデータに更新
+                    latestStatsByDate[dateKey] = [stat]
+                } else if let existingStats = latestStatsByDate[dateKey],
+                          let existingTime = existingStats.first?.updatedAt,
+                          stat.updatedAt == existingTime {
+                    // 同じ時間のデータは追加
+                    latestStatsByDate[dateKey]?.append(stat)
+                }
+            }
+        }
+        
+        // 各日付の最新データで集計
+        var result: [(Date, Int, Int, Int)] = []
+        
+        for (_, dayStats) in latestStatsByDate {
+            let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
+            let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            
+            // 時間情報を保持したまま結果に追加
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((latestTime, totalReadCount, totalLikeCount, totalCommentCount))
+            }
+        }
+        
+        // 更新日でソート（降順）
+        result.sort { $0.0 > $1.0 }
+        
+        return result
     }
 }
 

@@ -163,7 +163,7 @@ struct DashboardView: View {
         // 各日付の最新データで集計
         var result: [(Date, Int, Int, Int, Int)] = []
         
-        for (date, dayStats) in latestStatsByDate {
+        for (_, dayStats) in latestStatsByDate {
             let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
             let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
             let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }
