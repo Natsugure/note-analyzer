@@ -21,7 +21,7 @@ struct DashboardView: View {
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
     @State private var selectionChartType: StatsType = .view
-    @State private var sortType: SortType = .view
+    @State private var sortType: SortType = .viewDecending
     @Binding var isPresentedProgressView: Bool
     
     var statsFormatter = StatsFormatter()
