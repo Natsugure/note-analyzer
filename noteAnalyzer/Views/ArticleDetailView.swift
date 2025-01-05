@@ -29,7 +29,7 @@ struct ArticleDetailView: View {
             }
             .pickerStyle(.segmented)
             
-            ChartViewForItem(item: item, statsType: selection)
+            ChartView(chartData: calculateChartData(), statsType: selection)
                 .frame(height: 300)
                 .padding()
             
@@ -52,7 +52,6 @@ struct ArticleDetailView: View {
                     .background(Color.gray.opacity(0.1))
                     .listRowInsets(EdgeInsets())
                 ) {
-                    //TODO: 1日の中で最新のデータのみ参照するように変更
                     ForEach(calculateTotalCounts(), id: \.0) { (updatedAt, readCount, likeCount, commentCount) in
                         HStack {
                             Text(formatDate(updatedAt))
@@ -103,6 +102,22 @@ struct ArticleDetailView: View {
         result.sort { $0.0 > $1.0 }
         
         return result
+    }
+    
+    private func calculateChartData() -> [(Date, Int)] {
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDay(stats: Array(item.stats))
+        
+        let result: [(Date, Int)]
+        switch selection {
+        case .view:
+            result = latestStatsByDate.map { (Calendar.dateOnly(from: $0.updatedAt), $0.readCount) }
+        case .comment:
+            result = latestStatsByDate.map { (Calendar.dateOnly(from: $0.updatedAt), $0.commentCount) }
+        case .like:
+            result = latestStatsByDate.map { (Calendar.dateOnly(from: $0.updatedAt), $0.likeCount) }
+        }
+        
+        return result.sorted { $0.0 < $1.0 }
     }
 }
 

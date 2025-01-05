@@ -38,7 +38,7 @@ struct DashboardView: View {
                 }
                 .pickerStyle(.segmented)
                 
-                ChartViewForAll(items: items, statsType: selectionChartType)
+                ChartView(chartData: calculateChartData(), statsType: selectionChartType)
                     .frame(height: 300)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -152,6 +152,30 @@ struct DashboardView: View {
         result.sort { $0.0 > $1.0 }
         
         return result
+    }
+    
+    private func calculateChartData() -> [(Date, Int)] {
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
+        
+        var result: [(Date, Int)] = []
+        
+        for dayStats in latestStatsByDate {
+            let totalCount: Int
+            switch selectionChartType {
+            case .view:
+                totalCount = dayStats.reduce(0) { $0 + $1.readCount }
+            case .comment:
+                totalCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            case .like:
+                totalCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            }
+            
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((latestTime, totalCount))
+            }
+        }
+        
+        return result.sorted { $0.0 < $1.0 }
     }
     
     private func dateToTimeString(date: Date) -> String {

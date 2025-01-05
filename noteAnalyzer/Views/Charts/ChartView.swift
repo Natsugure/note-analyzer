@@ -1,5 +1,5 @@
 //
-//  ChartViewForItem.swift
+//  ChartViewForAll.swift
 //  noteAnalyzer
 //
 //  Created by Natsugure on 2024/07/28.
@@ -9,27 +9,9 @@ import SwiftUI
 import Charts
 import RealmSwift
 
-struct ChartViewForItem: View {
-    let stats: [Stats]
+struct ChartView: View {
+    var chartData: [(Date, Int)]
     let statsType: StatsType
-    
-    var chartData: [(Date, Int)] {
-        let calendar = Calendar.current
-        
-        switch statsType {
-        case .view:
-            return stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.readCount) }
-                .sorted { $0.0 < $1.0 }
-            
-        case .comment:
-            return stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.commentCount) }
-                .sorted { $0.0 < $1.0 }
-            
-        case .like:
-            return stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.likeCount) }
-                .sorted { $0.0 < $1.0 }
-        }
-    }
     
     var lineColor: Color {
         switch statsType {
@@ -65,10 +47,10 @@ struct ChartViewForItem: View {
                     if let date = value.as(Date.self) {
                         AxisValueLabel {
                             Text(dateFormatter.string(from: date))
-                                .rotationEffect(.degrees(-90)) // テキストを90度回転
-                                .fixedSize() // テキストの省略を防ぐ
-                                .frame(width: 30) // 必要に応じて幅を調整
-                                .padding(.bottom, 10) // 下部に余白を追加
+                                .rotationEffect(.degrees(-90))
+                                .fixedSize()
+                                .frame(width: 30)
+                                .padding(.bottom, 10)
                         }
                         AxisTick()
                         AxisGridLine()
