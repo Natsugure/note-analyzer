@@ -171,7 +171,7 @@ struct DashboardView: View {
             }
             
             if let latestTime = dayStats.first?.updatedAt {
-                result.append((latestTime, totalCount))
+                result.append((Calendar.dateOnly(from: latestTime), totalCount))
             }
         }
         
