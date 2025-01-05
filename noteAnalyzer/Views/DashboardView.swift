@@ -24,6 +24,8 @@ struct DashboardView: View {
     @State private var sortType: SortType = .view
     @Binding var isPresentedProgressView: Bool
     
+    var statsFormatter = StatsFormatter()
+    
     @State var isShowAlert = false
 
     var body: some View {
@@ -129,41 +131,12 @@ struct DashboardView: View {
     
     //MARK: - Calculating and Formatting Stats Methods
     private func calculateTotalCounts() -> [(Date, Int, Int, Int, Int)] {
-        // 日付のみを取得する関数
-        func dateOnly(from date: Date) -> Date {
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.year, .month, .day], from: date)
-            return calendar.date(from: components) ?? date
-        }
-        
-        // 日付でグループ化し、各日付の最新データを保持
-        var latestStatsByDate: [Date: [Stats]] = [:]
-        
-        for stat in stats {
-            let dateKey = dateOnly(from: stat.updatedAt)
-            
-            if latestStatsByDate[dateKey] == nil {
-                latestStatsByDate[dateKey] = [stat]
-            } else {
-                // 同じ日付の場合、時間を比較
-                if let existingStats = latestStatsByDate[dateKey],
-                   let existingTime = existingStats.first?.updatedAt,
-                   stat.updatedAt > existingTime {
-                    // より新しい時間のデータに更新
-                    latestStatsByDate[dateKey] = [stat]
-                } else if let existingStats = latestStatsByDate[dateKey],
-                          let existingTime = existingStats.first?.updatedAt,
-                          stat.updatedAt == existingTime {
-                    // 同じ時間のデータは追加
-                    latestStatsByDate[dateKey]?.append(stat)
-                }
-            }
-        }
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
         
         // 各日付の最新データで集計
         var result: [(Date, Int, Int, Int, Int)] = []
         
-        for (_, dayStats) in latestStatsByDate {
+        for dayStats in latestStatsByDate {
             let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
             let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
             let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }

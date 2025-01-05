@@ -34,6 +34,9 @@
 		1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */; };
 		1AC95B272C4CC26A0049E6AA /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B262C4CC26A0049E6AA /* RealmManager.swift */; };
 		1AC95B292C4F847A0049E6AA /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B282C4F847A0049E6AA /* DashboardView.swift */; };
+		1ADA6E012D2A162200227F42 /* StatsFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E002D2A162200227F42 /* StatsFormatter.swift */; };
+		1ADA6E032D2A1F9D00227F42 /* Calendar+DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */; };
+		1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E042D2A270200227F42 /* DateUtils.swift */; };
 		1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */; };
 		1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA262C3A26D600C30A89 /* ContentView.swift */; };
 		1AE3CA292C3A26D700C30A89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3CA282C3A26D700C30A89 /* Assets.xcassets */; };
@@ -88,6 +91,9 @@
 		1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1AC95B262C4CC26A0049E6AA /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
 		1AC95B282C4F847A0049E6AA /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		1ADA6E002D2A162200227F42 /* StatsFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsFormatter.swift; sourceTree = "<group>"; };
+		1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+DateFormatter.swift"; sourceTree = "<group>"; };
+		1ADA6E042D2A270200227F42 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
 		1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noteAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = noteAnalyzerApp.swift; sourceTree = "<group>"; };
 		1AE3CA262C3A26D600C30A89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -116,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				1A107D7D2D17B4F900AD9F79 /* UserDefaults+Extension.swift */,
+				1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -270,6 +277,8 @@
 				1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */,
 				1AC95B262C4CC26A0049E6AA /* RealmManager.swift */,
 				1A4D8ABF2CBBA18200BF353A /* NAError.swift */,
+				1ADA6E002D2A162200227F42 /* StatsFormatter.swift */,
+				1ADA6E042D2A270200227F42 /* DateUtils.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -369,12 +378,15 @@
 				1A2AC3BD2C55DE3C0046C921 /* ChartViewForItem.swift in Sources */,
 				1A8E9C792C5F081300A97D31 /* DailyView.swift in Sources */,
 				1A107D7E2D17B4F900AD9F79 /* UserDefaults+Extension.swift in Sources */,
+				1ADA6E032D2A1F9D00227F42 /* Calendar+DateFormatter.swift in Sources */,
 				1AC95B272C4CC26A0049E6AA /* RealmManager.swift in Sources */,
 				1AE3CA3F2C3A35BC00C30A89 /* RealmModel.swift in Sources */,
+				1ADA6E012D2A162200227F42 /* StatsFormatter.swift in Sources */,
 				1A06C8F82C60559000838DD5 /* MainView.swift in Sources */,
 				1AC95B292C4F847A0049E6AA /* DashboardView.swift in Sources */,
 				1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */,
 				1A06C8F62C60524C00838DD5 /* OnboardingView.swift in Sources */,
+				1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */,
 				1A4D8AC02CBBA18200BF353A /* NAError.swift in Sources */,
 				1AA5AD7C2CCB3334007BDBDE /* DemoViewModel.swift in Sources */,
 				1A29BAED2D22814500FD6AB3 /* MockDataProvider.swift in Sources */,

@@ -9,9 +9,11 @@ import SwiftUI
 import RealmSwift
 
 struct ArticleDetailView: View {
-    var item: Item
+    @ObservedRealmObject var item: Item
     @Binding var path: [Item]
     @Binding var selection: StatsType
+    
+    var statsFormatter = StatsFormatter()
     
     var body: some View {
         VStack {
@@ -93,50 +95,9 @@ struct ArticleDetailView: View {
     }
     
     private func calculateTotalCounts() -> [(Date, Int, Int, Int)] {
-        // 日付のみを取得する関数
-        func dateOnly(from date: Date) -> Date {
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.year, .month, .day], from: date)
-            return calendar.date(from: components) ?? date
-        }
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDay(stats: Array(item.stats))
         
-        // 日付でグループ化し、各日付の最新データを保持
-        var latestStatsByDate: [Date: [Stats]] = [:]
-        
-        for stat in item.stats {
-            let dateKey = dateOnly(from: stat.updatedAt)
-            
-            if latestStatsByDate[dateKey] == nil {
-                latestStatsByDate[dateKey] = [stat]
-            } else {
-                // 同じ日付の場合、時間を比較
-                if let existingStats = latestStatsByDate[dateKey],
-                   let existingTime = existingStats.first?.updatedAt,
-                   stat.updatedAt > existingTime {
-                    // より新しい時間のデータに更新
-                    latestStatsByDate[dateKey] = [stat]
-                } else if let existingStats = latestStatsByDate[dateKey],
-                          let existingTime = existingStats.first?.updatedAt,
-                          stat.updatedAt == existingTime {
-                    // 同じ時間のデータは追加
-                    latestStatsByDate[dateKey]?.append(stat)
-                }
-            }
-        }
-        
-        // 各日付の最新データで集計
-        var result: [(Date, Int, Int, Int)] = []
-        
-        for (_, dayStats) in latestStatsByDate {
-            let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
-            let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
-            let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }
-            
-            // 時間情報を保持したまま結果に追加
-            if let latestTime = dayStats.first?.updatedAt {
-                result.append((latestTime, totalReadCount, totalLikeCount, totalCommentCount))
-            }
-        }
+        var result = latestStatsByDate.map { ($0.updatedAt, $0.readCount, $0.likeCount, $0.commentCount) }
         
         // 更新日でソート（降順）
         result.sort { $0.0 > $1.0 }

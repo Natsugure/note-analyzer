@@ -118,15 +118,6 @@ class NetworkService: NetworkServiceProtocol {
             }
         }
     }
-    
-    private func stringToDate(_ dateString: String) -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd HH:mm"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        
-        return formatter.date(from: dateString)!
-    }
 }
 
 extension WKProcessPool {
