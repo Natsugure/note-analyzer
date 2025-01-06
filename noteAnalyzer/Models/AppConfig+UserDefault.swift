@@ -10,7 +10,12 @@ import Foundation
 @propertyWrapper
 struct UserDefault<T> {
     let key: Key
-    let defaultValue: T
+    private let defaultValue: T
+    
+    init(key: Key, defaultValue: T) {
+        self.key = key
+        self.defaultValue = defaultValue
+    }
     
     var wrappedValue: T {
         get {
@@ -26,6 +31,7 @@ struct UserDefault<T> {
         return self
     }
     
+    /// `UserDefaults.standard.object(forKey:)`で自身のkeyを検索し、値が存在しているかどうかを`Bool`値で返す。
     var isValueSet: Bool {
         return UserDefaults.standard.object(forKey: key.rawValue) != nil
     }
@@ -60,7 +66,17 @@ struct AppConfig {
     static var isDemoMode: Bool
 #endif
     
-    static func isExistDemoModeValue() -> Bool {
-        return $isDemoMode.isValueSet
+    static func removeObject<T>(for object: UserDefault<T>) {
+        UserDefaults.standard.removeObject(forKey: object.key.rawValue)
+    }
+    
+    static func deleteUserInfo() {
+        let keys: [String] = [
+            AppConfig.$contentsCount.key.rawValue,
+            AppConfig.$lastCalculateAt.key.rawValue,
+            AppConfig.$urlname.key.rawValue
+        ]
+        
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
     }
 }

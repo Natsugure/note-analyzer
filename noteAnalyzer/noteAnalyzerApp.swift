@@ -15,16 +15,17 @@ struct noteAnalyzerApp: SwiftUI.App {
     @StateObject var viewModel: ViewModel
     
     init() {
-        print(Realm.Configuration.defaultConfiguration.fileURL!)
-        UserDefaults.standard.register(defaults: [
-            AppConstants.UserDefaults.lastCalculateAt : "1970/1/1 00:00",
-            AppConstants.UserDefaults.urlname : "（不明なユーザー名）",
-            AppConstants.UserDefaults.contentsCount: 0
-        ])
+//        UserDefaults.standard.register(defaults: [
+//            AppConstants.UserDefaults.lastCalculateAt : "1970/1/1 00:00",
+//            AppConstants.UserDefaults.urlname : "（不明なユーザー名）",
+//            AppConstants.UserDefaults.contentsCount: 0
+//        ])
         
         #if DEBUG
-        if AppConfig.isExistDemoModeValue() {
-            UserDefaults.standard.set(true, forKey: AppConstants.UserDefaults.demoModekey)
+        // UserDefaults内にisDemoModeがsetされていないなら、trueをsetする。
+        // ※defaultValueをregister(defaults:)するとバグる可能性があるため。
+        if !AppConfig.$isDemoMode.isValueSet {
+            AppConfig.isDemoMode = true
         }
         
         if AppConfig.isDemoMode {

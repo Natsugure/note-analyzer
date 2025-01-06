@@ -46,7 +46,7 @@ class ViewModel: ObservableObject {
             mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
         }
         
-        contentsCount = UserDefaults.standard.integer(forKey: AppConstants.UserDefaults.contentsCount)
+        contentsCount = AppConfig.contentsCount
     }
     
     func authenticate() {
@@ -306,8 +306,8 @@ class ViewModel: ObservableObject {
                 try authManager.clearAuthentication()
                 networkService.resetWebComponents()
                 
-                UserDefaults.standard.removeObject(forKey: AppConstants.UserDefaults.lastCalculateAt)
-                UserDefaults.standard.removeObject(forKey: AppConstants.UserDefaults.urlname)
+                AppConfig.deleteUserInfo()
+                
             } catch KeychainError.unexpectedStatus(let status) {
                 print("Keychain error occurred. \n code: \(status), description: \(status.description)")
                 throw KeychainError.unexpectedStatus(status)

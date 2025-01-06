@@ -2,7 +2,7 @@
 //  DateUtils.swift
 //  noteAnalyzer
 //
-//  Created by akizora on 2025/01/05.
+//  Created by Natsugure on 2025/01/05.
 //
 
 import Foundation
@@ -18,11 +18,6 @@ struct DateUtils {
         
         return formatter
     }()
-    
-//    static func dateOnly(from date: Date) -> Date {
-//        let components = calendar.dateComponents([.year, .month, .day], from: date)
-//        return calendar.date(from: components) ?? date
-//    }
 }
 
 extension Calendar {

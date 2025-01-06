@@ -2,7 +2,7 @@
 //  String+WordJoiner.swift
 //  noteAnalyzer
 //
-//  Created by akizora on 2025/01/06.
+//  Created by Natsugure on 2025/01/06.
 //
 
 import Foundation

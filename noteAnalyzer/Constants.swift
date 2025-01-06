@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct AppConstants {
-    static let authUrl = "https://note.com/login"
+    struct URL {
+        static let authUrl = "https://note.com/login"
+    }
     
     struct BrandColor {
         static let read = Color(red: 105/255, green: 176/255, blue: 118/255)
@@ -25,12 +27,12 @@ struct AppConstants {
         static let movie = UIImage(systemName: "video.fill")
     }
     
-    struct UserDefaults {
-        static let authenticationConfigured = "authenticationConfigured"
-        static let lastCalculateAt = "lastCalculateAt"
-        static let urlname = "urlname"
-        static let contentsCount = "contentsCount"
-        
-        static let demoModekey = "demoModeKey"
-    }
+//    struct UserDefaults {
+//        static let authenticationConfigured = "authenticationConfigured"
+//        static let lastCalculateAt = "lastCalculateAt"
+//        static let urlname = "urlname"
+//        static let contentsCount = "contentsCount"
+//        
+//        static let demoModekey = "demoModeKey"
+//    }
 }

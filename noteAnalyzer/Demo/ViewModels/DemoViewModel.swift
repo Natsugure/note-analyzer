@@ -36,10 +36,10 @@ class DemoViewModel: ViewModel {
         try await MainActor.run {
             try realmManager.deleteAll()
             
-            UserDefaults.standard.removeObject(forKey: AppConstants.UserDefaults.lastCalculateAt)
-            UserDefaults.standard.removeObject(forKey: AppConstants.UserDefaults.urlname)
-//            UserDefaults.standard.set("1970/1/1 00:00", forKey: AppConstants.UserDefaults.lastCalculateAt)
-//            UserDefaults.standard.set("不明なユーザー名", forKey: AppConstants.UserDefaults.urlname)
+//            UserDefaults.standard.removeObject(forKey: AppConstants.UserDefaults.lastCalculateAt)
+//            UserDefaults.standard.removeObject(forKey: AppConstants.UserDefaults.urlname)
+            
+            AppConfig.deleteUserInfo()
         }
     }
 }

@@ -13,7 +13,7 @@ struct AuthWebView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: AppConstants.authUrl)
+                WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: AppConstants.URL.authUrl)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
