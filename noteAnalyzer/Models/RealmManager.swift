@@ -81,10 +81,8 @@ class RealmManager {
     
     func getItemArray() -> [Item] {
         let realm = getRealm()
-        
         let result = realm.objects(Item.self)
-        let array = Array(result)
-        print("array: \(array)")
+        
         return Array(result)
     }
     

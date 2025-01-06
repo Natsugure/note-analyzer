@@ -8,11 +8,13 @@
 import Foundation
 
 struct StatsFormatter {
+    let calendar = Calendar(identifier: .gregorian)
+    
     func filterLatestStatsOnDayOfAllArticles(stats: [Stats]) -> [[Stats]] {
         var filteredStats: [Date: [Stats]] = [:]
         
         for stat in stats {
-            let dateKey = dateOnly(from: stat.updatedAt)
+            let dateKey = calendar.startOfDay(for: stat.updatedAt)
             
             if filteredStats[dateKey] == nil {
                 filteredStats[dateKey] = [stat]
@@ -39,7 +41,7 @@ struct StatsFormatter {
         var filteredStats: [Date: Stats] = [:]
         
         for stat in stats {
-            let dateKey = dateOnly(from: stat.updatedAt)
+            let dateKey = calendar.startOfDay(for: stat.updatedAt)
             
             if filteredStats[dateKey] == nil {
                 filteredStats[dateKey] = stat
@@ -54,9 +56,9 @@ struct StatsFormatter {
         return Array(filteredStats.values)
     }
     
-    private func dateOnly(from date: Date) -> Date {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month, .day], from: date)
-        return calendar.date(from: components) ?? date
-    }
+//    private func dateOnly(from date: Date) -> Date {
+//        let calendar = Calendar.current
+//        let components = calendar.dateComponents([.year, .month, .day], from: date)
+//        return calendar.date(from: components) ?? date
+//    }
 }

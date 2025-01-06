@@ -52,6 +52,7 @@ struct ChartView: View {
                                 .frame(width: 30)
                                 .padding(.bottom, 10)
                         }
+                        .offset(x: -5)
                         AxisTick()
                         AxisGridLine()
                     }
@@ -88,7 +89,7 @@ struct ChartView: View {
         let calendar = Calendar.current
         let daysBetween = calendar.dateComponents([.day], from: chartXDomain.lowerBound, to: chartXDomain.upperBound).day ?? 0
         let widthPerDay: CGFloat = 20
-        return max(500, CGFloat(daysBetween + 1) * widthPerDay) // +1 は終了日を含むため
+        return max(UIScreen.main.bounds.width - 50, CGFloat(daysBetween + 1) * widthPerDay) // +1 は終了日を含むため
     }
     
     var dateFormatter: DateFormatter {

@@ -18,7 +18,7 @@ struct MainView: View {
             TabView {
                 DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
                     .tabItem {
-                        Label("ダッシュボード ", systemImage: "chart.bar.fill")
+                        Label("ダッシュボード", systemImage: "chart.bar.fill")
                     }
                     .tag(1)
                 

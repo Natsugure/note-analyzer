@@ -14,6 +14,7 @@ struct ArticleDetailView: View {
     @Binding var selection: StatsType
     
     var statsFormatter = StatsFormatter()
+    let calendar = Calendar(identifier: .gregorian)
     
     var body: some View {
         VStack {
@@ -110,11 +111,11 @@ struct ArticleDetailView: View {
         let result: [(Date, Int)]
         switch selection {
         case .view:
-            result = latestStatsByDate.map { (Calendar.dateOnly(from: $0.updatedAt), $0.readCount) }
+            result = latestStatsByDate.map { (calendar.startOfDay(for: $0.updatedAt), $0.readCount) }
         case .comment:
-            result = latestStatsByDate.map { (Calendar.dateOnly(from: $0.updatedAt), $0.commentCount) }
+            result = latestStatsByDate.map { (calendar.startOfDay(for: $0.updatedAt), $0.commentCount) }
         case .like:
-            result = latestStatsByDate.map { (Calendar.dateOnly(from: $0.updatedAt), $0.likeCount) }
+            result = latestStatsByDate.map { (calendar.startOfDay(for: $0.updatedAt), $0.likeCount) }
         }
         
         return result.sorted { $0.0 < $1.0 }

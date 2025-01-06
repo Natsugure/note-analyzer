@@ -33,10 +33,4 @@ extension String {
     }
 }
 
-extension Calendar {
-    static func dateOnly(from date: Date) -> Date {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month, .day], from: date)
-        return calendar.date(from: components) ?? date
-    }
-}
+

@@ -23,7 +23,6 @@ class DemoViewModel: ViewModel {
             realmManager: realmManager
         )
         
-//        mockNetworkService.injectExistingItems(realmItems: realmManager.getItemArray())
         print("DemoViewModel initialized")
     }
     

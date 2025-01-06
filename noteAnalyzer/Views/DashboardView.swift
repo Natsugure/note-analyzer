@@ -165,13 +165,13 @@ struct DashboardView: View {
             case .view:
                 totalCount = dayStats.reduce(0) { $0 + $1.readCount }
             case .comment:
-                totalCount = dayStats.reduce(0) { $0 + $1.likeCount }
-            case .like:
                 totalCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            case .like:
+                totalCount = dayStats.reduce(0) { $0 + $1.likeCount }
             }
             
             if let latestTime = dayStats.first?.updatedAt {
-                result.append((Calendar.dateOnly(from: latestTime), totalCount))
+                result.append((DateUtils.calendar.startOfDay(for: latestTime), totalCount))
             }
         }
         
