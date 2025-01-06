@@ -9,9 +9,12 @@ import SwiftUI
 import RealmSwift
 
 struct ArticleDetailView: View {
-    var item: Item
+    @ObservedRealmObject var item: Item
     @Binding var path: [Item]
     @Binding var selection: StatsType
+    
+    var statsFormatter = StatsFormatter()
+    let calendar = Calendar(identifier: .gregorian)
     
     var body: some View {
         VStack {
@@ -27,7 +30,7 @@ struct ArticleDetailView: View {
             }
             .pickerStyle(.segmented)
             
-            ChartViewForItem(item: item, statsType: selection)
+            ChartView(chartData: calculateChartData(), statsType: selection)
                 .frame(height: 300)
                 .padding()
             
@@ -50,24 +53,24 @@ struct ArticleDetailView: View {
                     .background(Color.gray.opacity(0.1))
                     .listRowInsets(EdgeInsets())
                 ) {
-                    ForEach(item.stats.sorted(by: { $0.updatedAt > $1.updatedAt })) { stats in
+                    ForEach(calculateTotalCounts(), id: \.0) { (updatedAt, readCount, likeCount, commentCount) in
                         HStack {
-                            Text(formatDate(stats.updatedAt))
+                            Text(formatDate(updatedAt))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, 10)
                             ZStack {
-                                K.BrandColor.read.opacity(0.5)
-                                Text(String(stats.readCount))
+                                AppConstants.BrandColor.read.opacity(0.5)
+                                Text(String(readCount))
                             }
                             .frame(width: 60)
                             ZStack {
-                                K.BrandColor.comment.opacity(0.5)
-                                Text(String(stats.commentCount))
+                                AppConstants.BrandColor.comment.opacity(0.5)
+                                Text(String(commentCount))
                             }
                             .frame(width: 40)
                             ZStack {
-                                K.BrandColor.likeBackground
-                                Text(String(stats.likeCount))
+                                AppConstants.BrandColor.likeBackground
+                                Text(String(likeCount))
                             }
                             .frame(width: 40)
                         .padding(.trailing, 10)
@@ -89,6 +92,33 @@ struct ArticleDetailView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd HH:mm"
         return formatter.string(from: date)
+    }
+    
+    private func calculateTotalCounts() -> [(Date, Int, Int, Int)] {
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDay(stats: Array(item.stats))
+        
+        var result = latestStatsByDate.map { ($0.updatedAt, $0.readCount, $0.likeCount, $0.commentCount) }
+        
+        // 更新日でソート（降順）
+        result.sort { $0.0 > $1.0 }
+        
+        return result
+    }
+    
+    private func calculateChartData() -> [(Date, Int)] {
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDay(stats: Array(item.stats))
+        
+        let result: [(Date, Int)]
+        switch selection {
+        case .view:
+            result = latestStatsByDate.map { (calendar.startOfDay(for: $0.updatedAt), $0.readCount) }
+        case .comment:
+            result = latestStatsByDate.map { (calendar.startOfDay(for: $0.updatedAt), $0.commentCount) }
+        case .like:
+            result = latestStatsByDate.map { (calendar.startOfDay(for: $0.updatedAt), $0.likeCount) }
+        }
+        
+        return result.sorted { $0.0 < $1.0 }
     }
 }
 

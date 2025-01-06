@@ -15,7 +15,18 @@ enum KeychainError: Error {
     case unhandledError(Error)
 }
 
-class AuthenticationManager: ObservableObject {
+protocol AuthenticationProtocol {
+    var isAuthenticated: Bool { get set }
+    
+    var showAuthWebView: Bool { get set }
+    
+    func authenticate()
+    func checkAuthentication(webView: WKWebView)
+    func getCookies() -> [HTTPCookie]
+    func clearAuthentication() throws
+}
+
+class AuthenticationManager: ObservableObject, AuthenticationProtocol {
     @Published var isAuthenticated = false
     @Published var showAuthWebView = false
     

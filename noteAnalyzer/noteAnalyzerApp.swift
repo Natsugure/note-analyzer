@@ -12,14 +12,39 @@ import RealmSwift
 struct noteAnalyzerApp: SwiftUI.App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject var viewModel: NoteViewModel
+    @StateObject var viewModel: ViewModel
     
     init() {
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
+        UserDefaults.standard.register(defaults: [
+            AppConstants.UserDefaults.lastCalculateAt : "1970/1/1 00:00",
+            AppConstants.UserDefaults.urlname : "（不明なユーザー名）",
+            AppConstants.UserDefaults.contentsCount: 0
+        ])
+        
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: AppConstants.UserDefaults.demoModekey) == nil {
+            UserDefaults.standard.set(true, forKey: AppConstants.UserDefaults.demoModekey)
+        }
+        let isDemoMode = UserDefaults.standard.bool(forKey: AppConstants.UserDefaults.demoModekey)
+        
+        if isDemoMode {
+            _viewModel = StateObject(wrappedValue: DemoViewModel())
+        } else {
+            let authManager = AuthenticationManager()
+            let networkService = NetworkService(authManager: authManager)
+            let realmManager = RealmManager()
+            
+            _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        }
+        
+        #else
         let authManager = AuthenticationManager()
         let networkService = NetworkService(authManager: authManager)
         let realmManager = RealmManager()
         
-        _viewModel = StateObject(wrappedValue: NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        #endif
     }
     
     var body: some Scene {
@@ -34,9 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         setupRealm()
 
-        UserDefaults.standard.register(defaults: ["lastCalculateAt" : "1970/1/1 00:00"])
-        UserDefaults.standard.register(defaults: ["urlname" : ""])
-        
         return true
     }
     

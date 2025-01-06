@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct AuthWebView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     
     var body: some View {
         NavigationStack {
             VStack {
-                WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: K.authUrl)
+                WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: AppConstants.authUrl)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -35,7 +35,7 @@ struct AuthWebView_Previews: PreviewProvider {
     
     static var previews: some View {
         AuthWebView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }
 

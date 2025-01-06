@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct IsCompleteInitialSetupView: View {
-    @EnvironmentObject private var viewModel: NoteViewModel
-    @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+    @EnvironmentObject private var viewModel: ViewModel
+    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State private var shouldShowMainView = false
     
     var body: some View {
@@ -42,6 +42,6 @@ struct IsCompleteInitialSetupView_Previews: PreviewProvider {
     
     static var previews: some View {
         IsCompleteInitialSetupView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

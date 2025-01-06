@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InitialSetupView: View {
-    @EnvironmentObject private var viewModel: NoteViewModel
+    @EnvironmentObject private var viewModel: ViewModel
     @StateObject private var alertObject = AlertObject()
     @State private var isPresentedProgressView = false
     @State private var shouldShowLoginCredentialMismatchView = false
@@ -27,8 +27,10 @@ struct InitialSetupView: View {
                 
                 Button("ダッシュボードを取得する") {
                     Task {
+                        viewModel.resetProgressValue()
+                        isPresentedProgressView = true
                         do {
-                            isPresentedProgressView = true
+                            try await viewModel.getArticleCount()
                             try await viewModel.getStats()
                             isPresentedProgressView = false
                             shouldShowIsCompleteInitialSetupView.toggle()
@@ -47,16 +49,8 @@ struct InitialSetupView: View {
             
             if isPresentedProgressView {
                 Color.white
-                VStack {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .padding()
-                        .tint(Color.white)
-                        .background(Color.black.opacity(0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                    Text("処理中です")
-                }
+                ProgressBarView(progress: $viewModel.progressValue)
+                    .padding()
             }
         }
         .onAppear {
@@ -92,6 +86,6 @@ struct InitialSetupView_Previews: PreviewProvider {
     
     static var previews: some View {
         InitialSetupView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

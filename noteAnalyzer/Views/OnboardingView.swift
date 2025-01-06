@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     
     @State private var showTermModal = false
     @State private var showPrivacyModal = false
@@ -137,6 +137,6 @@ struct OnboardingView_Previews: PreviewProvider {
     
     static var previews: some View {
         OnboardingView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

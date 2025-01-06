@@ -8,7 +8,12 @@
 import SwiftUI
 import WebKit
 
-class NetworkService: ObservableObject {
+protocol NetworkServiceProtocol {
+    func fetchData(url: String) async throws -> Data
+    func resetWebComponents()
+}
+
+class NetworkService: NetworkServiceProtocol {
     private let realmManager: RealmManager
     private let authManager: AuthenticationManager
     
@@ -36,7 +41,7 @@ class NetworkService: ObservableObject {
         print(urlString)
 
         guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
+            fatalError("Invalid URL: \(urlString)")
         }
         
         try await checkRateLimit()
@@ -112,15 +117,6 @@ class NetworkService: ObservableObject {
                 try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
             }
         }
-    }
-    
-    private func stringToDate(_ dateString: String) -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd HH:mm"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        
-        return formatter.date(from: dateString)!
     }
 }
 

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var viewModel: NoteViewModel
-    @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+    @EnvironmentObject private var viewModel: ViewModel
+    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     
     var body: some View {
         if !isAuthenticationConfigured {
@@ -27,6 +27,6 @@ struct Content_Previews: PreviewProvider {
     
     static var previews: some View {
         ContentView()
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

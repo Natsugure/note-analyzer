@@ -15,14 +15,16 @@ enum StatsType {
 }
 
 struct DashboardView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     @ObservedObject var alertObject: AlertObject
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
     @State private var selectionChartType: StatsType = .view
-    @State private var sortType: SortType = .view
+    @State private var sortType: SortType = .viewDecending
     @Binding var isPresentedProgressView: Bool
+    
+    var statsFormatter = StatsFormatter()
     
     @State var isShowAlert = false
 
@@ -36,7 +38,7 @@ struct DashboardView: View {
                 }
                 .pickerStyle(.segmented)
                 
-                ChartViewForAll(items: items, statsType: selectionChartType)
+                ChartView(chartData: calculateChartData(), statsType: selectionChartType)
                     .frame(height: 300)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -57,7 +59,8 @@ struct DashboardView: View {
                                 title: "",
                                 message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
                                 actionText: "取得する",
-                                action: { Task { await getStats() } }
+                                action: { 
+                                    Task { await getStats() } }
                             )
                         }
                     }
@@ -102,17 +105,17 @@ struct DashboardView: View {
                             Text("\(articleCount)")
                                 .frame(width: 40)
                             ZStack {
-                                K.BrandColor.read.opacity(0.5)
+                                AppConstants.BrandColor.read.opacity(0.5)
                                 Text("\(readCount)")
                             }
                             .frame(width: 80)
                             ZStack {
-                                K.BrandColor.comment.opacity(0.3)
+                                AppConstants.BrandColor.comment.opacity(0.3)
                                 Text("\(commentCount)")
                             }
                             .frame(width: 60)
                             ZStack {
-                                K.BrandColor.likeBackground
+                                AppConstants.BrandColor.likeBackground
                                 Text("\(likeCount)")
                             }
                             .frame(width: 60)
@@ -128,30 +131,51 @@ struct DashboardView: View {
     
     //MARK: - Calculating and Formatting Stats Methods
     private func calculateTotalCounts() -> [(Date, Int, Int, Int, Int)] {
-        var countsByDate: [Date: (readCount: Int, likeCount: Int, commentCount: Int, articleCount: Int)] = [:]
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
         
-        for stat in stats {
-            let date = stat.updatedAt
+        // 各日付の最新データで集計
+        var result: [(Date, Int, Int, Int, Int)] = []
+        
+        for dayStats in latestStatsByDate {
+            let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
+            let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            let articleCount = dayStats.count
             
-            if countsByDate[date] == nil {
-                countsByDate[date] = (readCount: 0, likeCount: 0, commentCount: 0, articleCount: 0)
+            // 時間情報を保持したまま結果に追加
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((latestTime, totalReadCount, totalLikeCount, totalCommentCount, articleCount))
             }
-            
-            countsByDate[date]?.readCount += stat.readCount
-            countsByDate[date]?.likeCount += stat.likeCount
-            countsByDate[date]?.commentCount += stat.commentCount
-            countsByDate[date]?.articleCount += 1 //記事の数をカウント
         }
         
-        // 結果を配列に変換
-        var result = countsByDate.map { (date, counts) in
-            return (date, counts.readCount, counts.likeCount, counts.commentCount, counts.articleCount)
-        }
-        
-        // 更新日でソート
+        // 更新日でソート（降順）
         result.sort { $0.0 > $1.0 }
         
         return result
+    }
+    
+    private func calculateChartData() -> [(Date, Int)] {
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
+        
+        var result: [(Date, Int)] = []
+        
+        for dayStats in latestStatsByDate {
+            let totalCount: Int
+            switch selectionChartType {
+            case .view:
+                totalCount = dayStats.reduce(0) { $0 + $1.readCount }
+            case .comment:
+                totalCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            case .like:
+                totalCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            }
+            
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((DateUtils.calendar.startOfDay(for: latestTime), totalCount))
+            }
+        }
+        
+        return result.sorted { $0.0 < $1.0 }
     }
     
     private func dateToTimeString(date: Date) -> String {
@@ -168,8 +192,10 @@ struct DashboardView: View {
     
     //MARK: - The methods of connect to ViewModel
     private func getStats() async {
+        viewModel.resetProgressValue()
         isPresentedProgressView = true
         do {
+            try await viewModel.getArticleCount()
             try await viewModel.getStats()
             
             isPresentedProgressView = false
@@ -185,17 +211,20 @@ struct DashboardView: View {
     }
     
     private func handleGetStatsError(_ error: Error) {
+        print(error)
         let title: String
         let detail: String
         
         switch error {
-        case NAError.network(_):
+        case NAError.network(_), NAError.decoding(_):
+            let naError = error as! NAError
             title = "取得エラー"
-            detail = error.localizedDescription
+            detail = naError.userMessage
             
         case NAError.auth(_):
+            let naError = error as! NAError
             title = "認証エラー"
-            detail = error.localizedDescription
+            detail = naError.userMessage
             
         default:
             title = "不明なエラー"
@@ -217,6 +246,6 @@ struct DashboardView_Previews: PreviewProvider {
     
     static var previews: some View {
         DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

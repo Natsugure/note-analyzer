@@ -10,7 +10,7 @@ import Charts
 import RealmSwift
 
 struct ChartViewForItem: View {
-    let item: Item
+    let stats: [Stats]
     let statsType: StatsType
     
     var chartData: [(Date, Int)] {
@@ -18,15 +18,15 @@ struct ChartViewForItem: View {
         
         switch statsType {
         case .view:
-            return item.stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.readCount) }
+            return stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.readCount) }
                 .sorted { $0.0 < $1.0 }
             
         case .comment:
-            return item.stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.commentCount) }
+            return stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.commentCount) }
                 .sorted { $0.0 < $1.0 }
             
         case .like:
-            return item.stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.likeCount) }
+            return stats.map { (calendar.startOfDay(for: $0.updatedAt), $0.likeCount) }
                 .sorted { $0.0 < $1.0 }
         }
     }
@@ -34,11 +34,11 @@ struct ChartViewForItem: View {
     var lineColor: Color {
         switch statsType {
         case .view:
-            return K.BrandColor.read
+            return AppConstants.BrandColor.read
         case .comment:
-            return K.BrandColor.comment
+            return AppConstants.BrandColor.comment
         case .like:
-            return K.BrandColor.like
+            return AppConstants.BrandColor.like
         }
     }
     

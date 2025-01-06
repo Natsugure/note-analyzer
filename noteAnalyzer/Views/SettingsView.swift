@@ -9,14 +9,18 @@ import SwiftUI
 import RealmSwift
 
 struct SettingsView: View {
-    @EnvironmentObject var viewModel: NoteViewModel
+    @EnvironmentObject var viewModel: ViewModel
     @Environment(\.openURL) private var openURL
     @ObservedObject var alertObject: AlertObject
-    @AppStorage(K.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State var path = NavigationPath()
     @State var isShowAlert = false
     
     private let contactFormURLString = "https://forms.gle/Tceg32xcH8avj8qy5"
+    
+#if DEBUG
+    @AppStorage(AppConstants.UserDefaults.demoModekey) private var isDemoMode = false
+#endif
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -84,6 +88,19 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                     }
                 }
+                .onAppear(perform: {
+                    print("settingView: \(isDemoMode)")
+                })
+                
+                Section {
+                    Toggle("デモモード", isOn: $isDemoMode)
+                    Text("デモモードON : モックデータを使用してアプリを使用します。\nデモモードOFF: 実際にnoteのアカウントを使用してダッシュボードを取得します。\n\n変更するとただちにアプリ内データの消去を実行し、変更を適用します。")
+                }
+                .onChange(of: isDemoMode) { newValue in
+                    Task {
+                        await changeDemoModeKey()
+                    }
+                }
 #endif
                 
             }
@@ -108,22 +125,55 @@ struct SettingsView: View {
             alertObject.showSingle(
                 isPresented: $isShowAlert,
                 title: "消去完了",
-                message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。") {
-                isAuthenticationConfigured = false
-            }
-        } catch KeychainError.unexpectedStatus(let status) {
-            alertObject.showSingle(
-                isPresented: $isShowAlert,
-                title: "エラー",
-                message: "処理中にエラーが発生しました。\n Keychain error status: \(status)"
+                message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。",
+                action: { isAuthenticationConfigured = false }
             )
         } catch {
-            alertObject.showSingle(
-                isPresented: $isShowAlert,
-                title: "エラー",
-                message: "処理中に不明なエラーが発生しました。"
-            )
+            handleClearAllDataError(error)
         }
+    }
+    
+    private func changeDemoModeKey() async {
+        do {
+            try await viewModel.clearAllData()
+            showRestartAlert()
+        } catch {
+            handleClearAllDataError(error)
+        }
+    }
+    
+    private func showRestartAlert() {
+        alertObject.showSingle(
+            isPresented: $isShowAlert,
+            title: "アプリの再起動が必要",
+            message: "デモモードの設定を反映するには、アプリの再起動が必要です。",
+            action: {
+                isAuthenticationConfigured = false
+                exit(0)
+            }
+        )
+    }
+    
+    private func handleClearAllDataError(_ error: any Error) {
+        let detail: String
+        
+        if let keychainError = error as? KeychainError {
+            switch keychainError {
+            case .unexpectedStatus(let status):
+                detail = "処理中にエラーが発生しました。\n 認証情報の消去に失敗しました。\nエラーコード: \(status)"
+                
+            default:
+                detail = "処理中に不明なエラーが発生しました。\n\(error.localizedDescription)"
+            }
+        } else {
+            detail = "処理中に不明なエラーが発生しました。"
+        }
+        
+        alertObject.showSingle(
+            isPresented: $isShowAlert,
+            title: "初期化エラー",
+            message: detail
+        )
     }
 }
 
@@ -135,6 +185,6 @@ struct SettingsView_Previews: PreviewProvider {
     
     static var previews: some View {
         SettingsView(alertObject: alertObject)
-            .environmentObject(NoteViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
     }
 }

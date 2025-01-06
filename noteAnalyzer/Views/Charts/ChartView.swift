@@ -9,41 +9,18 @@ import SwiftUI
 import Charts
 import RealmSwift
 
-struct ChartViewForAll: View {
-    let items: Results<Item>
+struct ChartView: View {
+    var chartData: [(Date, Int)]
     let statsType: StatsType
-    
-    var chartData: [(Date, Int)] {
-        var dataDict: [Date: Int] = [:]
-        let calendar = Calendar.current
-        
-        for item in items {
-            for stat in item.stats {
-                let date = calendar.startOfDay(for: stat.updatedAt) // 日付のみを使用
-                let value: Int
-                switch statsType {
-                case .view:
-                    value = stat.readCount
-                case .comment:
-                    value = stat.commentCount
-                case .like:
-                    value = stat.likeCount
-                }
-                dataDict[date, default: 0] += value
-            }
-        }
-        
-        return dataDict.sorted { $0.key < $1.key }
-    }
     
     var lineColor: Color {
         switch statsType {
         case .view:
-            return K.BrandColor.read
+            return AppConstants.BrandColor.read
         case .comment:
-            return K.BrandColor.comment
+            return AppConstants.BrandColor.comment
         case .like:
-            return K.BrandColor.like
+            return AppConstants.BrandColor.like
         }
     }
     
@@ -75,6 +52,7 @@ struct ChartViewForAll: View {
                                 .frame(width: 30)
                                 .padding(.bottom, 10)
                         }
+                        .offset(x: -5)
                         AxisTick()
                         AxisGridLine()
                     }
@@ -111,7 +89,7 @@ struct ChartViewForAll: View {
         let calendar = Calendar.current
         let daysBetween = calendar.dateComponents([.day], from: chartXDomain.lowerBound, to: chartXDomain.upperBound).day ?? 0
         let widthPerDay: CGFloat = 20
-        return max(500, CGFloat(daysBetween + 1) * widthPerDay) // +1 は終了日を含むため
+        return max(UIScreen.main.bounds.width - 50, CGFloat(daysBetween + 1) * widthPerDay) // +1 は終了日を含むため
     }
     
     var dateFormatter: DateFormatter {

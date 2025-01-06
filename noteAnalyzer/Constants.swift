@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct K {
+struct AppConstants {
     static let authUrl = "https://note.com/login"
     
     struct BrandColor {
@@ -29,5 +29,8 @@ struct K {
         static let authenticationConfigured = "authenticationConfigured"
         static let lastCalculateAt = "lastCalculateAt"
         static let urlname = "urlname"
+        static let contentsCount = "contentsCount"
+        
+        static let demoModekey = "demoModeKey"
     }
 }

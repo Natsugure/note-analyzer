@@ -8,12 +8,36 @@
 import SwiftUI
 import RealmSwift
 
-enum SortType {
-    case publishedAt
-    case title
-    case view
-    case comment
-    case like
+enum SortType: String, CaseIterable {
+    case publishedAtNew = "投稿日時の新しい順"
+    case publishedAtOld = "投稿日時の古い順"
+    case viewDecending = "ビューの多い順"
+    case viewAscending = "ビューの少ない順"
+    case commentDecending = "コメントの多い順"
+    case commentAscending = "コメントの少ない順"
+    case likeDecending = "スキの多い順"
+    case likeAscending = "スキの少ない順"
+    
+    var symbol: String {
+        switch self {
+        case .publishedAtNew:
+            return "📅▼"
+        case .publishedAtOld:
+            return "📅▲"
+        case .viewDecending:
+            return "👀▼"
+        case .viewAscending:
+            return "👀▲"
+        case .commentDecending:
+            return "💬▼"
+        case .commentAscending:
+            return "💬▲"
+        case .likeDecending:
+            return "♥️▼"
+        case .likeAscending:
+            return "♥️▲"
+        }
+    }
 }
 
 struct DailyView: View {
@@ -28,7 +52,7 @@ struct DailyView: View {
     @State var endDate = Date()
     @State var selectionContentTypes: Set<ContentType> = [.text, .talk, .image, .sound, .movie]
     
-    @State private var sortType: SortType = .view
+    @State private var sortType: SortType = .viewDecending
     
     var selectedDate: Date
     
@@ -62,26 +86,41 @@ struct DailyView: View {
             let stats2 = item2.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
             
             switch sortType {
-            case .publishedAt:
+            case .publishedAtNew:
                 return item1.publishedAt > item2.publishedAt
                 
-            case .title:
-                return item1.title < item2.title
+            case .publishedAtOld:
+                return item1.publishedAt < item2.publishedAt
                 
-            case .view:
+            case .viewDecending:
                 let readCount1 = stats1?.readCount ?? 0
                 let readCount2 = stats2?.readCount ?? 0
                 return readCount1 > readCount2
                 
-            case .comment:
+            case .viewAscending:
+                let readCount1 = stats1?.readCount ?? 0
+                let readCount2 = stats2?.readCount ?? 0
+                return readCount1 < readCount2
+                
+            case .commentDecending:
                 let commentCount1 = stats1?.commentCount ?? 0
                 let commentCount2 = stats2?.commentCount ?? 0
                 return commentCount1 > commentCount2
                 
-            case .like:
+            case .commentAscending:
+                let commentCount1 = stats1?.commentCount ?? 0
+                let commentCount2 = stats2?.commentCount ?? 0
+                return commentCount1 < commentCount2
+                
+            case .likeDecending:
                 let likeCount1 = stats1?.likeCount ?? 0
                 let likeCount2 = stats2?.likeCount ?? 0
                 return likeCount1 > likeCount2
+                
+            case .likeAscending:
+                let likeCount1 = stats1?.likeCount ?? 0
+                let likeCount2 = stats2?.likeCount ?? 0
+                return likeCount1 < likeCount2
             }
         }
     }
@@ -90,126 +129,154 @@ struct DailyView: View {
         GeometryReader { geometry in
             VStack {
                 VStack {
-                    Button(action: {
-                        isShowFilterSheet.toggle()
-                    }, label: {
-                        Text(Image(systemName: "line.3.horizontal.decrease.circle")) + Text("記事を絞り込む")
-                            
-                    })
-                    .frame(maxWidth: .infinity, minHeight: 50)
-                    .background(Color.cyan)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(radius: 1, x: 1, y: 1)
-                    .padding(.vertical)
-                    
-                    VStack {
+                    HStack {
                         Text("ビュー")
-                            .frame(alignment: .top)
+                            .frame(alignment: .leading)
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal)
                         Text(formattedString(from: totalCount(for: \.readCount)))
                             .font(.system(size: 24, weight: .semibold))
+                            .frame(maxWidth: .infinity, alignment: .center)
                         Text(differenceString(for: \.readCount))
                             .font(.system(size: 12))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 4)
-                    .background(K.BrandColor.read.opacity(0.5))
+                    .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 6)
+                    .background(AppConstants.BrandColor.read.opacity(0.5))
                     
                     HStack {
-                        VStack {
-                            Text("コメント")
-                            Text(formattedString(from: totalCount(for: \.commentCount)))
-                                .font(.system(size: 24, weight: .semibold))
-                            Text(differenceString(for: \.commentCount))
-                                .font(.system(size: 12))
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 4)
-                        .background(K.BrandColor.comment.opacity(0.3))
-                        
-                        VStack {
-                            Text("スキ")
-                            Text(formattedString(from: totalCount(for: \.likeCount)))
-                                .font(.system(size: 24, weight: .semibold))
-                            Text(differenceString(for: \.likeCount))
-                                .font(.system(size: 12))
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 4)
-                        .background(K.BrandColor.likeBackground)
+                        Text("コメント")
+                            .frame(alignment: .leading)
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal)
+                        Text(formattedString(from: totalCount(for: \.commentCount)))
+                            .font(.system(size: 24, weight: .semibold))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(differenceString(for: \.commentCount))
+                            .font(.system(size: 12))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 6)
+                    .background(AppConstants.BrandColor.comment.opacity(0.3))
+                    
+                    HStack {
+                        Text("スキ")
+                            .frame(alignment: .leading)
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal)
+                        Text(formattedString(from: totalCount(for: \.likeCount)))
+                            .font(.system(size: 24, weight: .semibold))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(differenceString(for: \.likeCount))
+                            .font(.system(size: 12))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: geometry.size.width / 6)
+                    .background(AppConstants.BrandColor.likeBackground)
                 }
                 .padding()
                 
-                List {
-                    Section(header:
-                                HStack {
-                        Text("投稿日").bold()
-                            .frame(width: 45)
-                            .onTapGesture {
-                                sortType = .publishedAt
-                            }
+
+                
+                VStack {
+                    HStack {
+                        Button(action: {
+                            isShowFilterSheet.toggle()
+                        }, label: {
+                            Text(Image(systemName: "line.3.horizontal.decrease.circle")) + Text("絞り込み")
+                            
+                        })
+                        .frame(maxWidth: .infinity, minHeight: 30)
+                        .background(Color.cyan)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                        .shadow(radius: 1, x: 1, y: 1)
+                        .padding(.horizontal)
                         
-                        Text("記事").bold()
-                            .frame(maxWidth: .infinity)
-                            .onTapGesture {
-                                sortType = .title
-                            }
-                        Text("ビュー").bold()
-                            .frame(width: 60)
-                            .onTapGesture {
-                                sortType = .view
-                            }
-                        Text("コメント").bold()
-                            .frame(width: 40)
-                            .onTapGesture {
-                                sortType = .comment
-                            }
-                        Text("スキ").bold()
-                            .frame(width: 60)
-                            .padding(.trailing, 27)
-                            .onTapGesture {
-                                sortType = .like
-                            }
-                    }
-                        .font(.system(size: 12))
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.1))
-                        .listRowInsets(EdgeInsets())
-                    ) {
-                        // データ行
-                        ForEach(sortedItems) { item in
-                            NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selectionChartType)) {
-                                HStack(alignment: .center) {
-                                    VStack {
-                                        Text(item.publishedAt, formatter: yearFormatter)
-                                        Text(item.publishedAt, formatter: monthDayFormatter)
-                                    }
-                                    .frame(width: 45)
-                                    Text(item.title)
-                                        .lineLimit(2)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(.leading, 10)
-                                    ZStack {
-                                        K.BrandColor.read.opacity(0.5)
-                                        Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.readCount ?? 0))
-                                    }
-                                    .frame(width: 60)
-                                    ZStack {
-                                        K.BrandColor.comment.opacity(0.3)
-                                        Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.commentCount ?? 0))
-                                    }
-                                    .frame(width: 40)
-                                    ZStack {
-                                        K.BrandColor.likeBackground
-                                        Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.likeCount ?? 0))
-                                    }
-                                    .frame(width: 60)
+                        Menu {
+                            Picker("並び替え", selection: $sortType) {
+                                ForEach(SortType.allCases, id: \.self) { type in
+                                    Text("\(type.rawValue)")
+                                        .tag(type)
                                 }
-                                .font(.system(size: 12))
                             }
+                        } label: {
+                            Text(Image(systemName: "arrow.up.arrow.down.circle")) + Text("並び替え")
                         }
-                        .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
+                        .frame(maxWidth: .infinity, minHeight: 30)
+                        .background(Color.cyan)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                        .shadow(radius: 1, x: 1, y: 1)
+                        .padding(.horizontal)
                     }
+                    
+                    List {
+                        Section(header:
+                                    HStack {
+                            Text("記事情報").bold()
+                                .frame(maxWidth: .infinity)
+                                .padding(.leading, 10)
+                            Text("ビュー").bold()
+                                .frame(width: 80)
+                            Text("コメント").bold()
+                                .frame(width: 50)
+                            Text("スキ").bold()
+                                .frame(width: 60)
+                                .padding(.trailing, 27)
+                        }
+                            .font(.system(size: 12))
+                            .padding(.vertical, 8)
+                            .background(Color.gray.opacity(0.1))
+                            .listRowInsets(EdgeInsets())
+                        ) {
+                            // データ行
+                            ForEach(sortedItems) { item in
+                                NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selectionChartType)) {
+                                    HStack(alignment: .center) {
+                                        Rectangle()
+                                            .fill(Color.red)
+                                            .frame(width: 10)
+                                        
+                                        VStack(alignment: .leading) {
+                                            HStack() {
+                                                Text(item.publishedAt.formatted(Date.FormatStyle(date: .numeric, time: .omitted)))
+                                                    .font(.system(size: 12))
+                                            }
+                                            Text(item.title)
+                                                .lineLimit(2)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.top, 0.1)
+                                        }
+                                        .padding(.vertical, 3)
+                                        
+                                        ZStack {
+                                            AppConstants.BrandColor.read.opacity(0.5)
+                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.readCount ?? 0))
+                                        }
+                                        .frame(width: 80)
+                                        ZStack {
+                                            AppConstants.BrandColor.comment.opacity(0.3)
+                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.commentCount ?? 0))
+                                        }
+                                        .frame(width: 50)
+                                        ZStack {
+                                            AppConstants.BrandColor.likeBackground
+                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.likeCount ?? 0))
+                                        }
+                                        .frame(width: 60)
+                                    }
+                                    .font(.system(size: 16))
+                                }
+                            }
+                            .listRowInsets(EdgeInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 10)))
+                        }
+                    }
+                    .listStyle(PlainListStyle())
                 }
-                .listStyle(PlainListStyle())
                 
             }
             .navigationTitle("\(selectedDate, formatter: dateFormatter) 統計")
@@ -338,35 +405,61 @@ struct FilterSelecterView: View {
     }
 }
 
+struct SortSelecterView: View {
+    @Binding var isShowSortView: Bool
+    @Binding var sortType: SortType
+    
+    var body: some View {
+        VStack {
+            
+        }
+    }
+}
+
 struct DailyView_Previews: PreviewProvider {
     @State static var mockPath: [Item] = []
     @State static var mockSelection: StatsType = .view
-
+    
     static var previews: some View {
-        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "PreviewRealm"))
+//        let item = PreviewData.realm.objects(Item.self)
         
-        let mockUpdateAt = Date()
-
-        let mockItem = Item()
-        mockItem.id = 999
-        mockItem.title = "Sample Item"
-        mockItem.publishedAt = mockUpdateAt - 87740
-
-        let mockStats = Stats()
-        mockStats.updatedAt = mockUpdateAt
-        mockStats.readCount = 100
-        mockStats.likeCount = 50
-        mockStats.commentCount = 10
-
-        if realm.object(ofType: Item.self, forPrimaryKey: mockItem.id) == nil {
-            try! realm.write {
-                mockItem.stats.append(mockStats)
-                realm.add(mockItem)
-            }
-        }
-
-        return DailyView(path: $mockPath, selectionChartType: $mockSelection, selectedDate: mockUpdateAt)
-            .environment(\.realmConfiguration, realm.configuration)
-            .environment(\.locale, Locale(identifier: "ja_JP"))
+        @ObservedResults(Item.self, configuration: PreviewData.realm.configuration) var items
+        print(items)
+        let calendar = Calendar.current
+        return DailyView(
+            items: $items,
+            path: $mockPath,
+            selectionChartType: $mockSelection,
+            selectedDate: calendar.date(from: DateComponents(year: 2024, month: 7, day: 7))!
+        )
+        .environment(\.realmConfiguration, PreviewData.realm.configuration)
     }
+
+//    static var previews: some View {
+//        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "PreviewRealm"))
+//        
+//        let mockUpdateAt = Date()
+//        
+//        let mockItem = Item()
+//        mockItem.id = 999
+//        mockItem.title = "Sample Item"
+//        mockItem.publishedAt = mockUpdateAt - 87740
+//        
+//        let mockStats = Stats()
+//        mockStats.updatedAt = mockUpdateAt
+//        mockStats.readCount = 100
+//        mockStats.likeCount = 50
+//        mockStats.commentCount = 10
+//        
+//        if realm.object(ofType: Item.self, forPrimaryKey: mockItem.id) == nil {
+//            try! realm.write {
+//                mockItem.stats.append(mockStats)
+//                realm.add(mockItem)
+//            }
+//        }
+//        
+//        return DailyView(path: $mockPath, selectionChartType: $mockSelection, selectedDate: mockUpdateAt)
+//            .environment(\.realmConfiguration, realm.configuration)
+//            .environment(\.locale, Locale(identifier: "ja_JP"))
+//    }
 }
