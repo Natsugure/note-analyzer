@@ -14,7 +14,7 @@ protocol NetworkServiceProtocol {
 }
 
 class NetworkService: NetworkServiceProtocol {
-    private let realmManager: RealmManager
+//    private let realmManager: RealmManager
     private let authManager: AuthenticationManager
     
     private var isLastPage = false
@@ -28,7 +28,7 @@ class NetworkService: NetworkServiceProtocol {
     
     init(authManager: AuthenticationManager) {
         self.authManager = authManager
-        self.realmManager = RealmManager()
+//        self.realmManager = RealmManager()
         
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true

@@ -37,6 +37,8 @@
 		1ADA6E012D2A162200227F42 /* StatsFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E002D2A162200227F42 /* StatsFormatter.swift */; };
 		1ADA6E032D2A1F9D00227F42 /* Calendar+DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */; };
 		1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E042D2A270200227F42 /* DateUtils.swift */; };
+		1ADA6E092D2B6AE100227F42 /* String+WordJoiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E082D2B6AE100227F42 /* String+WordJoiner.swift */; };
+		1ADA6E0B2D2B76AE00227F42 /* NoteAPIFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E0A2D2B76AE00227F42 /* NoteAPIFetcher.swift */; };
 		1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */; };
 		1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA262C3A26D600C30A89 /* ContentView.swift */; };
 		1AE3CA292C3A26D700C30A89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3CA282C3A26D700C30A89 /* Assets.xcassets */; };
@@ -94,6 +96,8 @@
 		1ADA6E002D2A162200227F42 /* StatsFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsFormatter.swift; sourceTree = "<group>"; };
 		1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+DateFormatter.swift"; sourceTree = "<group>"; };
 		1ADA6E042D2A270200227F42 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
+		1ADA6E082D2B6AE100227F42 /* String+WordJoiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordJoiner.swift"; sourceTree = "<group>"; };
+		1ADA6E0A2D2B76AE00227F42 /* NoteAPIFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAPIFetcher.swift; sourceTree = "<group>"; };
 		1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noteAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = noteAnalyzerApp.swift; sourceTree = "<group>"; };
 		1AE3CA262C3A26D600C30A89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -123,6 +127,7 @@
 			children = (
 				1A107D7D2D17B4F900AD9F79 /* UserDefaults+Extension.swift */,
 				1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */,
+				1ADA6E082D2B6AE100227F42 /* String+WordJoiner.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 				1AE3CA3E2C3A35BC00C30A89 /* RealmModel.swift */,
 				1A25C67E2C4770C400403215 /* AuthenticationManager.swift */,
 				1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */,
+				1ADA6E0A2D2B76AE00227F42 /* NoteAPIFetcher.swift */,
 				1AC95B262C4CC26A0049E6AA /* RealmManager.swift */,
 				1A4D8ABF2CBBA18200BF353A /* NAError.swift */,
 				1ADA6E002D2A162200227F42 /* StatsFormatter.swift */,
@@ -365,6 +371,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A06C8FA2C62229A00838DD5 /* MarkdownView.swift in Sources */,
+				1ADA6E0B2D2B76AE00227F42 /* NoteAPIFetcher.swift in Sources */,
 				1A5852CA2C7AFFD200EDA5E2 /* AuthWebView.swift in Sources */,
 				1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */,
 				1A2AC3B92C55CEFC0046C921 /* ArticleDetailView.swift in Sources */,
@@ -385,6 +392,7 @@
 				1A06C8F82C60559000838DD5 /* MainView.swift in Sources */,
 				1AC95B292C4F847A0049E6AA /* DashboardView.swift in Sources */,
 				1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */,
+				1ADA6E092D2B6AE100227F42 /* String+WordJoiner.swift in Sources */,
 				1A06C8F62C60524C00838DD5 /* OnboardingView.swift in Sources */,
 				1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */,
 				1A4D8AC02CBBA18200BF353A /* NAError.swift in Sources */,

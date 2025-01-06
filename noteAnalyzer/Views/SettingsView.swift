@@ -12,14 +12,14 @@ struct SettingsView: View {
     @EnvironmentObject var viewModel: ViewModel
     @Environment(\.openURL) private var openURL
     @ObservedObject var alertObject: AlertObject
-    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State var path = NavigationPath()
     @State var isShowAlert = false
     
     private let contactFormURLString = "https://forms.gle/Tceg32xcH8avj8qy5"
     
 #if DEBUG
-    @AppStorage(AppConstants.UserDefaults.demoModekey) private var isDemoMode = false
+//    @AppStorage(AppConstants.UserDefaults.demoModekey) private var isDemoMode = false
+    @State private var isDemoMode = AppConfig.isDemoMode
 #endif
     
     var body: some View {
@@ -67,7 +67,7 @@ struct SettingsView: View {
                                     isPresented: $isShowAlert,
                                     title: "ログアウト完了",
                                     message: "ログアウトが完了しました。初期設定画面に戻ります。") {
-                                    isAuthenticationConfigured = false
+                                        AppConfig.isAuthenticationConfigured = false
                                 }
                             } catch KeychainError.unexpectedStatus(let status) {
                                 alertObject.showSingle(
@@ -88,9 +88,6 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                     }
                 }
-                .onAppear(perform: {
-                    print("settingView: \(isDemoMode)")
-                })
                 
                 Section {
                     Toggle("デモモード", isOn: $isDemoMode)
@@ -126,7 +123,7 @@ struct SettingsView: View {
                 isPresented: $isShowAlert,
                 title: "消去完了",
                 message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。",
-                action: { isAuthenticationConfigured = false }
+                action: { AppConfig.isAuthenticationConfigured = false }
             )
         } catch {
             handleClearAllDataError(error)
@@ -135,6 +132,7 @@ struct SettingsView: View {
     
     private func changeDemoModeKey() async {
         do {
+            AppConfig.isDemoMode.toggle()
             try await viewModel.clearAllData()
             showRestartAlert()
         } catch {
@@ -148,7 +146,7 @@ struct SettingsView: View {
             title: "アプリの再起動が必要",
             message: "デモモードの設定を反映するには、アプリの再起動が必要です。",
             action: {
-                isAuthenticationConfigured = false
+                AppConfig.isAuthenticationConfigured = false
                 exit(0)
             }
         )

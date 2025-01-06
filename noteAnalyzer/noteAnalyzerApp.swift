@@ -23,12 +23,11 @@ struct noteAnalyzerApp: SwiftUI.App {
         ])
         
         #if DEBUG
-        if UserDefaults.standard.object(forKey: AppConstants.UserDefaults.demoModekey) == nil {
+        if AppConfig.isExistDemoModeValue() {
             UserDefaults.standard.set(true, forKey: AppConstants.UserDefaults.demoModekey)
         }
-        let isDemoMode = UserDefaults.standard.bool(forKey: AppConstants.UserDefaults.demoModekey)
         
-        if isDemoMode {
+        if AppConfig.isDemoMode {
             _viewModel = StateObject(wrappedValue: DemoViewModel())
         } else {
             let authManager = AuthenticationManager()

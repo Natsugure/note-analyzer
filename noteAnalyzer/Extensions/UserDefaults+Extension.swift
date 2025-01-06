@@ -7,77 +7,60 @@
 
 import Foundation
 
-protocol UserDefaultConvertible {
-    init?(with object: Any)
-    func object() -> Any?
-}
-
 @propertyWrapper
-struct UserDefault<Value: UserDefaultConvertible> {
-    let key: String
-    let defaultValue: Value
+struct UserDefault<T> {
+    let key: Key
+    let defaultValue: T
     
-    init(_ key: String, defaultValue: Value) {
-        self.key = key
-        self.defaultValue = defaultValue
-    }
-    
-    var wrappedValue: Value {
+    var wrappedValue: T {
         get {
-            if let object = UserDefaults.standard.object(forKey: self.key),
-               let value = Value(with: object) 
-            {
-                return value
-            } else {
-                return self.defaultValue
-            }
+            return UserDefaults.standard.object(forKey: key.rawValue) as? T ?? defaultValue
         }
         
         set {
-            if let object = newValue.object() {
-                UserDefaults.standard.set(object, forKey: self.key)
-            } else {
-                UserDefaults.standard.removeObject(forKey: self.key)
-            }
+            UserDefaults.standard.set(newValue, forKey: key.rawValue)
         }
+    }
+    
+    var projectedValue: Self {
+        return self
+    }
+    
+    var isValueSet: Bool {
+        return UserDefaults.standard.object(forKey: key.rawValue) != nil
     }
 }
 
-extension Int: UserDefaultConvertible {
-    init?(with object: Any) {
-        guard let value = object as? Int else {
-            return nil
-        }
-        self = value
-    }
-    
-    func object() -> Any? {
-        return self
+extension UserDefault {
+    enum Key: String {
+        case authenticationConfigured
+        case contentsCount
+        case lastCalculateAt
+        case urlname
+        
+        case demoModeKey
     }
 }
 
-extension String: UserDefaultConvertible {
-    init?(with object: Any) {
-        guard let value = object as? String else {
-            return nil
-        }
-        self = value
-    }
+struct AppConfig {
+    @UserDefault(key: .authenticationConfigured, defaultValue: false)
+    static var isAuthenticationConfigured: Bool
     
-    func object() -> Any? {
-        return self
-    }
-}
-
-extension Bool: UserDefaultConvertible {
-    init?(with object: Any) {
-        guard let value = object as? Bool else {
-            return nil
-        }
-        self = value
-    }
+    @UserDefault(key: .contentsCount, defaultValue: 0)
+    static var contentsCount: Int
     
-    func object() -> Any? {
-        return self
+    @UserDefault(key: .lastCalculateAt, defaultValue: "1970/1/1 00:00")
+    static var lastCalculateAt: String
+    
+    @UserDefault(key: .urlname, defaultValue: "（不明なユーザー名）")
+    static var urlname: String
+    
+#if DEBUG
+    @UserDefault(key: .demoModeKey, defaultValue: true)
+    static var isDemoMode: Bool
+#endif
+    
+    static func isExistDemoModeValue() -> Bool {
+        return $isDemoMode.isValueSet
     }
 }

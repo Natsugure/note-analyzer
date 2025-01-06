@@ -29,45 +29,47 @@ struct DashboardView: View {
     @State var isShowAlert = false
 
     var body: some View {
-        NavigationStack(path: $path) {
-            VStack {
-                Picker(selection: $selectionChartType, label: Text("グラフ選択")) {
-                    Text("ビュー").tag(StatsType.view)
-                    Text("コメント").tag(StatsType.comment)
-                    Text("スキ").tag(StatsType.like)
+        GeometryReader { geometry in
+            NavigationStack(path: $path) {
+                VStack {
+                    Picker(selection: $selectionChartType, label: Text("グラフ選択")) {
+                        Text("ビュー").tag(StatsType.view)
+                        Text("コメント").tag(StatsType.comment)
+                        Text("スキ").tag(StatsType.like)
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    ChartView(chartData: calculateChartData(), statsType: selectionChartType)
+                        .frame(height: geometry.size.height * 0.4)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                    
+                    statsList
                 }
-                .pickerStyle(.segmented)
-                
-                ChartView(chartData: calculateChartData(), statsType: selectionChartType)
-                    .frame(height: 300)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                
-                statsList
-            }
-            .navigationTitle("全記事統計")
-            .navigationBarItems(leading: EmptyView())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                //更新ボタン
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { Task { await getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
-                    .onAppear {
-                        if items.isEmpty {
-                            alertObject.showDouble(
-                                isPresented: $isShowAlert,
-                                title: "",
-                                message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
-                                actionText: "取得する",
-                                action: { 
-                                    Task { await getStats() } }
-                            )
-                        }
+                .navigationTitle("全記事統計")
+                .navigationBarItems(leading: EmptyView())
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    //更新ボタン
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: { Task { await getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
+                            .onAppear {
+                                if items.isEmpty {
+                                    alertObject.showDouble(
+                                        isPresented: $isShowAlert,
+                                        title: "",
+                                        message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
+                                        actionText: "取得する",
+                                        action: { 
+                                            Task { await getStats() } }
+                                    )
+                                }
+                            }
                     }
                 }
             }
+            .customAlert(for: alertObject, isPresented: $isShowAlert)
         }
-        .customAlert(for: alertObject, isPresented: $isShowAlert)
 
     }
     

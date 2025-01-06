@@ -17,74 +17,76 @@ struct ArticleDetailView: View {
     let calendar = Calendar(identifier: .gregorian)
     
     var body: some View {
-        VStack {
-            Text(item.title)
-                .font(.headline)
-                .lineLimit(2)
-                .padding()
-            
-            Picker(selection: $selection, label: Text("グラフ選択")) {
-                Text("ビュー").tag(StatsType.view)
-                Text("コメント").tag(StatsType.comment)
-                Text("スキ").tag(StatsType.like)
-            }
-            .pickerStyle(.segmented)
-            
-            ChartView(chartData: calculateChartData(), statsType: selection)
-                .frame(height: 300)
-                .padding()
-            
-            List {
-                Section(header:
-                            HStack {
-                    Text("取得日時").bold()
-                        .frame(maxWidth: .infinity)
-                        .padding(.leading, 10)
-                    Text("ビュー").bold()
-                        .frame(width: 60)
-                    Text("コメント").bold()
-                        .frame(width: 40)
-                    Text("スキ").bold()
-                        .frame(width: 40)
-                        .padding(.trailing, 10)
+        GeometryReader { geometry in
+            VStack {
+                Text(item.title)
+                    .font(.headline)
+                    .lineLimit(2)
+                    .padding()
+                
+                Picker(selection: $selection, label: Text("グラフ選択")) {
+                    Text("ビュー").tag(StatsType.view)
+                    Text("コメント").tag(StatsType.comment)
+                    Text("スキ").tag(StatsType.like)
                 }
-                    .font(.system(size: 12))
-                    .padding(.vertical, 8)
-                    .background(Color.gray.opacity(0.1))
-                    .listRowInsets(EdgeInsets())
-                ) {
-                    ForEach(calculateTotalCounts(), id: \.0) { (updatedAt, readCount, likeCount, commentCount) in
-                        HStack {
-                            Text(formatDate(updatedAt))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, 10)
-                            ZStack {
-                                AppConstants.BrandColor.read.opacity(0.5)
-                                Text(String(readCount))
-                            }
+                .pickerStyle(.segmented)
+                
+                ChartView(chartData: calculateChartData(), statsType: selection)
+                    .frame(height: geometry.size.height * 0.4)
+                    .padding()
+                
+                List {
+                    Section(header:
+                                HStack {
+                        Text("取得日時").bold()
+                            .frame(maxWidth: .infinity)
+                            .padding(.leading, 10)
+                        Text("ビュー").bold()
                             .frame(width: 60)
-                            ZStack {
-                                AppConstants.BrandColor.comment.opacity(0.5)
-                                Text(String(commentCount))
-                            }
+                        Text("コメント").bold()
                             .frame(width: 40)
-                            ZStack {
-                                AppConstants.BrandColor.likeBackground
-                                Text(String(likeCount))
-                            }
+                        Text("スキ").bold()
                             .frame(width: 40)
-                        .padding(.trailing, 10)
-                        }
-                        .font(.system(size: 12))
-                    .listRowInsets(EdgeInsets())
+                            .padding(.trailing, 10)
                     }
-
+                        .font(.system(size: 12))
+                        .padding(.vertical, 8)
+                        .background(Color.gray.opacity(0.1))
+                        .listRowInsets(EdgeInsets())
+                    ) {
+                        ForEach(calculateTotalCounts(), id: \.0) { (updatedAt, readCount, likeCount, commentCount) in
+                            HStack {
+                                Text(formatDate(updatedAt))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 10)
+                                ZStack {
+                                    AppConstants.BrandColor.read.opacity(0.5)
+                                    Text(String(readCount))
+                                }
+                                .frame(width: 60)
+                                ZStack {
+                                    AppConstants.BrandColor.comment.opacity(0.5)
+                                    Text(String(commentCount))
+                                }
+                                .frame(width: 40)
+                                ZStack {
+                                    AppConstants.BrandColor.likeBackground
+                                    Text(String(likeCount))
+                                }
+                                .frame(width: 40)
+                                .padding(.trailing, 10)
+                            }
+                            .font(.system(size: 12))
+                            .listRowInsets(EdgeInsets())
+                        }
+                        
+                    }
                 }
+                .listStyle(PlainListStyle())
+                
+                .navigationTitle("記事詳細")
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .listStyle(PlainListStyle())
-
-            .navigationTitle("記事詳細")
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
     

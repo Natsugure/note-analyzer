@@ -20,8 +20,17 @@ struct InitialSetupView: View {
             VStack {
                 Spacer()
                 Text("ログイン処理が完了しました")
+                    .font(.title)
                     .padding(.vertical)
-                Text("アプリを利用するには、ダッシュボードを取得する必要があります。")
+                Spacer()
+                //TODO: ここでチュートリアル画面を分けて、説明文を増やす。毎日取得すると徐々にデータが集まってきますみたいな。
+                Text("アプリを利用するには、統計情報を取得する必要があります。")
+                Text("以下のボタンをタップすると、以下の期間のビュー・スキ・コメント数を取得します。".insertWordJoiner())
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical)
+                Text("●  全期間通算\n●  1週間前\n●  1ヶ月前\n●  1年前")
+                Text("※noteのサーバーから取得できる情報に制限があるため、上記の区切りのみとなります。ご了承ください。")
+                    .padding(.vertical)
                 
                 Spacer()
                 

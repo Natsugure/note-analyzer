@@ -9,7 +9,6 @@ import SwiftUI
 
 struct IsCompleteInitialSetupView: View {
     @EnvironmentObject private var viewModel: ViewModel
-    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State private var shouldShowMainView = false
     
     var body: some View {
@@ -23,7 +22,7 @@ struct IsCompleteInitialSetupView: View {
             Text("ダッシュボードの取得が完了しました！")
             Spacer()
             Button("メイン画面へ移動する") {
-                isAuthenticationConfigured = true
+                AppConfig.isAuthenticationConfigured = true
             }
             .frame(maxWidth: .infinity, minHeight: 50)
             .background(Color.blue)
