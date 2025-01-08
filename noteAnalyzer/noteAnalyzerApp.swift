@@ -24,7 +24,7 @@ struct noteAnalyzerApp: SwiftUI.App {
         #if DEBUG
         // UserDefaults内にisDemoModeがsetされていないなら、trueをsetする。
         // ※defaultValueをregister(defaults:)するとバグる可能性があるため。
-        if !AppConfig.$isDemoMode.isValueSet {
+        if !AppConfig.$isDemoMode.isSetValue {
             AppConfig.isDemoMode = true
         }
         

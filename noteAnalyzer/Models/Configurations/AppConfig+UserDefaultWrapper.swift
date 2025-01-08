@@ -8,7 +8,7 @@
 import Foundation
 
 @propertyWrapper
-struct UserDefault<T> {
+struct UserDefaultWrapper<T: UserDefaultCompatible> {
     let key: Key
     private let defaultValue: T
     
@@ -32,12 +32,12 @@ struct UserDefault<T> {
     }
     
     /// `UserDefaults.standard.object(forKey:)`で自身のkeyを検索し、値が存在しているかどうかを`Bool`値で返す。
-    var isValueSet: Bool {
+    var isSetValue: Bool {
         return UserDefaults.standard.object(forKey: key.rawValue) != nil
     }
 }
 
-extension UserDefault {
+extension UserDefaultWrapper {
     enum Key: String {
         case authenticationConfigured
         case contentsCount
@@ -49,24 +49,24 @@ extension UserDefault {
 }
 
 struct AppConfig {
-    @UserDefault(key: .authenticationConfigured, defaultValue: false)
+    @UserDefaultWrapper(key: .authenticationConfigured, defaultValue: false)
     static var isAuthenticationConfigured: Bool
     
-    @UserDefault(key: .contentsCount, defaultValue: 0)
+    @UserDefaultWrapper(key: .contentsCount, defaultValue: 0)
     static var contentsCount: Int
     
-    @UserDefault(key: .lastCalculateAt, defaultValue: "1970/1/1 00:00")
+    @UserDefaultWrapper(key: .lastCalculateAt, defaultValue: "1970/1/1 00:00")
     static var lastCalculateAt: String
     
-    @UserDefault(key: .urlname, defaultValue: "（不明なユーザー名）")
+    @UserDefaultWrapper(key: .urlname, defaultValue: "（不明なユーザー名）")
     static var urlname: String
     
 #if DEBUG
-    @UserDefault(key: .demoModeKey, defaultValue: true)
+    @UserDefaultWrapper(key: .demoModeKey, defaultValue: true)
     static var isDemoMode: Bool
 #endif
     
-    static func removeObject<T>(for object: UserDefault<T>) {
+    static func removeObject<T>(for object: UserDefaultWrapper<T>) {
         UserDefaults.standard.removeObject(forKey: object.key.rawValue)
     }
     
