@@ -40,16 +40,17 @@ struct MainView: View {
     }
 }
 
-struct MainView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    static let alertObject = AlertObject()
-    
-    static var previews: some View {
-        MainView(alertObject: alertObject)
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct MainView_Previews: PreviewProvider {
+//    static let authManager = AuthenticationManager()
+//    static let networkService = NetworkService(authManager: authManager)
+//    static let realmManager = RealmManager()
+//    static let alertObject = AlertObject()
+//    static let apiFetcher = NoteAPIFetcher(networkService: networkService)
+//    
+//    static var previews: some View {
+//        MainView(alertObject: alertObject)
+//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager, apiFetcher: apiFetcher))
+//    }
+//}
 
 

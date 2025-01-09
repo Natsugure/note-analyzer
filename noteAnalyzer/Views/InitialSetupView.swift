@@ -36,10 +36,8 @@ struct InitialSetupView: View {
                 
                 Button("ダッシュボードを取得する") {
                     Task {
-                        viewModel.resetProgressValue()
                         isPresentedProgressView = true
                         do {
-                            try await viewModel.getArticleCount()
                             try await viewModel.getStats()
                             isPresentedProgressView = false
                             shouldShowIsCompleteInitialSetupView.toggle()
@@ -88,13 +86,13 @@ struct InitialSetupView: View {
     }
 }
 
-struct InitialSetupView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    
-    static var previews: some View {
-        InitialSetupView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct InitialSetupView_Previews: PreviewProvider {
+//    static let authManager = AuthenticationManager()
+//    static let networkService = NetworkService(authManager: authManager)
+//    static let realmManager = RealmManager()
+//    
+//    static var previews: some View {
+//        InitialSetupView()
+//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//    }
+//}

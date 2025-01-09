@@ -8,17 +8,20 @@
 import SwiftUI
 
 struct AuthWebView: View {
-    @EnvironmentObject var viewModel: ViewModel
+    @ObservedObject var viewModel: OnboardingViewModel
     
     var body: some View {
         NavigationStack {
             VStack {
-                WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: AppConstants.URL.authUrl)
+//                WebView(urlString: AppConstants.URL.authUrl, viewModel: viewModel, isPresented: $viewModel.isAuthenticated)
+                WebView(urlString: AppConstants.URL.authUrl) { cookies in
+                    self.viewModel.checkAuthentication(cookies: cookies)
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("キャンセル") {
-                        viewModel.showAuthWebView.toggle()
+                        viewModel.showAuthWebView = false
                     }
                 }
             }
@@ -28,14 +31,14 @@ struct AuthWebView: View {
     }
 }
 
-struct AuthWebView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    
-    static var previews: some View {
-        AuthWebView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct AuthWebView_Previews: PreviewProvider {
+//    static let authManager = AuthenticationManager()
+//    static let networkService = NetworkService(authManager: authManager)
+//    static let realmManager = RealmManager()
+//    
+//    static var previews: some View {
+//        AuthWebView()
+//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//    }
+//}
 

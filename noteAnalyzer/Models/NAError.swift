@@ -35,18 +35,22 @@ enum NAError: LocalizedError {
     
     enum Auth: LocalizedError {
         case authenticationFailed
+        case authCookiesNotFound
         case loginCredentialMismatch
         
         var errorDescription: String? {
             switch self {
             case .authenticationFailed: "noteへのログインに失敗しました。"
+            case .authCookiesNotFound: "Keychain内に該当するCookieが見つかりません。"
             case .loginCredentialMismatch: "保存済みの認証情報と、今回入力された認証情報が一致しません。"
             }
         }
         
         var userMessage: String {
             switch self {
-            case .authenticationFailed, .loginCredentialMismatch: "noteへのログインに失敗しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再認証してください。"
+            case .authenticationFailed, .loginCredentialMismatch: "noteへのログインに失敗しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
+                
+            case .authCookiesNotFound: "認証情報の読込中にエラーが発生しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
             }
         }
     }

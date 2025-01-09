@@ -10,17 +10,11 @@ import RealmSwift
 
 @main
 struct noteAnalyzerApp: SwiftUI.App {
-    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject var viewModel: ViewModel
+//    @StateObject var viewModel: ViewModel
+//    let authManager: AuthenticationProtocol
     
     init() {
-//        UserDefaults.standard.register(defaults: [
-//            AppConstants.UserDefaults.lastCalculateAt : "1970/1/1 00:00",
-//            AppConstants.UserDefaults.urlname : "（不明なユーザー名）",
-//            AppConstants.UserDefaults.contentsCount: 0
-//        ])
-        
         #if DEBUG
         // UserDefaults内にisDemoModeがsetされていないなら、trueをsetする。
         // ※defaultValueをregister(defaults:)するとバグる可能性があるため。
@@ -28,29 +22,34 @@ struct noteAnalyzerApp: SwiftUI.App {
             AppConfig.isDemoMode = true
         }
         
-        if AppConfig.isDemoMode {
-            _viewModel = StateObject(wrappedValue: DemoViewModel())
-        } else {
-            let authManager = AuthenticationManager()
-            let networkService = NetworkService(authManager: authManager)
-            let realmManager = RealmManager()
-            
-            _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-        }
-        
-        #else
-        let authManager = AuthenticationManager()
-        let networkService = NetworkService(authManager: authManager)
-        let realmManager = RealmManager()
-        
-        _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//        if AppConfig.isDemoMode {
+//            let mockAuthManager = MockAuthenticationManager()
+//            self.authManager = mockAuthManager
+//            _viewModel = StateObject(wrappedValue: DemoViewModel())
+//        } else {
+//            let authManager = AuthenticationManager()
+//            self.authManager = authManager
+//            let networkService = NetworkService(authManager: authManager)
+//            let realmManager = RealmManager()
+//            let apiFetcher = NoteAPIFetcher(networkService: networkService)
+//            
+//            _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager, apiFetcher: apiFetcher))
+//        }
+//        
+//        #else
+//        let authManager = AuthenticationManager()
+//        let networkService = NetworkService(authManager: authManager)
+//        let realmManager = RealmManager()
+//        let apiFetcher = NoteAPIFetcher(networkService: networkService)
+//        
+//        _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager, apiFetcher: apiFetcher))
         #endif
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(viewModel)
+//                .environmentObject(viewModel)
         }
     }
 }

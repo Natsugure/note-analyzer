@@ -16,11 +16,13 @@ class DemoViewModel: ViewModel {
         
         let mockNetworkService = MockNetworkService(realmItems: realmManager.getItemArray())
         self.mockNetworkService = mockNetworkService
+        let apiFetcher = NoteAPIFetcher(networkService: mockNetworkService)
         
         super.init(
             authManager: mockAuthManager,
             networkService: mockNetworkService,
-            realmManager: realmManager
+            realmManager: realmManager,
+            apiFetcher: apiFetcher
         )
         
         print("DemoViewModel initialized")

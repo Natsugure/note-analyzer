@@ -53,12 +53,12 @@ struct SettingsView: View {
                 
 #if DEBUG
                 Section {
-                    Button("ログイン") {
-                        viewModel.authenticate()
-                    }
-                    .sheet(isPresented: $viewModel.showAuthWebView) {
-                        WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
-                    }
+//                    Button("ログイン") {
+//                        viewModel.authenticate()
+//                    }
+//                    .sheet(isPresented: $viewModel.showAuthWebView) {
+//                        WebView(isPresented: $viewModel.isAuthenticated, viewModel: <#OnboardingViewModel#>, urlString: "https://note.com/login")
+//                    }
                     Button(action: {
                         Task {
                             do {
@@ -133,6 +133,7 @@ struct SettingsView: View {
     private func changeDemoModeKey() async {
         do {
             AppConfig.isDemoMode.toggle()
+            print("appConfig.isDemoMode: \(AppConfig.isDemoMode)")
             try await viewModel.clearAllData()
             showRestartAlert()
         } catch {
@@ -146,8 +147,11 @@ struct SettingsView: View {
             title: "アプリの再起動が必要",
             message: "デモモードの設定を反映するには、アプリの再起動が必要です。",
             action: {
-                AppConfig.isAuthenticationConfigured = false
-                exit(0)
+                Task {
+                    AppConfig.isAuthenticationConfigured = false
+                    try? await Task.sleep(for: .seconds(0.5))
+                    exit(0)
+                }
             }
         )
     }
@@ -175,14 +179,14 @@ struct SettingsView: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    static let alertObject = AlertObject()
-    
-    static var previews: some View {
-        SettingsView(alertObject: alertObject)
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct SettingsView_Previews: PreviewProvider {
+//    static let authManager = AuthenticationManager()
+//    static let networkService = NetworkService(authManager: authManager)
+//    static let realmManager = RealmManager()
+//    static let alertObject = AlertObject()
+//    
+//    static var previews: some View {
+//        SettingsView(alertObject: alertObject)
+//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//    }
+//}

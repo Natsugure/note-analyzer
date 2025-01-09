@@ -45,6 +45,7 @@ class AlertObject: ObservableObject {
     }
     
     func showSingle(isPresented: Binding<Bool>, title: String, message: String?, actionText: String? = nil, action: (() -> Void)? = nil) {
+        print("showSignle")
         self.model = Model(title: title,
                            messageView: (message != nil) ? MessageView(message: message!) : nil,
                            actionView: ActionView(kind: .single(text: actionText ?? "OK", action: action))

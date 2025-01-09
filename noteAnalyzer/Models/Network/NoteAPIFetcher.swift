@@ -7,11 +7,13 @@
 
 import Foundation
 
-class NoteAPIFetcher {
+class NoteAPIFetcher: ObservableObject {
     @Published var progressValue: Double = 0.0
     
     private var articleCount: Int = 0
     private let networkService: NetworkServiceProtocol
+    
+    private let timeIntervalSec: Double = 0.5
     
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -24,6 +26,8 @@ class NoteAPIFetcher {
     }
     
     func getStats() async throws -> ([APIStatsResponse.APIStatsItem], [APIContentsResponse.APIContentItem]){
+        await resetProgressValue()
+        
         AppConfig.urlname = try await fetchUrlName()
         articleCount = try await fetchArticleCount()
         
@@ -39,9 +43,13 @@ class NoteAPIFetcher {
         return (statsResults, publishedDateResults)
     }
     
+    private func resetProgressValue() async {
+        await MainActor.run {
+            progressValue = 0.0
+        }
+    }
+    
     private func fetchArticleCount() async throws -> Int {
-        let urlName = try await fetchUrlName()
-        
         let urlString = "https://note.com/api/v2/creators/\(AppConfig.urlname)"
         let fetchedData = try await networkService.fetchData(url: urlString)
         
@@ -52,13 +60,14 @@ class NoteAPIFetcher {
             return noteCount
             
         case .failure(let error):
-            switch error {
-            case NAError.decoding(.userNotFound(_)):
-                // TODO: ここでゼロを返すことは適切か？設計自体考え直したほうがいいのでは？
-                return 0
-            default:
-                throw error
-            }
+            throw error
+//            switch error {
+//            case NAError.decoding(.userNotFound(_)):
+//                // TODO: ここでゼロを返すことは適切か？設計自体考え直したほうがいいのでは？
+//                return 0
+//            default:
+//                throw error
+//            }
         }
     }
     
@@ -91,12 +100,11 @@ class NoteAPIFetcher {
     
     private func fetchStats() async throws -> [APIStatsResponse.APIStatsItem] {
         // TODO: 総ページ数がわかってるなら、maxLoopCountはいらないのでは？クールダウンタイムは要検討だが。
-        let maxLoopCount = 300
+//        let maxLoopCount = 300
         let articlePerPage = 10
         // 総記事数をページあたりの記事数で割り、余りを切り上げて取得ページ数とする
         let totalPageCount = Int(ceil(Double(articleCount) / Double(articlePerPage)))
         
-//        var statsItems: [APIStatsResponse.APIStatsItem] = []
         var responses: [APIStatsResponse] = []
         
         for page in 1...totalPageCount {
@@ -115,6 +123,8 @@ class NoteAPIFetcher {
             }
                 
             responses.append(result)
+            
+            try await Task.sleep(for: .seconds(timeIntervalSec))
         }
         
         AppConfig.lastCalculateAt = responses[0].data.lastCalculateAt
@@ -148,7 +158,7 @@ class NoteAPIFetcher {
     }
     
     private func fetchPublishedDate() async throws -> [APIContentsResponse.APIContentItem] {
-        let maxLoopCount = 600
+//        let maxLoopCount = 600
         let articlePerPage = 5
         
         let totalPageCount = Int(ceil(Double(articleCount) / Double(articlePerPage)))
@@ -167,7 +177,7 @@ class NoteAPIFetcher {
             responses.append(result)
             
             // リクエスト間に0.5秒の遅延を追加
-            try await Task.sleep(nanoseconds: 500_000_000)
+            try await Task.sleep(for: .seconds(timeIntervalSec))
         }
         
         return responses.flatMap(\.data.contents)
@@ -183,7 +193,10 @@ class NoteAPIFetcher {
         // TODO: UserDefaultsに保存する時点では、Date型のほうが楽じゃない？
         let lastTime = self.stringToDate(AppConfig.lastCalculateAt)
         
-        return thisTime <= lastTime
+        print(thisTime)
+        print(lastTime)
+        
+        return thisTime > lastTime
     }
     
     private func decodeAPIResponse<T: Decodable>(_ data: Data) throws -> T {

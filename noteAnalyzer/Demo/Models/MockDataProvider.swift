@@ -38,8 +38,6 @@ class MockDataProvider {
         updateExistingItems()
         
         currentNoteCount = mockItems.count
-        
-        print("MockProvider: \(mockItems)")
     }
     
     private func realmItemsToMockItems(realmItems: [Item]) -> [MockItem] {

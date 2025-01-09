@@ -124,24 +124,24 @@ struct ArticleDetailView: View {
     }
 }
 
-struct ArticleDetailView_Previews: PreviewProvider {
-    @State static var samplePath = [Item(value: [
-        "id": 1,
-        "title": "サンプル記事タイトル",
-        "type": ContentType.text.rawValue,
-        "publishedAt": Date() - 750000,
-        "stats": [
-            Stats(value: [
-                "id": UUID().uuidString,
-                "updatedAt": Date(),
-                "readCount": 100,
-                "likeCount": 50,
-                "commentCount": 10
-            ])
-        ]
-    ])]
-    
-    static var previews: some View {
-        ArticleDetailView(item: samplePath[0], path: $samplePath, selection: .constant(.view))
-    }
-}
+//struct ArticleDetailView_Previews: PreviewProvider {
+//    @State static var samplePath = [Item(value: [
+//        "id": 1,
+//        "title": "サンプル記事タイトル",
+//        "type": ContentType.text.rawValue,
+//        "publishedAt": Date() - 750000,
+//        "stats": [
+//            Stats(value: [
+//                "id": UUID().uuidString,
+//                "updatedAt": Date(),
+//                "readCount": 100,
+//                "likeCount": 50,
+//                "commentCount": 10
+//            ])
+//        ]
+//    ])]
+//    
+//    static var previews: some View {
+//        ArticleDetailView(item: samplePath[0], path: $samplePath, selection: .constant(.view))
+//    }
+//}

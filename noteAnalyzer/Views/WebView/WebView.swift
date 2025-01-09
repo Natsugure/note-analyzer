@@ -10,11 +10,22 @@ import WebKit
 
 struct WebView: UIViewRepresentable {
     typealias UIViewType = WKWebView
-    
-    @Binding var isPresented: Bool
-    var viewModel: ViewModel
+    typealias CompletionHandler = ([HTTPCookie]) -> Void
+
     let urlString: String?
     private let observable = WebViewURLObservable()
+    
+    var completion: CompletionHandler?
+    
+//    @ObservedObject var viewModel: OnboardingViewModel
+//    @Binding var isPresented: Bool
+    
+    init(urlString: String?, completion: @escaping CompletionHandler) {
+        self.urlString = urlString
+//        self.viewModel = viewModel
+        
+        self.completion = completion
+    }
     
     var observer: NSKeyValueObservation? {
         observable.instance
@@ -50,7 +61,14 @@ extension WebView {
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             if webView.url?.absoluteString == "https://note.com/" {
-                parent.viewModel.checkAuthentication(webView: webView)
+                // TODO: このやり方が本当に最適か？ 関係ないViewのViewModelに依存しているのはおかしくないか？あと、Cookieの取得に失敗しててもこれじゃわからないぞ。
+                webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
+                    guard let self = self else { return }
+                    
+                    parent.completion?(cookies)
+                    
+//                    parent.viewModel.checkAuthentication(cookies: cookies)
+                }
             }
         }
     }

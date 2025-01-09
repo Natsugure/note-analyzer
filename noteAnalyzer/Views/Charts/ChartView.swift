@@ -98,3 +98,25 @@ struct ChartView: View {
         return formatter
     }
 }
+
+struct ChartView_Previews: PreviewProvider {
+    static var chartData: [(Date, Int)] {
+        let calendar = Calendar(identifier: .gregorian)
+        
+        var chartData: [(Date, Int)] = []
+        for i in 0...9 {
+            let date = DateComponents(calendar: calendar, year: 2025, month: 1, day: i + 1).date!
+            let lastValue = chartData.last?.1 ?? 0
+            let value = Int.random(in: lastValue...lastValue + 500)
+            
+            chartData.append((date, value))
+        }
+        
+        return chartData
+    }
+    
+    static var previews: some View {
+        ChartView(chartData: chartData, statsType: .view)
+            .frame(height: 400)
+    }
+}

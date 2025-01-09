@@ -34,13 +34,13 @@ struct IsCompleteInitialSetupView: View {
     }
 }
 
-struct IsCompleteInitialSetupView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    
-    static var previews: some View {
-        IsCompleteInitialSetupView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct IsCompleteInitialSetupView_Previews: PreviewProvider {
+//    static let authManager = AuthenticationManager()
+//    static let networkService = NetworkService(authManager: authManager)
+//    static let realmManager = RealmManager()
+//    
+//    static var previews: some View {
+//        IsCompleteInitialSetupView()
+//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//    }
+//}

@@ -194,10 +194,8 @@ struct DashboardView: View {
     
     //MARK: - The methods of connect to ViewModel
     private func getStats() async {
-        viewModel.resetProgressValue()
         isPresentedProgressView = true
         do {
-            try await viewModel.getArticleCount()
             try await viewModel.getStats()
             
             isPresentedProgressView = false
@@ -239,15 +237,15 @@ struct DashboardView: View {
 
 }
 
-struct DashboardView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    @StateObject static var alertObject = AlertObject()
-    @State static var isPresentedProgressView = false
-    
-    static var previews: some View {
-        DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct DashboardView_Previews: PreviewProvider {
+//    static let authManager = AuthenticationManager()
+//    static let networkService = NetworkService(authManager: authManager)
+//    static let realmManager = RealmManager()
+//    @StateObject static var alertObject = AlertObject()
+//    @State static var isPresentedProgressView = false
+//    
+//    static var previews: some View {
+//        DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
+//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//    }
+//}

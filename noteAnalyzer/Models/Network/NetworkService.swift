@@ -14,8 +14,7 @@ protocol NetworkServiceProtocol {
 }
 
 class NetworkService: NetworkServiceProtocol {
-//    private let realmManager: RealmManager
-    private let authManager: AuthenticationManager
+    private let authManager: AuthenticationProtocol
     
     private var isLastPage = false
     private var isUpdated = false
@@ -26,9 +25,8 @@ class NetworkService: NetworkServiceProtocol {
     private let requestsPerMinute: Int = 60
     private var requestTimestamps: [Date] = []
     
-    init(authManager: AuthenticationManager) {
+    init(authManager: AuthenticationProtocol) {
         self.authManager = authManager
-//        self.realmManager = RealmManager()
         
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true
@@ -49,7 +47,7 @@ class NetworkService: NetworkServiceProtocol {
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = nil
         request.cachePolicy = .reloadIgnoringLocalCacheData
-        addCookiesToRequest(&request)
+        try addCookiesToRequest(&request)
         
         let (data, _) = try await session.data(for: request)
         
@@ -58,8 +56,8 @@ class NetworkService: NetworkServiceProtocol {
         return data
     }
     
-    private func addCookiesToRequest(_ request: inout URLRequest) {
-        let cookies = authManager.getCookies()
+    private func addCookiesToRequest(_ request: inout URLRequest) throws {
+        let cookies = try authManager.getCookies()
         
         let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
         if let headers = request.allHTTPHeaderFields {
