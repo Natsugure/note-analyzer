@@ -56,7 +56,7 @@ struct SettingsView: View {
 //                    Button("ログイン") {
 //                        viewModel.authenticate()
 //                    }
-//                    .sheet(isPresented: $viewModel.showAuthWebView) {
+//                    .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
 //                        WebView(isPresented: $viewModel.isAuthenticated, viewModel: <#OnboardingViewModel#>, urlString: "https://note.com/login")
 //                    }
                     Button(action: {

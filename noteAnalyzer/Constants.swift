@@ -10,6 +10,7 @@ import SwiftUI
 struct AppConstants {
     struct URL {
         static let authUrl = "https://note.com/login"
+        static let topPage = "https://note.com/"
     }
     
     struct BrandColor {

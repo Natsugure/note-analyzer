@@ -11,10 +11,12 @@ extension ContentView {
     init() {
 #if DEBUG
         if AppConfig.isDemoMode {
+            print("demoMode")
             let mockAuthManager = MockAuthenticationManager()
             self.authManager = mockAuthManager
             _viewModel = StateObject(wrappedValue: DemoViewModel())
         } else {
+            print("normalMode")
             let authManager = AuthenticationManager()
             self.authManager = authManager
             

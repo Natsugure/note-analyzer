@@ -10,37 +10,39 @@ import SwiftUI
 
 @MainActor
 class OnboardingViewModel: ObservableObject {
-    @Published var isAuthenticated = false
-    @Published var showAuthWebView = false
+    @Published var isPresentedAuthWebView = false
     @Published var shouldShowInitialSetupView = false
     @Published var isShowAlert = false
     
     private let authManager: AuthenticationProtocol
+    private var authWebViewModel: AuthWebViewModel?
     
     init(authManager: AuthenticationProtocol) {
         self.authManager = authManager
-        
-        // AuthenticationManagerの状態をViewModelの状態に反映
-        if let authManager = authManager as? AuthenticationManager {
-//            authManager.$isAuthenticated.assign(to: &$isAuthenticated)
-            authManager.$showAuthWebView.assign(to: &$showAuthWebView)
-            print("Normal ViewModel initialized")
-        } else if let mockAuthManager = authManager as? MockAuthenticationManager {
-            mockAuthManager.$isAuthenticated.assign(to: &$isAuthenticated)
-            mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
-        }
     }
     
-    func authenticate() {
-        authManager.authenticate()
+    func showAuthWebView() {
+        isPresentedAuthWebView = true
     }
     
-    func checkAuthentication(cookies: [HTTPCookie]) {
-        showAuthWebView = false
-        if authManager.isValidAuthCookies(cookies: cookies) {
-            shouldShowInitialSetupView = true
+    func makeAuthWebViewModel() -> AuthWebViewModel {
+        let viewModel: AuthWebViewModel
+        if AppConfig.isDemoMode {
+            viewModel = DemoAuthWebViewModel(authManager: authManager)
         } else {
-            
+            viewModel = AuthWebViewModel(authManager: authManager)
+        }
+        
+        authWebViewModel = viewModel
+        observeAuthWebViewModel(viewModel)
+        
+        return viewModel
+    }
+    
+    func observeAuthWebViewModel(_ viewModel: AuthWebViewModel) {
+        Task {
+            authWebViewModel?.$isPresented.assign(to: &$isPresentedAuthWebView)
+            authWebViewModel?.$shouldShowInitialSetupView.assign(to: &$shouldShowInitialSetupView)
         }
     }
 }

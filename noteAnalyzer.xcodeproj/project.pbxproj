@@ -30,6 +30,8 @@
 		1A94E5AF2D2E739C002BC7B2 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */; };
 		1A94E5B12D2EA5EA002BC7B2 /* ProgressCircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B02D2EA5DE002BC7B2 /* ProgressCircularView.swift */; };
 		1A94E5B42D2F7947002BC7B2 /* NetworkRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B32D2F7947002BC7B2 /* NetworkRequester.swift */; };
+		1A94E5B62D2FAD36002BC7B2 /* AuthWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */; };
+		1A94E5B82D32289B002BC7B2 /* DemoAuthWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B72D322889002BC7B2 /* DemoAuthWebViewModel.swift */; };
 		1A9A7B032C708698005CCA61 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A7B022C708698005CCA61 /* ViewModel.swift */; };
 		1AA5AD7C2CCB3334007BDBDE /* DemoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD7B2CCB3334007BDBDE /* DemoViewModel.swift */; };
 		1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */; };
@@ -49,7 +51,7 @@
 		1AE3CA362C3A2D4700C30A89 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1AE3CA352C3A2D4700C30A89 /* RealmSwift */; };
 		1AE3CA392C3A2E6400C30A89 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1AE3CA352C3A2D4700C30A89 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1AE3CA3F2C3A35BC00C30A89 /* RealmModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA3E2C3A35BC00C30A89 /* RealmModel.swift */; };
-		1AE3CA432C3A692600C30A89 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA422C3A692600C30A89 /* WebView.swift */; };
+		1AE3CA432C3A692600C30A89 /* WrappedWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA422C3A692600C30A89 /* WrappedWebView.swift */; };
 		1AE3CA452C3B63CA00C30A89 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */; };
 		1AE3CA472C3B649500C30A89 /* APIResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA462C3B649500C30A89 /* APIResponses.swift */; };
 /* End PBXBuildFile section */
@@ -92,6 +94,8 @@
 		1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		1A94E5B02D2EA5DE002BC7B2 /* ProgressCircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCircularView.swift; sourceTree = "<group>"; };
 		1A94E5B32D2F7947002BC7B2 /* NetworkRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequester.swift; sourceTree = "<group>"; };
+		1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWebViewModel.swift; sourceTree = "<group>"; };
+		1A94E5B72D322889002BC7B2 /* DemoAuthWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoAuthWebViewModel.swift; sourceTree = "<group>"; };
 		1A9A7B022C708698005CCA61 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		1AA5AD7B2CCB3334007BDBDE /* DemoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoViewModel.swift; sourceTree = "<group>"; };
 		1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationManager.swift; sourceTree = "<group>"; };
@@ -110,7 +114,7 @@
 		1AE3CA282C3A26D700C30A89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AE3CA2B2C3A26D700C30A89 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1AE3CA3E2C3A35BC00C30A89 /* RealmModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmModel.swift; sourceTree = "<group>"; };
-		1AE3CA422C3A692600C30A89 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		1AE3CA422C3A692600C30A89 /* WrappedWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrappedWebView.swift; sourceTree = "<group>"; };
 		1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		1AE3CA462C3B649500C30A89 /* APIResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResponses.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -149,7 +153,7 @@
 		1A5852CC2C7B1E8500EDA5E2 /* WebView */ = {
 			isa = PBXGroup;
 			children = (
-				1AE3CA422C3A692600C30A89 /* WebView.swift */,
+				1AE3CA422C3A692600C30A89 /* WrappedWebView.swift */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -206,6 +210,7 @@
 			children = (
 				1A9A7B022C708698005CCA61 /* ViewModel.swift */,
 				1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */,
+				1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -234,6 +239,7 @@
 			isa = PBXGroup;
 			children = (
 				1AA5AD7B2CCB3334007BDBDE /* DemoViewModel.swift */,
+				1A94E5B72D322889002BC7B2 /* DemoAuthWebViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -413,12 +419,13 @@
 				1A29BAEA2D20EDBD00FD6AB3 /* ProgressBarView.swift in Sources */,
 				1A2AC3BB2C55D4420046C921 /* ChartView.swift in Sources */,
 				1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */,
-				1AE3CA432C3A692600C30A89 /* WebView.swift in Sources */,
+				1AE3CA432C3A692600C30A89 /* WrappedWebView.swift in Sources */,
 				1A94E5AB2D2E0EB6002BC7B2 /* UserDefaultCompatible.swift in Sources */,
 				1A25C67F2C4770C400403215 /* AuthenticationManager.swift in Sources */,
 				1AE3CA452C3B63CA00C30A89 /* NetworkService.swift in Sources */,
 				1A8E9C792C5F081300A97D31 /* DailyView.swift in Sources */,
 				1A107D7E2D17B4F900AD9F79 /* AppConfig+UserDefaultWrapper.swift in Sources */,
+				1A94E5B82D32289B002BC7B2 /* DemoAuthWebViewModel.swift in Sources */,
 				1ADA6E032D2A1F9D00227F42 /* Calendar+DateFormatter.swift in Sources */,
 				1AC95B272C4CC26A0049E6AA /* RealmManager.swift in Sources */,
 				1A94E5B12D2EA5EA002BC7B2 /* ProgressCircularView.swift in Sources */,
@@ -440,6 +447,7 @@
 				1A2AC3AC2C5496DC0046C921 /* Constants.swift in Sources */,
 				1A8FC21C2C718BD800AA5A03 /* AlertObject.swift in Sources */,
 				1A5852CE2C7C060600EDA5E2 /* InitialSetupView.swift in Sources */,
+				1A94E5B62D2FAD36002BC7B2 /* AuthWebViewModel.swift in Sources */,
 				1A4E589B2C8B37BC009472A1 /* IsCompleteInitialSetupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

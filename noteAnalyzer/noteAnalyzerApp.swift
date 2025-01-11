@@ -11,8 +11,6 @@ import RealmSwift
 @main
 struct noteAnalyzerApp: SwiftUI.App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-//    @StateObject var viewModel: ViewModel
-//    let authManager: AuthenticationProtocol
     
     init() {
         #if DEBUG
@@ -21,35 +19,12 @@ struct noteAnalyzerApp: SwiftUI.App {
         if !AppConfig.$isDemoMode.isSetValue {
             AppConfig.isDemoMode = true
         }
-        
-//        if AppConfig.isDemoMode {
-//            let mockAuthManager = MockAuthenticationManager()
-//            self.authManager = mockAuthManager
-//            _viewModel = StateObject(wrappedValue: DemoViewModel())
-//        } else {
-//            let authManager = AuthenticationManager()
-//            self.authManager = authManager
-//            let networkService = NetworkService(authManager: authManager)
-//            let realmManager = RealmManager()
-//            let apiFetcher = NoteAPIFetcher(networkService: networkService)
-//            
-//            _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager, apiFetcher: apiFetcher))
-//        }
-//        
-//        #else
-//        let authManager = AuthenticationManager()
-//        let networkService = NetworkService(authManager: authManager)
-//        let realmManager = RealmManager()
-//        let apiFetcher = NoteAPIFetcher(networkService: networkService)
-//        
-//        _viewModel = StateObject(wrappedValue: ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager, apiFetcher: apiFetcher))
         #endif
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-//                .environmentObject(viewModel)
         }
     }
 }

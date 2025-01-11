@@ -8,20 +8,17 @@
 import SwiftUI
 
 struct AuthWebView: View {
-    @ObservedObject var viewModel: OnboardingViewModel
+    @StateObject var viewModel: AuthWebViewModel
     
     var body: some View {
         NavigationStack {
             VStack {
-//                WebView(urlString: AppConstants.URL.authUrl, viewModel: viewModel, isPresented: $viewModel.isAuthenticated)
-                WebView(urlString: AppConstants.URL.authUrl) { cookies in
-                    self.viewModel.checkAuthentication(cookies: cookies)
-                }
+                WrappedWebView(viewModel: viewModel)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("キャンセル") {
-                        viewModel.showAuthWebView = false
+                        viewModel.isPresented = false
                     }
                 }
             }

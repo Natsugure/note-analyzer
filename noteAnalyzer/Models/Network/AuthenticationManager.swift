@@ -16,64 +16,46 @@ enum KeychainError: Error {
 }
 
 protocol AuthenticationProtocol {
-//    var isAuthenticated: Bool { get set }
-    var showAuthWebView: Bool { get set }
-    
-    func authenticate()
     func isValidAuthCookies(cookies: [HTTPCookie]) -> Bool
-    func getCookies() throws -> [HTTPCookie]
+    func getCookies() -> [HTTPCookie]
     func clearAuthentication() throws
 }
 
 class AuthenticationManager: ObservableObject, AuthenticationProtocol {
-//    @Published var isAuthenticated = false
-    @Published var showAuthWebView = false
-    
     private var cookies: [HTTPCookie] = []
     
-//    init() {
-//        // TODO: Cookieのチェックタイミングを変えて、見つからないときにloadCookiesFromKeyChain()からエラーを投げられるようにすべき。
-//        // イニシャライザでチェックしてると初回起動時と挙動を変えられないから。
-////        isAuthenticated = !loadCookiesFromKeychain().isEmpty
-//    }
-    
-    func authenticate() {
-        showAuthWebView = true
+    init() {
+        cookies = loadCookiesFromKeychain()
     }
     
     func isValidAuthCookies(cookies: [HTTPCookie]) -> Bool {
         let noteCookies = cookies.filter { $0.domain.contains("note.com") }
         if !noteCookies.isEmpty {
-//            self.isAuthenticated = true
-//            self.cookies = noteCookies
-            self.saveCookiesToKeychain()
+            self.saveCookiesToKeychain(cookies: noteCookies)
             print("認証成功: \(noteCookies.count) cookies found")
-            self.showAuthWebView = false
             
             return true
         } else {
-//            self.isAuthenticated = false
-            // TODO: ここでエラーをthrowする方法を考える
             print("認証失敗: No note.com cookies found")
             
             return false
         }
     }
     
-    private func loadCookiesFromKeychain() throws -> [HTTPCookie] {
+    private func loadCookiesFromKeychain() -> [HTTPCookie] {
         if let cookieData = KeychainManager.load(forKey: "noteCookies"),
            let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
-            print("Cookies load successfully, count: \(cookies.count)")
             self.cookies = cookies
-//            self.isAuthenticated = !cookies.isEmpty
+            
+            print("Cookies load successfully, count: \(cookies.count)")
             
             return cookies
         }
         
-        throw NAError.auth(.authCookiesNotFound)
+        return []
     }
     
-    private func saveCookiesToKeychain() {
+    private func saveCookiesToKeychain(cookies: [HTTPCookie]) {
         if let cookieData = try? NSKeyedArchiver.archivedData(withRootObject: cookies, requiringSecureCoding: true) {
             let status = KeychainManager.save(cookieData: cookieData, forKey: "noteCookies")
             print("Keychain save status: \(status)")
@@ -87,20 +69,21 @@ class AuthenticationManager: ObservableObject, AuthenticationProtocol {
         }
     }
     
-    func getCookies() throws -> [HTTPCookie] {
-        try loadCookiesFromKeychain()
+    func getCookies() -> [HTTPCookie] {
+        return cookies
     }
     
     func clearAuthentication() throws {
-        cookies.removeAll()
-        
         do {
             try deleteKeychainItem(forKey: "noteCookies")
+            self.cookies.removeAll()
+            
             print("Keychain delete successful")
-//            isAuthenticated = false
+            
         } catch KeychainError.unexpectedStatus(let status) {
             handleKeychainError(status: status)
             throw KeychainError.unexpectedStatus(status)
+            
         } catch {
             print("Unexpected error: \(error.localizedDescription)")
             throw KeychainError.unhandledError(error)

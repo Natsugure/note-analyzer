@@ -73,14 +73,14 @@ struct OnboardingView: View {
                         .padding()
                         
                         Button("同意してログイン画面へ") {
-                            viewModel.authenticate()
+                            viewModel.showAuthWebView()
                         }
                         .frame(maxWidth: .infinity, minHeight: 50)
                         .background(Color.blue)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
-                        .sheet(isPresented: $viewModel.showAuthWebView) {
-                            AuthWebView(viewModel: viewModel)
+                        .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
+                            AuthWebView(viewModel: viewModel.makeAuthWebViewModel())
                                 .interactiveDismissDisabled()
                         }
                     }
@@ -92,7 +92,7 @@ struct OnboardingView: View {
                     ProgressCircularView()
                 }
             }
-            .onChange(of: viewModel.showAuthWebView) { newValue in
+//            .onChange(of: viewModel.shouldShowInitialSetupView) {
 //                // TODO: 今のままだと、showAuthWebViewがfalseになった時点で処理が完了していなかったら、認証できていなかったことになってしまう。
 //                if viewModel.isAuthenticated && !newValue {
 //                    shouldShowInitialSetupView.toggle()
@@ -103,15 +103,18 @@ struct OnboardingView: View {
 //                        await showFailAuthAlert()
 //                    }
 //                }
-            }
+//            }
 //            .onReceive(viewModel.$isAuthenticated) { isAuthenticated in
 //                if isAuthenticated {
 //                    isShowProgressView = false
 //                    shouldShowInitialSetupView.toggle()
 //                }
 //            }
-            .navigationDestination(isPresented: $shouldShowInitialSetupView) {
+            .navigationDestination(isPresented: $viewModel.shouldShowInitialSetupView) {
                 InitialSetupView()
+            }
+            .onChange(of: viewModel.shouldShowInitialSetupView) {
+                print("shouldShowInitialSetupView: \(viewModel.shouldShowInitialSetupView)")
             }
             .navigationBarBackButtonHidden(true)
             .customAlert(for: alertObject, isPresented: $viewModel.isShowAlert)

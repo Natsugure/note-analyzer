@@ -19,7 +19,6 @@ class NetworkService: NetworkServiceProtocol {
     private var isLastPage = false
     private var isUpdated = false
     private var session: URLSession
-    private var cookies: [HTTPCookie] = []
     
     // レート制限のための変数
     private let requestsPerMinute: Int = 60
@@ -57,7 +56,11 @@ class NetworkService: NetworkServiceProtocol {
     }
     
     private func addCookiesToRequest(_ request: inout URLRequest) throws {
-        let cookies = try authManager.getCookies()
+        let cookies = authManager.getCookies()
+        
+        if cookies.isEmpty {
+            throw NAError.auth(.authCookiesNotFound)
+        }
         
         let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
         if let headers = request.allHTTPHeaderFields {
@@ -72,11 +75,9 @@ class NetworkService: NetworkServiceProtocol {
         // HTTPCookieStorageからクッキーを削除
         if let cookies = HTTPCookieStorage.shared.cookies {
             for cookie in cookies {
-                print("before delete: \(cookie)")
                 HTTPCookieStorage.shared.deleteCookie(cookie)
             }
         }
-        cookies.removeAll()
         
         // URLSessionをリセットして、URLSessionConfigurationを再定義
         URLSession.shared.reset {

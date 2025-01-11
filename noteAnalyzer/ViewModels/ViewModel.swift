@@ -26,24 +26,24 @@ class ViewModel: ObservableObject {
         
         // AuthenticationManagerの状態をViewModelの状態に反映
         if let authManager = authManager as? AuthenticationManager {
-            authManager.$isAuthenticated.assign(to: &$isAuthenticated)
-            authManager.$showAuthWebView.assign(to: &$showAuthWebView)
+//            authManager.$isAuthenticated.assign(to: &$isAuthenticated)
+//            authManager.$showAuthWebView.assign(to: &$showAuthWebView)
             print("Normal ViewModel initialized")
         } else if let mockAuthManager = authManager as? MockAuthenticationManager {
-            mockAuthManager.$isAuthenticated.assign(to: &$isAuthenticated)
-            mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
+//            mockAuthManager.$isAuthenticated.assign(to: &$isAuthenticated)
+//            mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
         }
         
         apiFetcher.$progressValue.assign(to: &$progressValue)
     }
     
-    func authenticate() {
-        authManager.authenticate()
-    }
-    
-    func checkAuthentication(cookies: [HTTPCookie]) {
-        authManager.isValidAuthCookies(cookies: cookies)
-    }
+//    func authenticate() {
+//        authManager.authenticate()
+//    }
+//    
+//    func checkAuthentication(cookies: [HTTPCookie]) {
+//        authManager.isValidAuthCookies(cookies: cookies)
+//    }
     
     func getStats() async throws {
         let (stats, publishedDateArray) = try await apiFetcher.getStats()
