@@ -7,65 +7,27 @@
 
 import SwiftUI
 
-extension ContentView {
-    init() {
-#if DEBUG
-        if AppConfig.isDemoMode {
-            print("demoMode")
-            let mockAuthManager = MockAuthenticationManager()
-            self.authManager = mockAuthManager
-            _viewModel = StateObject(wrappedValue: DemoViewModel())
-        } else {
-            print("normalMode")
-            let authManager = AuthenticationManager()
-            self.authManager = authManager
-            
-            let networkService = NetworkService(authManager: authManager)
-            let realmManager = RealmManager()
-            let apiFetcher = NoteAPIFetcher(networkService: networkService)
-            
-            _viewModel = StateObject(
-                wrappedValue: ViewModel(
-                    authManager: authManager,
-                    networkService: networkService,
-                    realmManager: realmManager,
-                    apiFetcher: apiFetcher
-                )
-            )
-        }
-#else
-        let authManager = AuthenticationManager()
-        self.authManager = authManager
-        
-        let networkService = NetworkService(authManager: authManager)
-        let realmManager = RealmManager()
-        let apiFetcher = NoteAPIFetcher(networkService: networkService)
-        
-        _viewModel = StateObject(
-            wrappedValue: ViewModel(
-                authManager: authManager,
-                networkService: networkService,
-                realmManager: realmManager,
-                apiFetcher: apiFetcher
-            )
-        )
-#endif
-    }
-}
-
 struct ContentView: View {
-    @StateObject private var viewModel: ViewModel
     // TODO: AppStorageをやめて、UserDefaultプロパティラッパーで値を監視できるようにしたほうが良さげ。
     @AppStorage(AppConfig.$isAuthenticationConfigured.key.rawValue) private var isAuthenticationConfigured = false
-    let authManager: AuthenticationProtocol
+    
+    private let authManager: AuthenticationProtocol
+    private let networkService: NetworkServiceProtocol
+    private let apiClient: NoteAPIClient
+    private let realmManager: RealmManager
+    
+    init(authManager: AuthenticationProtocol, networkService: NetworkServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
+        self.authManager = authManager
+        self.networkService = networkService
+        self.apiClient = apiClient
+        self.realmManager = realmManager
+    }
     
     var body: some View {
         if !isAuthenticationConfigured {
             OnboardingView(viewModel: OnboardingViewModel(authManager: authManager))
-                .environmentObject(viewModel)
         } else {
             MainView()
-                .environmentObject(viewModel)
         }
     }
 }

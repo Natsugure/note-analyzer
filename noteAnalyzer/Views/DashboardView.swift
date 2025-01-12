@@ -15,8 +15,8 @@ enum StatsType {
 }
 
 struct DashboardView: View {
-    @EnvironmentObject var viewModel: ViewModel
-    @ObservedObject var alertObject: AlertObject
+    @StateObject var viewModel: DashboardViewModel
+    @StateObject var alertObject = AlertObject()
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()

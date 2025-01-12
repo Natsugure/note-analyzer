@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MainView: View {
-    @EnvironmentObject var viewModel: ViewModel
     @State var selectedToolBar = 1
     @StateObject var alertObject = AlertObject()
     @State private var isPresentedProgressView = false
@@ -16,7 +15,10 @@ struct MainView: View {
     var body: some View {
         ZStack {
             TabView {
-                DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
+                DashboardView(
+                    viewModel: DashboardViewModel(),
+                    isPresentedProgressView: $isPresentedProgressView
+                )
                     .tabItem {
                         Label("ダッシュボード", systemImage: "chart.bar.fill")
                     }

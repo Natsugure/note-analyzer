@@ -7,25 +7,22 @@
 
 import Foundation
 
-class NoteAPIFetcher: ObservableObject {
-    @Published var progressValue: Double = 0.0
-    
+class NoteAPIClient {
+    @Published private(set) var progressValue: Double = 0.0
     private var articleCount: Int = 0
-    private let networkService: NetworkServiceProtocol
+    
+    private let authManager: AuthenticationProtocol
+    let networkService: NetworkServiceProtocol
+    private let transformer = NoteDataTransformer()
     
     private let timeIntervalSec: Double = 0.5
     
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
-    
-    init(networkService: NetworkServiceProtocol) {
+    init(authManager: AuthenticationProtocol, networkService: NetworkServiceProtocol) {
+        self.authManager = authManager
         self.networkService = networkService
     }
     
-    func getStats() async throws -> ([APIStatsResponse.APIStatsItem], [APIContentsResponse.APIContentItem]){
+    func requestFetch() async throws -> ([APIStatsResponse.APIStatsItem], [APIContentsResponse.APIContentItem]) {
         await resetProgressValue()
         
         AppConfig.urlname = try await fetchUrlName()
@@ -49,18 +46,35 @@ class NoteAPIFetcher: ObservableObject {
         }
     }
     
+    private func fetchUrlName() async throws -> String {
+        let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
+        let results: APIStatsResponse = try await transformer.parseStatsJSON(networkService.fetchData(url: urlString))
+        
+        let urlName = results.data.noteStats[0].user.urlname
+        
+        return urlName
+    }
+    
     private func fetchArticleCount() async throws -> Int {
         let urlString = "https://note.com/api/v2/creators/\(AppConfig.urlname)"
         let fetchedData = try await networkService.fetchData(url: urlString)
         
-        let parsedResult = parseUserDetailJSON(data: fetchedData)
+        let parsedResult = try transformer.parseUserDetailJSON(fetchedData)
         
-        switch parsedResult {
-        case .success(let noteCount):
-            return noteCount
+        switch parsedResult.data {
+        case .success(let userData):
+            return userData.noteCount
             
-        case .failure(let error):
-            throw error
+        case .error(let message):
+            throw NAError.decoding(.userNotFound(message))
+        }
+        
+//        switch parsedResult {
+//        case .success(let noteCount):
+//            return noteCount
+//            
+//        case .failure(let error):
+//            throw error
 //            switch error {
 //            case NAError.decoding(.userNotFound(_)):
 //                // TODO: ここでゼロを返すことは適切か？設計自体考え直したほうがいいのでは？
@@ -68,35 +82,24 @@ class NoteAPIFetcher: ObservableObject {
 //            default:
 //                throw error
 //            }
-        }
+//        }
     }
-    
-    private func fetchUrlName() async throws -> String {
-        let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
         
-        let fetchedData = try await networkService.fetchData(url: urlString)
-        let results: APIStatsResponse = try decodeAPIResponse(fetchedData)
-        
-        let urlName = results.data.noteStats[0].user.urlname
-        
-        return urlName
-    }
-    
-    private func parseUserDetailJSON(data: Data) -> Result<Int, Error> {
-        do {
-            let results = try decoder.decode(APIResponse<APIUserDetailResponse>.self, from: data)
-            
-            switch results.data {
-            case .success(let userData):
-                return .success(userData.noteCount)
-                
-            case .error(let message):
-                return .failure(NAError.decoding(.userNotFound(message)))
-            }
-        } catch {
-            return .failure(error)
-        }
-    }
+//    private func parseUserDetailJSON(_ data: Data) -> Result<Int, Error> {
+//        do {
+//            let results = try transformer.parseUserDetailJSON(data)
+//            
+//            switch results.data {
+//            case .success(let userData):
+//                return .success(userData.noteCount)
+//                
+//            case .error(let message):
+//                return .failure(NAError.decoding(.userNotFound(message)))
+//            }
+//        } catch {
+//            return .failure(error)
+//        }
+//    }
     
     private func fetchStats() async throws -> [APIStatsResponse.APIStatsItem] {
         // TODO: 総ページ数がわかってるなら、maxLoopCountはいらないのでは？クールダウンタイムは要検討だが。
@@ -114,7 +117,7 @@ class NoteAPIFetcher: ObservableObject {
             }
             
             let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
-            let result = try await parseStatsJSON(networkService.fetchData(url: urlString))
+            let result = try await transformer.parseStatsJSON(networkService.fetchData(url: urlString))
             
             let thisTimeLastCalculateAt = self.stringToDate(result.data.lastCalculateAt)
             
@@ -132,31 +135,6 @@ class NoteAPIFetcher: ObservableObject {
         return responses.flatMap(\.data.noteStats)
     }
     
-    private func parseStatsJSON(_ data: Data) async throws -> APIStatsResponse {
-        let results: APIStatsResponse = try decodeAPIResponse(data)
-        
-        return results
-//        
-//        await MainActor.run {
-//            let thisTime = self.stringToDate(results.data.lastCalculateAt)
-//            let lastTime = self.stringToDate(AppConfig.lastCalculateAt)
-//            
-//            // lastCalculateAtがUserDefaultsに保存されている値よりも古い場合、更新されていないと判断
-//            if thisTime <= lastTime {
-//                throw NAError.network(.statsNotUpdated)
-//            } else {
-//                self.contents += results.data.noteStats
-//                
-//                if self.isLastPage {
-//                    AppConfig.lastCalculateAt = results.data.lastCalculateAt
-//                    
-//                    AppConfig.contentsCount = self.contents.count
-//                    self.contentsCount = self.contents.count
-//                }
-//            }
-//        }
-    }
-    
     private func fetchPublishedDate() async throws -> [APIContentsResponse.APIContentItem] {
 //        let maxLoopCount = 600
         let articlePerPage = 5
@@ -172,7 +150,7 @@ class NoteAPIFetcher: ObservableObject {
             }
             
             let urlString = "https://note.com/api/v2/creators/\(AppConfig.urlname)/contents?kind=note&page=\(page)"
-            let result = try await parseContentsJSON(networkService.fetchData(url: urlString))
+            let result = try await transformer.parseContentsJSON(networkService.fetchData(url: urlString))
             
             responses.append(result)
             
@@ -183,40 +161,11 @@ class NoteAPIFetcher: ObservableObject {
         return responses.flatMap(\.data.contents)
     }
     
-    private func parseContentsJSON(_ data: Data) throws -> APIContentsResponse {
-        let results: APIContentsResponse = try decodeAPIResponse(data)
-        
-        return results
-    }
-    
     private func isUpdated(_ thisTime: Date) -> Bool {
         // TODO: UserDefaultsに保存する時点では、Date型のほうが楽じゃない？
         let lastTime = self.stringToDate(AppConfig.lastCalculateAt)
         
-        print(thisTime)
-        print(lastTime)
-        
         return thisTime > lastTime
-    }
-    
-    private func decodeAPIResponse<T: Decodable>(_ data: Data) throws -> T {
-        do {
-            // まず、APIStatsResponseとしてデコードを試みる
-            return try decoder.decode(T.self, from: data)
-        } catch {
-            // デコードに失敗した場合、エラーレスポンスとしてデコードを試みる
-            do {
-                let errorResponse = try decoder.decode(APIErrorResponse.self, from: data)
-                if errorResponse.error.code == "auth" {
-                    throw NAError.auth(.authenticationFailed)
-                } else {
-                    throw NAError.decoding(.decodingFailed(error))
-                }
-            } catch {
-                // エラーレスポンスのデコードにも失敗した場合
-                throw error
-            }
-        }
     }
     
     private func stringToDate(_ dateString: String) -> Date {
@@ -226,5 +175,10 @@ class NoteAPIFetcher: ObservableObject {
         formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
         
         return formatter.date(from: dateString)!
+    }
+    
+    func deleteAllComponents() throws {
+        try authManager.clearAuthentication()
+        networkService.resetWebComponents()
     }
 }

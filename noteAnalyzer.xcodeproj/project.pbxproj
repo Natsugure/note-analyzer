@@ -29,11 +29,13 @@
 		1A94E5AB2D2E0EB6002BC7B2 /* UserDefaultCompatible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5AA2D2E0EAE002BC7B2 /* UserDefaultCompatible.swift */; };
 		1A94E5AF2D2E739C002BC7B2 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */; };
 		1A94E5B12D2EA5EA002BC7B2 /* ProgressCircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B02D2EA5DE002BC7B2 /* ProgressCircularView.swift */; };
-		1A94E5B42D2F7947002BC7B2 /* NetworkRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B32D2F7947002BC7B2 /* NetworkRequester.swift */; };
 		1A94E5B62D2FAD36002BC7B2 /* AuthWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */; };
 		1A94E5B82D32289B002BC7B2 /* DemoAuthWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5B72D322889002BC7B2 /* DemoAuthWebViewModel.swift */; };
+		1A94E5C02D3349ED002BC7B2 /* NoteDataTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5BF2D3349E3002BC7B2 /* NoteDataTransformer.swift */; };
+		1A94E5C22D335391002BC7B2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C12D33538B002BC7B2 /* DashboardViewModel.swift */; };
+		1A94E5C42D33564B002BC7B2 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C32D335645002BC7B2 /* SettingsViewModel.swift */; };
+		1A94E5C62D3356EB002BC7B2 /* MockNoteAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C52D3356E3002BC7B2 /* MockNoteAPIClient.swift */; };
 		1A9A7B032C708698005CCA61 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A7B022C708698005CCA61 /* ViewModel.swift */; };
-		1AA5AD7C2CCB3334007BDBDE /* DemoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD7B2CCB3334007BDBDE /* DemoViewModel.swift */; };
 		1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */; };
 		1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */; };
 		1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */; };
@@ -43,7 +45,7 @@
 		1ADA6E032D2A1F9D00227F42 /* Calendar+DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */; };
 		1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E042D2A270200227F42 /* DateUtils.swift */; };
 		1ADA6E092D2B6AE100227F42 /* String+WordJoiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E082D2B6AE100227F42 /* String+WordJoiner.swift */; };
-		1ADA6E0B2D2B76AE00227F42 /* NoteAPIFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E0A2D2B76AE00227F42 /* NoteAPIFetcher.swift */; };
+		1ADA6E0B2D2B76AE00227F42 /* NoteAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA6E0A2D2B76AE00227F42 /* NoteAPIClient.swift */; };
 		1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */; };
 		1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3CA262C3A26D600C30A89 /* ContentView.swift */; };
 		1AE3CA292C3A26D700C30A89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3CA282C3A26D700C30A89 /* Assets.xcassets */; };
@@ -93,11 +95,13 @@
 		1A94E5AA2D2E0EAE002BC7B2 /* UserDefaultCompatible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultCompatible.swift; sourceTree = "<group>"; };
 		1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		1A94E5B02D2EA5DE002BC7B2 /* ProgressCircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCircularView.swift; sourceTree = "<group>"; };
-		1A94E5B32D2F7947002BC7B2 /* NetworkRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequester.swift; sourceTree = "<group>"; };
 		1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWebViewModel.swift; sourceTree = "<group>"; };
 		1A94E5B72D322889002BC7B2 /* DemoAuthWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoAuthWebViewModel.swift; sourceTree = "<group>"; };
+		1A94E5BF2D3349E3002BC7B2 /* NoteDataTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDataTransformer.swift; sourceTree = "<group>"; };
+		1A94E5C12D33538B002BC7B2 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		1A94E5C32D335645002BC7B2 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		1A94E5C52D3356E3002BC7B2 /* MockNoteAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNoteAPIClient.swift; sourceTree = "<group>"; };
 		1A9A7B022C708698005CCA61 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
-		1AA5AD7B2CCB3334007BDBDE /* DemoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoViewModel.swift; sourceTree = "<group>"; };
 		1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationManager.swift; sourceTree = "<group>"; };
 		1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
 		1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -107,7 +111,7 @@
 		1ADA6E022D2A1F9D00227F42 /* Calendar+DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+DateFormatter.swift"; sourceTree = "<group>"; };
 		1ADA6E042D2A270200227F42 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
 		1ADA6E082D2B6AE100227F42 /* String+WordJoiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordJoiner.swift"; sourceTree = "<group>"; };
-		1ADA6E0A2D2B76AE00227F42 /* NoteAPIFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAPIFetcher.swift; sourceTree = "<group>"; };
+		1ADA6E0A2D2B76AE00227F42 /* NoteAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAPIClient.swift; sourceTree = "<group>"; };
 		1AE3CA212C3A26D600C30A89 /* noteAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noteAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AE3CA242C3A26D600C30A89 /* noteAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = noteAnalyzerApp.swift; sourceTree = "<group>"; };
 		1AE3CA262C3A26D600C30A89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -186,11 +190,11 @@
 		1A94E5AC2D2E109C002BC7B2 /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				1A94E5B32D2F7947002BC7B2 /* NetworkRequester.swift */,
 				1AE3CA462C3B649500C30A89 /* APIResponses.swift */,
 				1A25C67E2C4770C400403215 /* AuthenticationManager.swift */,
 				1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */,
-				1ADA6E0A2D2B76AE00227F42 /* NoteAPIFetcher.swift */,
+				1ADA6E0A2D2B76AE00227F42 /* NoteAPIClient.swift */,
+				1A94E5BF2D3349E3002BC7B2 /* NoteDataTransformer.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -211,6 +215,8 @@
 				1A9A7B022C708698005CCA61 /* ViewModel.swift */,
 				1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */,
 				1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */,
+				1A94E5C12D33538B002BC7B2 /* DashboardViewModel.swift */,
+				1A94E5C32D335645002BC7B2 /* SettingsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -231,6 +237,7 @@
 				1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */,
 				1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */,
 				1A29BAEC2D22813C00FD6AB3 /* MockDataProvider.swift */,
+				1A94E5C52D3356E3002BC7B2 /* MockNoteAPIClient.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -238,7 +245,6 @@
 		1AA5AD802CCB3403007BDBDE /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				1AA5AD7B2CCB3334007BDBDE /* DemoViewModel.swift */,
 				1A94E5B72D322889002BC7B2 /* DemoAuthWebViewModel.swift */,
 			);
 			path = ViewModels;
@@ -410,9 +416,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A06C8FA2C62229A00838DD5 /* MarkdownView.swift in Sources */,
-				1ADA6E0B2D2B76AE00227F42 /* NoteAPIFetcher.swift in Sources */,
+				1ADA6E0B2D2B76AE00227F42 /* NoteAPIClient.swift in Sources */,
 				1A5852CA2C7AFFD200EDA5E2 /* AuthWebView.swift in Sources */,
-				1A94E5B42D2F7947002BC7B2 /* NetworkRequester.swift in Sources */,
 				1AE3CA272C3A26D600C30A89 /* ContentView.swift in Sources */,
 				1A2AC3B92C55CEFC0046C921 /* ArticleDetailView.swift in Sources */,
 				1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */,
@@ -422,8 +427,11 @@
 				1AE3CA432C3A692600C30A89 /* WrappedWebView.swift in Sources */,
 				1A94E5AB2D2E0EB6002BC7B2 /* UserDefaultCompatible.swift in Sources */,
 				1A25C67F2C4770C400403215 /* AuthenticationManager.swift in Sources */,
+				1A94E5C02D3349ED002BC7B2 /* NoteDataTransformer.swift in Sources */,
 				1AE3CA452C3B63CA00C30A89 /* NetworkService.swift in Sources */,
+				1A94E5C42D33564B002BC7B2 /* SettingsViewModel.swift in Sources */,
 				1A8E9C792C5F081300A97D31 /* DailyView.swift in Sources */,
+				1A94E5C62D3356EB002BC7B2 /* MockNoteAPIClient.swift in Sources */,
 				1A107D7E2D17B4F900AD9F79 /* AppConfig+UserDefaultWrapper.swift in Sources */,
 				1A94E5B82D32289B002BC7B2 /* DemoAuthWebViewModel.swift in Sources */,
 				1ADA6E032D2A1F9D00227F42 /* Calendar+DateFormatter.swift in Sources */,
@@ -435,10 +443,10 @@
 				1AC95B292C4F847A0049E6AA /* DashboardView.swift in Sources */,
 				1AE3CA252C3A26D600C30A89 /* noteAnalyzerApp.swift in Sources */,
 				1ADA6E092D2B6AE100227F42 /* String+WordJoiner.swift in Sources */,
+				1A94E5C22D335391002BC7B2 /* DashboardViewModel.swift in Sources */,
 				1A06C8F62C60524C00838DD5 /* OnboardingView.swift in Sources */,
 				1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */,
 				1A4D8AC02CBBA18200BF353A /* NAError.swift in Sources */,
-				1AA5AD7C2CCB3334007BDBDE /* DemoViewModel.swift in Sources */,
 				1A29BAED2D22814500FD6AB3 /* MockDataProvider.swift in Sources */,
 				1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */,
 				1AE3CA472C3B649500C30A89 /* APIResponses.swift in Sources */,

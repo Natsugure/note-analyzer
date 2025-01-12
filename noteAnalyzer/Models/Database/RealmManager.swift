@@ -79,11 +79,9 @@ class RealmManager {
         return newStats
     }
     
-    func getItemArray() -> [Item] {
+    func getItem() -> Results<Item> {
         let realm = getRealm()
-        let result = realm.objects(Item.self)
-        
-        return Array(result)
+        return realm.objects(Item.self)
     }
     
     func deleteAll() throws {

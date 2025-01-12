@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 class MockDataProvider {
     private var lastCalculatedAt: Date
@@ -24,23 +25,22 @@ class MockDataProvider {
         let publishAt: String
     }
     
-    init(realmItems: [Item]) {
+    init() {
         let date = Date()
         // 即時更新できるように、イニシャライズした1時間前に設定
         lastCalculatedAt = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
-        
-        // デバイス内のデータをmockItemに変換し、サーバー(MockDataProvider)も同じ記事データを持っているようにする
-        appendExistingItems(realmItems: realmItems)
     }
     
-    func appendExistingItems(realmItems: [Item]) {
-        mockItems += realmItemsToMockItems(realmItems: realmItems)
+    /// デバイス内のデータをmockItemに変換し、サーバー(MockDataProvider)も同じ記事データを持っているようにする
+    func injectLocalItems(_ realmItems: Results<Item>) {
+        mockItems += convertToMockItems(from: realmItems)
         updateExistingItems()
         
         currentNoteCount = mockItems.count
+        updateLastCalculatedAt()
     }
     
-    private func realmItemsToMockItems(realmItems: [Item]) -> [MockItem] {
+    private func convertToMockItems(from realmItems: Results<Item>) -> [MockItem] {
         var result: [MockItem] = []
         
         for item in realmItems {

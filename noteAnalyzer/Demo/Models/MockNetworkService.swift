@@ -25,9 +25,8 @@ class MockNetworkService: MockableNetworkServiceProtocol {
     
     private var mockDataProvider: MockDataProvider
     
-    init(realmItems: [Item]) {
-        self.mockDataProvider = MockDataProvider(realmItems: realmItems)
-        mockDataProvider.updateLastCalculatedAt()
+    init(provider: MockDataProvider) {
+        self.mockDataProvider = provider
     }
     
     /// 実際のAPIをフェッチする代わりに、URLに基づいた適切なモックデータを返す
@@ -53,9 +52,7 @@ class MockNetworkService: MockableNetworkServiceProtocol {
         throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
     }
     
-    func resetWebComponents() {
-        // デモ用なので何もしない
-    }
+    func resetWebComponents() {}
     
     /// URLからページ番号を抽出する。
     ///
@@ -70,10 +67,6 @@ class MockNetworkService: MockableNetworkServiceProtocol {
         }
         return page
     }
-//    
-//    func injectExistingItems(realmItems: [Item]) {
-//        mockDataProvider.appendExistingItems(realmItems: realmItems)
-//    }
     
     func updateMockItems() {
         mockDataProvider.updateLastCalculatedAt()

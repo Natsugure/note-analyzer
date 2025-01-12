@@ -5,48 +5,23 @@
 //  Created by Natsugure on 2024/08/17.
 //
 
-import SwiftUI
-import WebKit
+import Foundation
 
 class ViewModel: ObservableObject {
-    @Published var isAuthenticated = false
-    @Published var showAuthWebView = false
     @Published var progressValue = 0.0
     
-    private let authManager: AuthenticationProtocol
-    private let networkService: NetworkServiceProtocol
-    private let apiFetcher: NoteAPIFetcher
-    let realmManager: RealmManager
+    private let apiClient: NoteAPIClient
+    private let realmManager: RealmManager
     
-    init(authManager: AuthenticationProtocol, networkService: NetworkServiceProtocol, realmManager: RealmManager, apiFetcher: NoteAPIFetcher) {
-        self.networkService = networkService
+    init(apiClient: NoteAPIClient, realmManager: RealmManager) {
+        self.apiClient = apiClient
         self.realmManager = realmManager
-        self.authManager = authManager
-        self.apiFetcher = apiFetcher
         
-        // AuthenticationManagerの状態をViewModelの状態に反映
-        if let authManager = authManager as? AuthenticationManager {
-//            authManager.$isAuthenticated.assign(to: &$isAuthenticated)
-//            authManager.$showAuthWebView.assign(to: &$showAuthWebView)
-            print("Normal ViewModel initialized")
-        } else if let mockAuthManager = authManager as? MockAuthenticationManager {
-//            mockAuthManager.$isAuthenticated.assign(to: &$isAuthenticated)
-//            mockAuthManager.$showAuthWebView.assign(to: &$showAuthWebView)
-        }
-        
-        apiFetcher.$progressValue.assign(to: &$progressValue)
+        apiClient.$progressValue.assign(to: &$progressValue)
     }
     
-//    func authenticate() {
-//        authManager.authenticate()
-//    }
-//    
-//    func checkAuthentication(cookies: [HTTPCookie]) {
-//        authManager.isValidAuthCookies(cookies: cookies)
-//    }
-    
     func getStats() async throws {
-        let (stats, publishedDateArray) = try await apiFetcher.getStats()
+        let (stats, publishedDateArray) = try await apiClient.requestFetch()
         
         try await MainActor.run {
             // TODO: DB書き込み処理のprogressValueはどう計算するか？コンテンツ数が少ないなら一瞬だが、1000記事を超えるような人だとどうか？
@@ -79,35 +54,5 @@ class ViewModel: ObservableObject {
 //        }
     }
     
-    func logout() async throws {
-        try await MainActor.run {
-            do {
-                try authManager.clearAuthentication()
-                networkService.resetWebComponents()
-            } catch KeychainError.unexpectedStatus(let status) {
-                throw KeychainError.unexpectedStatus(status)
-            } catch {
-                throw error
-            }
-        }
-    }
 
-    func clearAllData() async throws {
-        try await MainActor.run {
-            do {
-                try realmManager.deleteAll()
-                try authManager.clearAuthentication()
-                networkService.resetWebComponents()
-                
-                AppConfig.deleteUserInfo()
-                
-            } catch KeychainError.unexpectedStatus(let status) {
-                print("Keychain error occurred. \n code: \(status), description: \(status.description)")
-                throw KeychainError.unexpectedStatus(status)
-            } catch {
-                print("Failed to delete all data: \(error)")
-                throw error
-            }
-        }
-    }
 }

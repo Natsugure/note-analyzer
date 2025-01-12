@@ -11,6 +11,10 @@ import RealmSwift
 @main
 struct noteAnalyzerApp: SwiftUI.App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    private let apiClient: NoteAPIClient
+    private let authManager: AuthenticationProtocol
+    private let networkService: NetworkServiceProtocol
+    private let realmManager = RealmManager()
     
     init() {
         #if DEBUG
@@ -19,12 +23,40 @@ struct noteAnalyzerApp: SwiftUI.App {
         if !AppConfig.$isDemoMode.isSetValue {
             AppConfig.isDemoMode = true
         }
+        
+        if AppConfig.isDemoMode {
+            print("demoMode")
+            self.authManager = MockAuthenticationManager()
+            
+            let provider = MockDataProvider()
+            let localItems = realmManager.getItem()
+            provider.injectLocalItems(localItems)
+            
+            self.networkService = MockNetworkService(provider: provider)
+            
+            self.apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
+            
+        } else {
+            print("normalMode")
+            self.authManager = AuthenticationManager()
+            self.networkService = NetworkService(authManager: authManager)
+            self.apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
+        }
+#else
+        self.authManager = AuthenticationManager()
+        self.networkService = NetworkService(authManager: authManager)
+        self.apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
         #endif
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(
+                authManager: authManager,
+                networkService: networkService,
+                apiClient: apiClient,
+                realmManager: realmManager
+            )
         }
     }
 }
