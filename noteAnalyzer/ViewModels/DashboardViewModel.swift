@@ -5,10 +5,16 @@
 //  Created by Natsugure on 2025/01/12.
 //
 
-import Foundation
+import SwiftUI
 
 final class DashboardViewModel: ObservableObject {
     @Published var progressValue = 0.0
+    @Published var isPresentedProgressView = false
+//    {
+//        willSet {
+//            UIView.setAnimationsEnabled(false)
+//        }
+//    }
     
     private let apiClient: NoteAPIClient
     let realmManager: RealmManager

@@ -9,9 +9,9 @@ import SwiftUI
 import RealmSwift
 
 struct SettingsView: View {
-    @EnvironmentObject var viewModel: ViewModel
+    @StateObject var viewModel: SettingsViewModel
     @Environment(\.openURL) private var openURL
-    @ObservedObject var alertObject: AlertObject
+    @StateObject var alertObject = AlertObject()
     @State var path = NavigationPath()
     @State var isShowAlert = false
     

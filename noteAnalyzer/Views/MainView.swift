@@ -10,33 +10,32 @@ import SwiftUI
 struct MainView: View {
     @State var selectedToolBar = 1
     @StateObject var alertObject = AlertObject()
-    @State private var isPresentedProgressView = false
+//    @State private var isPresentedProgressView = false
+    let apiClient: NoteAPIClient
+    let realmManager: RealmManager
     
     var body: some View {
         ZStack {
             TabView {
-                DashboardView(
-                    viewModel: DashboardViewModel(),
-                    isPresentedProgressView: $isPresentedProgressView
-                )
+                DashboardView(viewModel: DashboardViewModel(apiClient: apiClient, realmManager: realmManager))
                     .tabItem {
                         Label("ダッシュボード", systemImage: "chart.bar.fill")
                     }
                     .tag(1)
                 
-                SettingsView(alertObject: alertObject)
+                SettingsView(viewModel: SettingsViewModel(apiClient: apiClient, realmManager: realmManager))
                     .tabItem {
                         Label("設定", systemImage: "gearshape.fill")
                     }
                     .tag(2)
             }
             
-            if isPresentedProgressView {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                ProgressBarView(progress: $viewModel.progressValue)
-                    .padding()
-            }
+//            if isPresentedProgressView {
+//                Color.black.opacity(0.3)
+//                    .ignoresSafeArea()
+//                ProgressBarView()
+//                    .padding()
+//            }
         }
         .navigationBarBackButtonHidden(true)
     }

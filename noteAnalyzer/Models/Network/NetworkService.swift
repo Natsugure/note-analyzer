@@ -15,9 +15,6 @@ protocol NetworkServiceProtocol {
 
 class NetworkService: NetworkServiceProtocol {
     private let authManager: AuthenticationProtocol
-    
-    private var isLastPage = false
-    private var isUpdated = false
     private var session: URLSession
     
     // レート制限のための変数

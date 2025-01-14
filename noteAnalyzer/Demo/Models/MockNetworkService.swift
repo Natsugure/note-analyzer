@@ -11,7 +11,7 @@ protocol MockableNetworkServiceProtocol: NetworkServiceProtocol {
     func updateMockItems()
 }
 
-class MockNetworkService: MockableNetworkServiceProtocol {
+struct MockNetworkService: MockableNetworkServiceProtocol {
     enum MockResponseType {
         case success
         case error
@@ -23,7 +23,7 @@ class MockNetworkService: MockableNetworkServiceProtocol {
     /// ネットワークの遅延を再現するための時間。`Task.await(nanoseconds:)`で利用するため、`UInt64`型かつナノ秒で表している。
     private let networkDelayNanoSec: UInt64 = 100_000_000
     
-    private var mockDataProvider: MockDataProvider
+    private let mockDataProvider: MockDataProvider
     
     init(provider: MockDataProvider) {
         self.mockDataProvider = provider

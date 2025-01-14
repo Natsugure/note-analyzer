@@ -22,7 +22,6 @@ struct DashboardView: View {
     @State private var path = [Item]()
     @State private var selectionChartType: StatsType = .view
     @State private var sortType: SortType = .viewDecending
-    @Binding var isPresentedProgressView: Bool
     
     var statsFormatter = StatsFormatter()
     
@@ -45,6 +44,10 @@ struct DashboardView: View {
                         .padding(.vertical, 10)
                     
                     statsList
+                }
+
+                .fullScreenCover(isPresented: $viewModel.isPresentedProgressView) {
+                    BackgroundClearProgressBarView(progressValue: $viewModel.progressValue)
                 }
                 .navigationTitle("全記事統計")
                 .navigationBarItems(leading: EmptyView())
@@ -194,18 +197,19 @@ struct DashboardView: View {
     
     //MARK: - The methods of connect to ViewModel
     private func getStats() async {
-        isPresentedProgressView = true
+        viewModel.isPresentedProgressView = true
         do {
             try await viewModel.getStats()
             
-            isPresentedProgressView = false
+//            viewModel.trigrerDismissProgressView = true
+            viewModel.isPresentedProgressView = false
             alertObject.showSingle(
                 isPresented: $isShowAlert,
                 title: "取得完了",
                 message:  "統計情報の取得が完了しました。"
             )
         } catch {
-            isPresentedProgressView = false
+            viewModel.isPresentedProgressView = false
             handleGetStatsError(error)
         }
     }

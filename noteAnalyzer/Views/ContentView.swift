@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    // TODO: AppStorageをやめて、UserDefaultプロパティラッパーで値を監視できるようにしたほうが良さげ。
     @AppStorage(AppConfig.$isAuthenticationConfigured.key.rawValue) private var isAuthenticationConfigured = false
     
     private let authManager: AuthenticationProtocol
@@ -24,21 +23,24 @@ struct ContentView: View {
     }
     
     var body: some View {
-        if !isAuthenticationConfigured {
-            OnboardingView(viewModel: OnboardingViewModel(authManager: authManager))
-        } else {
-            MainView()
+        VStack {
+            // TODO: フラグを使ったif文ではなく、MainViewの上にOnboardingViewをfullScreenCoveredなモーダル表示にする
+            if !isAuthenticationConfigured {
+                OnboardingView(viewModel: OnboardingViewModel(authManager: authManager))
+            } else {
+                MainView(apiClient: apiClient, realmManager: realmManager)
+            }
         }
     }
 }
 
-//struct Content_Previews: PreviewProvider {
-//    static let authManager = AuthenticationManager()
-//    static let networkService = NetworkService(authManager: authManager)
-//    static let realmManager = RealmManager()
-//    
-//    static var previews: some View {
-//        ContentView()
-//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-//    }
-//}
+struct Content_Previews: PreviewProvider {
+    static let authManager = MockAuthenticationManager()
+    static let networkService = NetworkService(authManager: authManager)
+    static let apiClient = MockNoteAPIClient(authManager: authManager, networkService: networkService)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        ContentView(authManager: authManager, networkService: networkService, apiClient: apiClient, realmManager: realmManager)
+    }
+}

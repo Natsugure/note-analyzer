@@ -35,6 +35,7 @@
 		1A94E5C22D335391002BC7B2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C12D33538B002BC7B2 /* DashboardViewModel.swift */; };
 		1A94E5C42D33564B002BC7B2 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C32D335645002BC7B2 /* SettingsViewModel.swift */; };
 		1A94E5C62D3356EB002BC7B2 /* MockNoteAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C52D3356E3002BC7B2 /* MockNoteAPIClient.swift */; };
+		1A94E5CA2D35E365002BC7B2 /* BackgroundClearProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C92D35E365002BC7B2 /* BackgroundClearProgressView.swift */; };
 		1A9A7B032C708698005CCA61 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A7B022C708698005CCA61 /* ViewModel.swift */; };
 		1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */; };
 		1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */; };
@@ -101,6 +102,7 @@
 		1A94E5C12D33538B002BC7B2 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		1A94E5C32D335645002BC7B2 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		1A94E5C52D3356E3002BC7B2 /* MockNoteAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNoteAPIClient.swift; sourceTree = "<group>"; };
+		1A94E5C92D35E365002BC7B2 /* BackgroundClearProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClearProgressView.swift; sourceTree = "<group>"; };
 		1A9A7B022C708698005CCA61 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationManager.swift; sourceTree = "<group>"; };
 		1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 		1A29BAEB2D20F14D00FD6AB3 /* Progress */ = {
 			isa = PBXGroup;
 			children = (
+				1A94E5C92D35E365002BC7B2 /* BackgroundClearProgressView.swift */,
 				1A29BAE92D20EDBD00FD6AB3 /* ProgressBarView.swift */,
 				1A94E5B02D2EA5DE002BC7B2 /* ProgressCircularView.swift */,
 			);
@@ -423,6 +426,7 @@
 				1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */,
 				1A29BAEA2D20EDBD00FD6AB3 /* ProgressBarView.swift in Sources */,
 				1A2AC3BB2C55D4420046C921 /* ChartView.swift in Sources */,
+				1A94E5CA2D35E365002BC7B2 /* BackgroundClearProgressView.swift in Sources */,
 				1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */,
 				1AE3CA432C3A692600C30A89 /* WrappedWebView.swift in Sources */,
 				1A94E5AB2D2E0EB6002BC7B2 /* UserDefaultCompatible.swift in Sources */,
