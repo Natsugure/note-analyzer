@@ -15,6 +15,25 @@ class RealmManager {
          if let realm = self.realm {
              return realm
          } else {
+             // マイグレーションの設定
+             let config = Realm.Configuration(
+                 schemaVersion: 2, // スキーマバージョンをインクリメント
+                 migrationBlock: { migration, oldSchemaVersion in
+                     if oldSchemaVersion < 2 {
+                         migration.enumerateObjects(ofType: Item.className()) { oldObject, newObject in
+                             if let oldPublishedAt = oldObject?["publishedAt"] as? String {
+                                 let dateFormatter = ISO8601DateFormatter()
+                                 if let date = dateFormatter.date(from: oldPublishedAt) {
+                                     newObject?["publishedAt"] = date
+                                 }
+                             }
+                         }
+                     }
+                 }
+             )
+             // Realmのデフォルト設定を更新
+             Realm.Configuration.defaultConfiguration = config
+             
              do {
                  let realm = try Realm()
                  self.realm = realm
