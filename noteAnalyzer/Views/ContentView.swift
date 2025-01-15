@@ -26,7 +26,7 @@ struct ContentView: View {
         VStack {
             // TODO: フラグを使ったif文ではなく、MainViewの上にOnboardingViewをfullScreenCoveredなモーダル表示にする
             if !isAuthenticationConfigured {
-                OnboardingView(viewModel: OnboardingViewModel(authManager: authManager))
+                OnboardingView(viewModel: OnboardingViewModel(authManager: authManager, apiClient: apiClient, realmManager: realmManager))
             } else {
                 MainView(apiClient: apiClient, realmManager: realmManager)
             }

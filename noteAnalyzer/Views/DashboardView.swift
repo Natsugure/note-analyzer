@@ -17,6 +17,7 @@ enum StatsType {
 struct DashboardView: View {
     @StateObject var viewModel: DashboardViewModel
     @StateObject var alertObject = AlertObject()
+    // TODO: ここでObservedResutlsを使ってるせいで、RealmのマイグレーションブロックをRealmManagerとAppDelegateの2箇所に置く羽目になっている。やはり責務をRealmManagerに統一すべき。
     @ObservedResults(Item.self) var items
     @ObservedResults(Stats.self) var stats
     @State private var path = [Item]()
@@ -45,9 +46,9 @@ struct DashboardView: View {
                     
                     statsList
                 }
-
                 .fullScreenCover(isPresented: $viewModel.isPresentedProgressView) {
                     BackgroundClearProgressBarView(progressValue: $viewModel.progressValue)
+                        .presentationBackground(Color.clear)
                 }
                 .navigationTitle("全記事統計")
                 .navigationBarItems(leading: EmptyView())
@@ -56,21 +57,21 @@ struct DashboardView: View {
                     //更新ボタン
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: { Task { await getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
-                            .onAppear {
-                                if items.isEmpty {
-                                    alertObject.showDouble(
-                                        isPresented: $isShowAlert,
-                                        title: "",
-                                        message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
-                                        actionText: "取得する",
-                                        action: { 
-                                            Task { await getStats() } }
-                                    )
-                                }
-                            }
                     }
                 }
             }
+//            .onAppear {
+//                if items.isEmpty {
+//                    alertObject.showDouble(
+//                        isPresented: $isShowAlert,
+//                        title: "",
+//                        message: "アプリを利用するには、noteから統計情報を取得する必要があります。\n今すぐ取得しますか？",
+//                        actionText: "取得する",
+//                        action: {
+//                            Task { await getStats() } }
+//                    )
+//                }
+//            }
             .customAlert(for: alertObject, isPresented: $isShowAlert)
         }
 
@@ -197,19 +198,15 @@ struct DashboardView: View {
     
     //MARK: - The methods of connect to ViewModel
     private func getStats() async {
-        viewModel.isPresentedProgressView = true
         do {
             try await viewModel.getStats()
             
-//            viewModel.trigrerDismissProgressView = true
-            viewModel.isPresentedProgressView = false
             alertObject.showSingle(
                 isPresented: $isShowAlert,
                 title: "取得完了",
                 message:  "統計情報の取得が完了しました。"
             )
         } catch {
-            viewModel.isPresentedProgressView = false
             handleGetStatsError(error)
         }
     }

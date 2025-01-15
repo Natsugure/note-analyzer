@@ -111,7 +111,7 @@ struct OnboardingView: View {
 //                }
 //            }
             .navigationDestination(isPresented: $viewModel.shouldShowInitialSetupView) {
-                InitialSetupView()
+                InitialSetupView(viewModel: viewModel.makeInitialSetupViewModel())
             }
             .onChange(of: viewModel.shouldShowInitialSetupView) {
                 print("shouldShowInitialSetupView: \(viewModel.shouldShowInitialSetupView)")
@@ -166,17 +166,17 @@ struct TermAndPolicyView: View {
     }
 }
 
-struct OnboardingView_Previews: PreviewProvider {
-    static let mockAuthManager = MockAuthenticationManager()
-    static var viewModel = OnboardingViewModel(authManager: mockAuthManager)
-//    static let networkService = NetworkService(authManager: authManager)
-//    static let realmManager = RealmManager()
-//    static let apiFetcher = NoteAPIFetcher(networkService: networkService)
-    
-    static var previews: some View {
-        OnboardingView(viewModel: viewModel, alertObject: AlertObject())
-            .environmentObject(
-                OnboardingViewModel(authManager: mockAuthManager)
-            )
-    }
-}
+//struct OnboardingView_Previews: PreviewProvider {
+//    static let mockAuthManager = MockAuthenticationManager()
+//    static var viewModel = OnboardingViewModel(authManager: mockAuthManager)
+////    static let networkService = NetworkService(authManager: authManager)
+////    static let realmManager = RealmManager()
+////    static let apiFetcher = NoteAPIFetcher(networkService: networkService)
+//    
+//    static var previews: some View {
+//        OnboardingView(viewModel: viewModel, alertObject: AlertObject())
+//            .environmentObject(
+//                OnboardingViewModel(authManager: mockAuthManager)
+//            )
+//    }
+//}

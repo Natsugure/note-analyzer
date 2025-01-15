@@ -8,16 +8,7 @@
 import SwiftUI
 
 struct BackgroundClearProgressBarView: View {
-    @Binding var progressValue: Double {
-        willSet {
-            UIView.setAnimationsEnabled(false)
-        }
-    }
-    
-    init(progressValue: Binding<Double>) {
-        UIView.setAnimationsEnabled(false)
-        self._progressValue = progressValue
-    }
+    @Binding var progressValue: Double
     
     var body: some View {
         ZStack {
@@ -25,10 +16,7 @@ struct BackgroundClearProgressBarView: View {
                 .ignoresSafeArea()
             ProgressBarView(progress: $progressValue)
                 .padding()
-                .presentationBackground(Color.clear)
         }
-        .onAppear { UIView.setAnimationsEnabled(true) }
-        .onDisappear { UIView.setAnimationsEnabled(true) }
     }
 }
 

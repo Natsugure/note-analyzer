@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InitialSetupView: View {
-    @EnvironmentObject private var viewModel: ViewModel
+    @StateObject var viewModel: InitialSetupViewModel
     @StateObject private var alertObject = AlertObject()
     @State private var isPresentedProgressView = false
     @State private var shouldShowLoginCredentialMismatchView = false
@@ -73,16 +73,16 @@ struct InitialSetupView: View {
     }
     
     private func verifyLoginConsistency() async {
-        isPresentedProgressView = true
-        // ここにAPIからurlnameを取得するロジックを書く。たぶんViewModelから呼び出す。
-        do {
-            try await viewModel.verifyLoginConsistency()
-            isPresentedProgressView = false
-        } catch NAError.Auth.loginCredentialMismatch {
-            shouldShowLoginCredentialMismatchView.toggle()
-        } catch {
-            print(error)
-        }
+//        isPresentedProgressView = true
+//        // ここにAPIからurlnameを取得するロジックを書く。たぶんViewModelから呼び出す。
+//        do {
+//            try await viewModel.verifyLoginConsistency()
+//            isPresentedProgressView = false
+//        } catch NAError.Auth.loginCredentialMismatch {
+//            shouldShowLoginCredentialMismatchView.toggle()
+//        } catch {
+//            print(error)
+//        }
     }
 }
 

@@ -9,44 +9,41 @@ import Foundation
 import RealmSwift
 
 class RealmManager {
-    private var realm: Realm?
-        
-    private func getRealm() -> Realm {
-         if let realm = self.realm {
-             return realm
-         } else {
-             // マイグレーションの設定
-             let config = Realm.Configuration(
-                 schemaVersion: 2, // スキーマバージョンをインクリメント
-                 migrationBlock: { migration, oldSchemaVersion in
-                     if oldSchemaVersion < 2 {
-                         migration.enumerateObjects(ofType: Item.className()) { oldObject, newObject in
-                             if let oldPublishedAt = oldObject?["publishedAt"] as? String {
-                                 let dateFormatter = ISO8601DateFormatter()
-                                 if let date = dateFormatter.date(from: oldPublishedAt) {
-                                     newObject?["publishedAt"] = date
-                                 }
-                             }
-                         }
-                     }
-                 }
-             )
-             // Realmのデフォルト設定を更新
-             Realm.Configuration.defaultConfiguration = config
-             
-             do {
-                 let realm = try Realm()
-                 self.realm = realm
-                 return realm
-             } catch {
-                 fatalError("Failed to initialize Realm on RealmManager: \(error)")
-             }
-         }
-     }
+    //FIXME: メンバ変数でRealmのインスタンスを持ちっぱなしはincorrect threadエラーの原因なのでNG。CRUDメソッドの全てでtry! Realm()するのが正解。
+//    private var realm: Realm?
+    
+//    private func getRealm() -> Realm {
+//        do {
+//            let realm = try Realm()
+//            return realm
+//        } catch {
+//            fatalError("Failed to initialize Realm on RealmManager: \(error)")
+//        }
+//    }
+    
+    init() {
+        let config = Realm.Configuration(
+            schemaVersion: 2, // スキーマバージョンをインクリメント
+            migrationBlock: { migration, oldSchemaVersion in
+                if oldSchemaVersion < 2 {
+                    migration.enumerateObjects(ofType: Item.className()) { oldObject, newObject in
+                        if let oldPublishedAt = oldObject?["publishedAt"] as? String {
+                            let dateFormatter = ISO8601DateFormatter()
+                            if let date = dateFormatter.date(from: oldPublishedAt) {
+                                newObject?["publishedAt"] = date
+                            }
+                        }
+                    }
+                }
+            }
+        )
+        // Realmのデフォルト設定を更新
+        Realm.Configuration.defaultConfiguration = config
+    }
     
     func updateStats(stats: [APIStatsResponse.APIStatsItem], publishedDate: [APIContentsResponse.APIContentItem]) throws {
         let updateDateTime = Date()
-        let realm = getRealm()
+        let realm = try! Realm()
         
         try realm.write {
             for stat in stats {
@@ -99,12 +96,12 @@ class RealmManager {
     }
     
     func getItem() -> Results<Item> {
-        let realm = getRealm()
+        let realm = try! Realm()
         return realm.objects(Item.self)
     }
     
     func deleteAll() throws {
-        let realm = getRealm()
+        let realm = try! Realm()
         try realm.write {
             realm.deleteAll()
         }

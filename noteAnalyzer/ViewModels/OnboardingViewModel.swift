@@ -16,9 +16,13 @@ class OnboardingViewModel: ObservableObject {
     
     private let authManager: AuthenticationProtocol
     private var authWebViewModel: AuthWebViewModel?
+    private let apiClient: NoteAPIClient
+    private let realmManager: RealmManager
     
-    init(authManager: AuthenticationProtocol) {
+    init(authManager: AuthenticationProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
         self.authManager = authManager
+        self.apiClient = apiClient
+        self.realmManager = realmManager
     }
     
     func showAuthWebView() {
@@ -37,6 +41,10 @@ class OnboardingViewModel: ObservableObject {
         observeAuthWebViewModel(viewModel)
         
         return viewModel
+    }
+    
+    func makeInitialSetupViewModel() -> InitialSetupViewModel {
+        InitialSetupViewModel(apiClient: apiClient, realmManager: realmManager)
     }
     
     func observeAuthWebViewModel(_ viewModel: AuthWebViewModel) {
