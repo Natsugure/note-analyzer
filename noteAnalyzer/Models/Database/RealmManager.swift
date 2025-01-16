@@ -100,6 +100,11 @@ class RealmManager {
         return realm.objects(Item.self)
     }
     
+    func getStatsResults() -> Results<Stats> {
+        let realm = try! Realm()
+        return realm.objects(Stats.self)
+    }
+    
     func deleteAll() throws {
         let realm = try! Realm()
         try realm.write {

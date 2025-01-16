@@ -38,6 +38,8 @@
 		1A94E5CA2D35E365002BC7B2 /* BackgroundClearProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5C92D35E365002BC7B2 /* BackgroundClearProgressView.swift */; };
 		1A94E5CC2D364C83002BC7B2 /* View+DisableAnimationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5CB2D364C79002BC7B2 /* View+DisableAnimationModifier.swift */; };
 		1A94E5CE2D3667C4002BC7B2 /* InitialSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5CD2D3667BF002BC7B2 /* InitialSetupViewModel.swift */; };
+		1A94E71C2D389DC8002BC7B2 /* DashboardListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E71B2D389DC8002BC7B2 /* DashboardListRow.swift */; };
+		1A94E71E2D38A8DD002BC7B2 /* DailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E71D2D38A8D8002BC7B2 /* DailyViewModel.swift */; };
 		1A9A7B032C708698005CCA61 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A7B022C708698005CCA61 /* ViewModel.swift */; };
 		1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */; };
 		1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */; };
@@ -107,6 +109,8 @@
 		1A94E5C92D35E365002BC7B2 /* BackgroundClearProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClearProgressView.swift; sourceTree = "<group>"; };
 		1A94E5CB2D364C79002BC7B2 /* View+DisableAnimationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+DisableAnimationModifier.swift"; sourceTree = "<group>"; };
 		1A94E5CD2D3667BF002BC7B2 /* InitialSetupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupViewModel.swift; sourceTree = "<group>"; };
+		1A94E71B2D389DC8002BC7B2 /* DashboardListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListRow.swift; sourceTree = "<group>"; };
+		1A94E71D2D38A8D8002BC7B2 /* DailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyViewModel.swift; sourceTree = "<group>"; };
 		1A9A7B022C708698005CCA61 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationManager.swift; sourceTree = "<group>"; };
 		1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
@@ -224,6 +228,7 @@
 				1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */,
 				1A94E5B52D2FAD2E002BC7B2 /* AuthWebViewModel.swift */,
 				1A94E5C12D33538B002BC7B2 /* DashboardViewModel.swift */,
+				1A94E71D2D38A8D8002BC7B2 /* DailyViewModel.swift */,
 				1A94E5CD2D3667BF002BC7B2 /* InitialSetupViewModel.swift */,
 				1A94E5C32D335645002BC7B2 /* SettingsViewModel.swift */,
 			);
@@ -315,6 +320,7 @@
 				1AE3CA262C3A26D600C30A89 /* ContentView.swift */,
 				1A06C8F72C60559000838DD5 /* MainView.swift */,
 				1AC95B282C4F847A0049E6AA /* DashboardView.swift */,
+				1A94E71B2D389DC8002BC7B2 /* DashboardListRow.swift */,
 				1A8E9C782C5F081300A97D31 /* DailyView.swift */,
 				1A2AC3B82C55CEFC0046C921 /* ArticleDetailView.swift */,
 				1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */,
@@ -431,11 +437,13 @@
 				1A2AC3B92C55CEFC0046C921 /* ArticleDetailView.swift in Sources */,
 				1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */,
 				1A29BAEA2D20EDBD00FD6AB3 /* ProgressBarView.swift in Sources */,
+				1A94E71C2D389DC8002BC7B2 /* DashboardListRow.swift in Sources */,
 				1A2AC3BB2C55D4420046C921 /* ChartView.swift in Sources */,
 				1A94E5CA2D35E365002BC7B2 /* BackgroundClearProgressView.swift in Sources */,
 				1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */,
 				1AE3CA432C3A692600C30A89 /* WrappedWebView.swift in Sources */,
 				1A94E5AB2D2E0EB6002BC7B2 /* UserDefaultCompatible.swift in Sources */,
+				1A94E71E2D38A8DD002BC7B2 /* DailyViewModel.swift in Sources */,
 				1A25C67F2C4770C400403215 /* AuthenticationManager.swift in Sources */,
 				1A94E5C02D3349ED002BC7B2 /* NoteDataTransformer.swift in Sources */,
 				1AE3CA452C3B63CA00C30A89 /* NetworkService.swift in Sources */,

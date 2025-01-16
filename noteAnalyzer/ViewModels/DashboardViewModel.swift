@@ -7,20 +7,41 @@
 
 import SwiftUI
 import RealmSwift
-import Combine
 
-final class DashboardViewModel: ObservableObject {   
-    @Published var progressValue = 0.0
+enum StatsType {
+    case view
+    case comment
+    case like
+}
+
+final class DashboardViewModel: ObservableObject {
+    @Published var listData: [ListElement] = []
+    @Published var selectionChartType: StatsType = .view
     @Published var isPresentedProgressView = false
+    @Published var progressValue = 0.0
+    @Published var isShowAlert = false
+    var alertMessage: (title: String, detail: String)?
+    private var token: NotificationToken?
     
     private let apiClient: NoteAPIClient
-    let realmManager: RealmManager
+    private let realmManager: RealmManager
+    private let statsFormatter = StatsFormatter()
     
     init(apiClient: NoteAPIClient, realmManager: RealmManager) {
         self.apiClient = apiClient
         self.realmManager = realmManager
         
+        token = try! Realm().observe({ _, _ in
+            self.loadData()
+        })
+        
         apiClient.$progressValue.assign(to: &$progressValue)
+        
+        loadData()
+    }
+    
+    deinit {
+        token?.invalidate()
     }
     
     func getStats() async throws {
@@ -61,7 +82,97 @@ final class DashboardViewModel: ObservableObject {
                     isPresentedProgressView = false
                 }
             }
+            
             throw error
         }
     }
+    
+    func calculateChartData() -> [(Date, Int)] {
+        let stats = realmManager.getStatsResults()
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
+        
+        var result: [(Date, Int)] = []
+        
+        for dayStats in latestStatsByDate {
+            let totalCount: Int
+            switch selectionChartType {
+            case .view:
+                totalCount = dayStats.reduce(0) { $0 + $1.readCount }
+            case .comment:
+                totalCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            case .like:
+                totalCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            }
+            
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append((DateUtils.calendar.startOfDay(for: latestTime), totalCount))
+            }
+        }
+        
+        return result.sorted { $0.0 < $1.0 }
+    }
+    
+    private func loadData() {
+        let stats = realmManager.getStatsResults()
+        
+        listData = calculateTotalCounts(stats: stats)
+    }
+    
+    private func calculateTotalCounts(stats: Results<Stats>) -> [ListElement] {
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
+        
+        // 各日付の最新データで集計
+        var result: [ListElement] = []
+        
+        for dayStats in latestStatsByDate {
+            let totalReadCount = dayStats.reduce(0) { $0 + $1.readCount }
+            let totalLikeCount = dayStats.reduce(0) { $0 + $1.likeCount }
+            let totalCommentCount = dayStats.reduce(0) { $0 + $1.commentCount }
+            let articleCount = dayStats.count
+            
+            // 時間情報を保持したまま結果に追加
+            if let latestTime = dayStats.first?.updatedAt {
+                result.append(ListElement(date: latestTime, totalReadCount: totalReadCount, totalLikeCount: totalLikeCount, totalCommentCount: totalCommentCount, articleCount: articleCount))
+            }
+        }
+        
+        result.sort { $0.date > $1.date }
+        
+        return result
+    }
+    
+//    private func handleGetStatsError(_ error: Error) {
+//        print(error)
+//        let title: String
+//        let detail: String
+//        
+//        switch error {
+//        case NAError.network(_), NAError.decoding(_):
+//            let naError = error as! NAError
+//            title = "取得エラー"
+//            detail = naError.userMessage
+//            
+//        case NAError.auth(_):
+//            let naError = error as! NAError
+//            title = "認証エラー"
+//            detail = naError.userMessage
+//            
+//        default:
+//            title = "不明なエラー"
+//            detail = "統計情報の取得中に不明なエラーが発生しました。\n\(error.localizedDescription)"
+//        }
+//        
+//        alertMessage = (title: title, detail: detail)
+//        isShowAlert = true
+//    }
+
+}
+
+struct ListElement {
+    let id = UUID()
+    let date: Date
+    let totalReadCount: Int
+    let totalLikeCount: Int
+    let totalCommentCount: Int
+    let articleCount: Int
 }
