@@ -10,8 +10,6 @@ import SwiftUI
 @available(iOS 14.0, *)
 public struct DisableAnimationModifier: ViewModifier {
     @Environment(\.isPresented) var isPresented: Bool
-    @StateObject var alertObject = AlertObject()
-    @State var isAlert = false
     
     public init() {
         UIView.setAnimationsEnabled(false)
@@ -32,7 +30,6 @@ public struct DisableAnimationModifier: ViewModifier {
             .onDisappear {
                 UIView.setAnimationsEnabled(true)
             }
-            .customAlert(for: alertObject, isPresented: $isAlert)
     }
 }
 

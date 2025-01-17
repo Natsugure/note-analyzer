@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-struct IsCompleteInitialSetupView: View {
-    @EnvironmentObject private var viewModel: ViewModel
+struct CompleteInitialSetupView: View {
     @State private var shouldShowMainView = false
     
     var body: some View {
@@ -34,13 +33,6 @@ struct IsCompleteInitialSetupView: View {
     }
 }
 
-//struct IsCompleteInitialSetupView_Previews: PreviewProvider {
-//    static let authManager = AuthenticationManager()
-//    static let networkService = NetworkService(authManager: authManager)
-//    static let realmManager = RealmManager()
-//    
-//    static var previews: some View {
-//        IsCompleteInitialSetupView()
-//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-//    }
-//}
+#Preview {
+    CompleteInitialSetupView()
+}

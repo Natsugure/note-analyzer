@@ -14,13 +14,16 @@ enum StatsType {
     case like
 }
 
+@MainActor
 final class DashboardViewModel: ObservableObject {
     @Published var listData: [ListElement] = []
     @Published var selectionChartType: StatsType = .view
     @Published var isPresentedProgressView = false
     @Published var progressValue = 0.0
+    
     @Published var isShowAlert = false
-    var alertMessage: (title: String, detail: String)?
+    @Published var alertEntity: AlertEntity?
+    
     private var token: NotificationToken?
     
     private let apiClient: NoteAPIClient
@@ -44,46 +47,36 @@ final class DashboardViewModel: ObservableObject {
         token?.invalidate()
     }
     
-    func getStats() async throws {
-        await MainActor.run {
-            var transaction = Transaction()
-            transaction.disablesAnimations = true
-            
-            withTransaction(transaction) {
-                print("transaction true")
-                isPresentedProgressView = true
-            }
-        }
+    func getStats() async {
+        isPresentedProgressView = true
 
         do {
             let (stats, publishedDateArray) = try await apiClient.requestFetch()
             
-            try await MainActor.run {
-                // TODO: DB書き込み処理のprogressValueはどう計算するか？コンテンツ数が少ないなら一瞬だが、1000記事を超えるような人だとどうか？
-                // TODO: RealmManager内のエラー処理が定まっていないので、RealmManager内で定義する。
-                try realmManager.updateStats(stats: stats, publishedDate: publishedDateArray)
-            }
+            // TODO: DB書き込み処理のprogressValueはどう計算するか？コンテンツ数が少ないなら一瞬だが、1000記事を超えるような人だとどうか？
+            // TODO: RealmManager内のエラー処理が定まっていないので、RealmManager内で定義する。
+            try realmManager.updateStats(stats: stats, publishedDate: publishedDateArray)
             
-            await MainActor.run {
-                var transaction = Transaction()
-                transaction.disablesAnimations = true
-                
-                withTransaction(transaction) {
-                    print("transaction false")
-                    isPresentedProgressView = false
-                }
-            }
+            isPresentedProgressView = false
+            
+            // Task.sleepで処理に間を空けないと、ProgressViewのTransaction.disablesAnimationが機能しない。
+            // Viewの更新とStateObjectのobjectWillChangeがコンフリクトすると無効になる？
+            try? await Task.sleep(for: .seconds(0.1))
+            
+            alertEntity = .init(singleButtonAlert: "取得完了", message: "統計情報の取得が完了しました。")
+            
+//            alertEntity = .single(
+//                title: "取得完了",
+//                message: "統計情報の取得が完了しました。",
+//                button: AlertEntity.AlertButton(text: "OK")
+//            )
+//            
+//            isShowAlert = true
         } catch {
-            await MainActor.run {
-                var transaction = Transaction()
-                transaction.disablesAnimations = true
-                
-                withTransaction(transaction) {
-                    isPresentedProgressView = false
-                }
-            }
+            isPresentedProgressView = false
             
-            throw error
+            try? await Task.sleep(for: .seconds(0.1))
+            handleGetStatsError(error)
         }
     }
     
@@ -141,31 +134,32 @@ final class DashboardViewModel: ObservableObject {
         return result
     }
     
-//    private func handleGetStatsError(_ error: Error) {
-//        print(error)
-//        let title: String
-//        let detail: String
-//        
-//        switch error {
-//        case NAError.network(_), NAError.decoding(_):
-//            let naError = error as! NAError
-//            title = "取得エラー"
-//            detail = naError.userMessage
-//            
-//        case NAError.auth(_):
-//            let naError = error as! NAError
-//            title = "認証エラー"
-//            detail = naError.userMessage
-//            
-//        default:
-//            title = "不明なエラー"
-//            detail = "統計情報の取得中に不明なエラーが発生しました。\n\(error.localizedDescription)"
-//        }
-//        
-//        alertMessage = (title: title, detail: detail)
+    private func handleGetStatsError(_ error: Error) {
+        print(error)
+        let title: String
+        let detail: String
+        
+        switch error {
+        case NAError.network(_), NAError.decoding(_):
+            let naError = error as! NAError
+            title = "取得エラー"
+            detail = naError.userMessage
+            
+        case NAError.auth(_):
+            let naError = error as! NAError
+            title = "認証エラー"
+            detail = naError.userMessage
+            
+        default:
+            title = "不明なエラー"
+            detail = "統計情報の取得中に不明なエラーが発生しました。\n\(error.localizedDescription)"
+        }
+        
+        alertEntity = .init(singleButtonAlert: title, message: detail)
+        
+//        alertEntity = AlertEntity(title: title, message: detail, button: .single())
 //        isShowAlert = true
-//    }
-
+    }
 }
 
 struct ListElement {

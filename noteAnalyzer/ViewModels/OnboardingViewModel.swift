@@ -13,6 +13,7 @@ class OnboardingViewModel: ObservableObject {
     @Published var isPresentedAuthWebView = false
     @Published var shouldShowInitialSetupView = false
     @Published var isShowAlert = false
+    @Published var alertEntity: AlertEntity?
     
     private let authManager: AuthenticationProtocol
     private var authWebViewModel: AuthWebViewModel?

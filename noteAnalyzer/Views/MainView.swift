@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MainView: View {
     @State var selectedToolBar = 1
-    @StateObject var alertObject = AlertObject()
 //    @State private var isPresentedProgressView = false
     let apiClient: NoteAPIClient
     let realmManager: RealmManager

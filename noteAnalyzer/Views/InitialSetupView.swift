@@ -9,11 +9,9 @@ import SwiftUI
 
 struct InitialSetupView: View {
     @StateObject var viewModel: InitialSetupViewModel
-    @StateObject private var alertObject = AlertObject()
     @State private var isPresentedProgressView = false
     @State private var shouldShowLoginCredentialMismatchView = false
     @State private var shouldShowIsCompleteInitialSetupView = false
-    @State var isShowAlert = false
     
     var body: some View {
         ZStack {
@@ -66,10 +64,9 @@ struct InitialSetupView: View {
             }
         }
         .navigationDestination(isPresented: $shouldShowIsCompleteInitialSetupView) {
-            IsCompleteInitialSetupView()
+            CompleteInitialSetupView()
         }
         .navigationBarBackButtonHidden(true)
-        .customAlert(for: alertObject, isPresented: $isShowAlert)
     }
     
     private func verifyLoginConsistency() async {

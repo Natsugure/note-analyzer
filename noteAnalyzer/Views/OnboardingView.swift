@@ -9,13 +9,10 @@ import SwiftUI
 
 struct OnboardingView: View {
     @StateObject var viewModel: OnboardingViewModel
-    @StateObject var alertObject = AlertObject()
     
     @State private var showTermModal = false
     @State private var showPrivacyModal = false
     @State private var shouldShowInitialSetupView = false
-    @State private var agreedToTerms = false
-//    @State private var isShowAlert = false
     @State private var isShowProgressView = false
     
     var body: some View {
@@ -117,17 +114,16 @@ struct OnboardingView: View {
                 print("shouldShowInitialSetupView: \(viewModel.shouldShowInitialSetupView)")
             }
             .navigationBarBackButtonHidden(true)
-            .customAlert(for: alertObject, isPresented: $viewModel.isShowAlert)
+            .customAlert(object: $viewModel.alertEntity)
         }
     }
     
     private func showFailAuthAlert() async {
         await MainActor.run {
-            alertObject.showSingle(
-                isPresented: $viewModel.isShowAlert,
-                title: "認証失敗",
-                message: "認証情報の取得に失敗しました。再度お試しください。"
-            )
+//            alertObject.showSingle(
+//                title: "認証失敗",
+//                message: "認証情報の取得に失敗しました。再度お試しください。"
+//            )
         }
     }
 }

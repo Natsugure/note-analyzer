@@ -16,10 +16,7 @@ import RealmSwift
 
 struct DashboardView: View {
     @StateObject var viewModel: DashboardViewModel
-    @StateObject var alertObject = AlertObject()
     @State private var path = [Item]()
-    
-//    var statsFormatter = StatsFormatter()
 
     var body: some View {
         GeometryReader { geometry in
@@ -43,21 +40,25 @@ struct DashboardView: View {
                     BackgroundClearProgressBarView(progressValue: $viewModel.progressValue)
                         .presentationBackground(Color.clear)
                 }
+                .transaction(value: viewModel.isPresentedProgressView) { transaction in
+                    transaction.disablesAnimations = true
+                }
                 .navigationTitle("全記事統計")
                 .navigationBarItems(leading: EmptyView())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     //更新ボタン
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: { Task { await getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
+                        Button(action: { Task { await viewModel.getStats() } }, label: { Image(systemName: "arrow.counterclockwise") })
                     }
                 }
             }
-            .customAlert(for: alertObject, isPresented: $viewModel.isShowAlert)
+            .customAlert(object: $viewModel.alertEntity)
         }
     }
     
     ///取得日ごとの統計情報を表示する`List`
+    @MainActor
     private var statsList: some View {
         List {
             Section(
@@ -90,45 +91,6 @@ struct DashboardView: View {
             }
         }
         .listStyle(PlainListStyle())
-    }
-    
-    //MARK: - The methods of connect to ViewModel
-    private func getStats() async {
-        do {
-            try await viewModel.getStats()
-            
-            alertObject.showSingle(
-                isPresented: $viewModel.isShowAlert,
-                title: "取得完了",
-                message:  "統計情報の取得が完了しました。"
-            )
-        } catch {
-            handleGetStatsError(error)
-        }
-    }
-    
-    private func handleGetStatsError(_ error: Error) {
-        print(error)
-        let title: String
-        let detail: String
-        
-        switch error {
-        case NAError.network(_), NAError.decoding(_):
-            let naError = error as! NAError
-            title = "取得エラー"
-            detail = naError.userMessage
-            
-        case NAError.auth(_):
-            let naError = error as! NAError
-            title = "認証エラー"
-            detail = naError.userMessage
-            
-        default:
-            title = "不明なエラー"
-            detail = "統計情報の取得中に不明なエラーが発生しました。\n\(error.localizedDescription)"
-        }
-        
-        alertObject.showSingle(isPresented: $viewModel.isShowAlert, title: title, message: detail)
     }
 }
 
