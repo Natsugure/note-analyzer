@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CompleteInitialSetupView: View {
     @State private var shouldShowMainView = false
+    @Environment(\.SetIsPresentedOnboardingView) var setIsPresentedOnboardingView
     
     var body: some View {
         VStack {
@@ -21,7 +22,7 @@ struct CompleteInitialSetupView: View {
             Text("ダッシュボードの取得が完了しました！")
             Spacer()
             Button("メイン画面へ移動する") {
-                AppConfig.isAuthenticationConfigured = true
+                setIsPresentedOnboardingView(false)
             }
             .frame(maxWidth: .infinity, minHeight: 50)
             .background(Color.blue)

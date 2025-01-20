@@ -28,7 +28,7 @@ enum NAError: LocalizedError {
             switch self {
             case .statsNotUpdated: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。"
             case .networkNotConnected: "ネットワークに接続されていません。\n端末の接続状態をご確認ください。"
-            case .unknownNetworkError(let error): "ネットワーク上で不明なエラーが発生しました。\n 時間が経ってから再度お試しください。"
+            case .unknownNetworkError(_): "ネットワーク上で不明なエラーが発生しました。\n 時間が経ってから再度お試しください。"
             }
         }
     }

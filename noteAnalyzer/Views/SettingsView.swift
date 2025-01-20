@@ -10,7 +10,8 @@ import RealmSwift
 
 struct SettingsView: View {
     @StateObject var viewModel: SettingsViewModel
-
+    @Binding var selectedTabBarIndex: Int
+    @Environment(\.SetIsPresentedOnboardingView) var isPresentedOnboardingView
     @Environment(\.openURL) private var openURL
     @State var path = NavigationPath()
     
@@ -51,6 +52,10 @@ struct SettingsView: View {
                     Task {
                         await viewModel.changeDemoModeKey()
                     }
+                }
+                .onChange(of: viewModel.shouldShowOnboardingView) {
+                    selectedTabBarIndex = 1
+                    isPresentedOnboardingView(true)
                 }
 #endif
             }

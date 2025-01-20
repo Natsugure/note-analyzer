@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage(AppConfig.$isAuthenticationConfigured.key.rawValue) private var isAuthenticationConfigured = false
-    
     private let authManager: AuthenticationProtocol
     private let networkService: NetworkServiceProtocol
     private let apiClient: NoteAPIClient
     private let realmManager: RealmManager
+    
+    @State private var isLoading: Bool = true
     
     init(authManager: AuthenticationProtocol, networkService: NetworkServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
         self.authManager = authManager
@@ -23,12 +23,23 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack {
-            // TODO: フラグを使ったif文ではなく、MainViewの上にOnboardingViewをfullScreenCoveredなモーダル表示にする
-            if !isAuthenticationConfigured {
-                OnboardingView(viewModel: OnboardingViewModel(authManager: authManager, apiClient: apiClient, realmManager: realmManager))
-            } else {
-                MainView(apiClient: apiClient, realmManager: realmManager)
+        ZStack {
+            MainTabView(authManager: authManager, apiClient: apiClient, realmManager: realmManager)
+                .zIndex(1)
+            
+            if isLoading {
+                // TODO: ただの四角形ではなく、いい感じのロゴを表示する
+                Rectangle()
+                    .fill(Color.white)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .zIndex(3)
+            }
+        }
+        .task {
+            try? await Task.sleep(for: .seconds(1.5))
+            withAnimation {
+                isLoading = false
             }
         }
     }

@@ -11,6 +11,7 @@ import Foundation
 final class SettingsViewModel: ObservableObject {
     @Published var alertEntity: AlertEntity?
     @Published var url: URL?
+    @Published var shouldShowOnboardingView = false
     
     private let apiClient: NoteAPIClient
     private let realmManager: RealmManager
@@ -54,7 +55,8 @@ final class SettingsViewModel: ObservableObject {
                 singleButtonAlert: "消去完了",
                 message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。",
                 action: {
-                    AppConfig.isAuthenticationConfigured = false
+                    AppConfig.isCompletedInitialSetup = false
+                    self.shouldShowOnboardingView = true
                 }
             )
         } catch {
@@ -111,9 +113,8 @@ final class SettingsViewModel: ObservableObject {
             actionText: "再起動する",
             action: {
                 Task {
-                    // TODO: そもそもOnboardingViewとMainViewの切り替えをZStackで行わないでfullCoverSheetにすれば、この不安定な切り替えも必要ないはず。
-                    AppConfig.isAuthenticationConfigured = false
-                    try? await Task.sleep(for: .seconds(0.5))
+                    AppConfig.isCompletedInitialSetup = false
+                    try? await Task.sleep(for: .seconds(1))
                     exit(0)
                 }
             }

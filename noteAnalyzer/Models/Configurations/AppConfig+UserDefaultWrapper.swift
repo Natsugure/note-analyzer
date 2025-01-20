@@ -5,7 +5,7 @@
 //  Created by Natsugure on 2024/12/22.
 //
 
-import Foundation
+import SwiftUICore
 
 @propertyWrapper
 struct UserDefaultWrapper<T: UserDefaultCompatible> {
@@ -50,7 +50,7 @@ extension UserDefaultWrapper {
 
 struct AppConfig {
     @UserDefaultWrapper(key: .authenticationConfigured, defaultValue: false)
-    static var isAuthenticationConfigured: Bool
+    static var isCompletedInitialSetup: Bool
     
     @UserDefaultWrapper(key: .contentsCount, defaultValue: 0)
     static var contentsCount: Int

@@ -7,35 +7,8 @@
 
 import SwiftUI
 
-//enum AlertEntity {
-//    struct AlertButton {
-//        let text: String
-//        let action: (() -> Void)?
-//        let role: ButtonRole?
-//        
-//        init(text: String, action: (() -> Void)? = nil, role: ButtonRole? = nil) {
-//            self.text = text
-//            self.action = action
-//            self.role = role
-//        }
-//    }
-//    
-//    case single(
-//        title: String,
-//        message: String,
-//        button: AlertButton = AlertButton(text: "OK")
-//    )
-//    
-//    case double(
-//        title: String,
-//        message: String,
-//        actionButton: AlertButton = AlertButton(text: "OK"),
-//        cancelButton: AlertButton = AlertButton(text: "キャンセル")
-//    )
-//}
-
 struct AlertEntity {
-    enum AlertStyle {
+    enum ActionButtonStyle {
         case single(text: String, action: (() -> Void)?, role: ButtonRole?)
         case double(actionText: String, action: (()-> Void)?, actionRole: ButtonRole?, calcelAction: (() -> Void)?, cancelRole: ButtonRole?)
     }
@@ -43,12 +16,12 @@ struct AlertEntity {
     let id = UUID()
     let title: String
     let message: String
-    let alertStyle: AlertStyle
+    let buttonStyle: ActionButtonStyle
     
     init(singleButtonAlert title: String, message: String?, actionText: String? = nil, action: (() -> Void)? = nil, role: ButtonRole? = nil) {
         self.title = title
         self.message = message ?? ""
-        self.alertStyle = .single(text: actionText ?? "OK", action: action, role: role)
+        self.buttonStyle = .single(text: actionText ?? "OK", action: action, role: role)
     }
     
     init(doubleButtonAlert title: String, message: String?, actionText: String? = nil, action: (() -> Void)? = nil, actionRole: ButtonRole? = nil, cancelAction: (() -> Void)? = nil, cancelRole: ButtonRole? = nil) {
@@ -64,7 +37,7 @@ struct AlertEntity {
         
         self.title = title
         self.message = message ?? ""
-        self.alertStyle = .double(
+        self.buttonStyle = .double(
             actionText: actionText ?? "OK",
             action: action,
             actionRole: actionRole,
@@ -90,7 +63,7 @@ struct CustomAlertView: ViewModifier {
             isPresented: $isPresented,
             presenting: object,
             actions: {
-                ActionView(entity: $0.alertStyle)
+                ActionView(buttonStyle: $0.buttonStyle)
             }, message: {
                 Text($0.message)
             }
@@ -100,12 +73,12 @@ struct CustomAlertView: ViewModifier {
             isPresented = true
         }
     }
-
+    
     struct ActionView: View {
-        let entity: AlertEntity.AlertStyle
+        let buttonStyle: AlertEntity.ActionButtonStyle
         
         var body: some View {
-            switch entity {
+            switch buttonStyle {
             case let .single(text, action, role):
                 Button(text, role: role, action: action ?? {})
                 
@@ -115,39 +88,6 @@ struct CustomAlertView: ViewModifier {
             }
         }
     }
-    
-    //    func body(content: Content) -> some View {
-    //        switch entity {
-    //        case .single(let title, let message, let button):
-    //            content.alert(
-    //                title,
-    //                isPresented: $isPresented,
-    //                presenting: entity,
-    //                actions: { _ in
-    //                    Button(button.text, action: button.action ?? {})
-    //                }, message: {_ in
-    //                    Text(message)
-    //                }
-    //            )
-    //
-    //        case .double(let title, let message, let actionButton, let cancelButton):
-    //            content.alert(
-    //                title,
-    //                isPresented: $isPresented,
-    //                presenting: entity,
-    //                actions: { _ in
-    //                    Button("キャンセル", role: cancelButton.role, action: cancelButton.action ?? {})
-    //                    Button(actionButton.text, role: actionButton.role, action: actionButton.action ?? {})
-    //                }, message: { _ in
-    //                    Text(message)
-    //                }
-    //            )
-    //
-    //        case .none:
-    //            content
-    //
-    //            }
-    //    }
 }
 
 extension View {

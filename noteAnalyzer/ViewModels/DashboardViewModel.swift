@@ -75,7 +75,7 @@ final class DashboardViewModel: ObservableObject {
         } catch {
             isPresentedProgressView = false
             
-            try? await Task.sleep(for: .seconds(0.1))
+//            try? await Task.sleep(for: .seconds(0.1))
             handleGetStatsError(error)
         }
     }
