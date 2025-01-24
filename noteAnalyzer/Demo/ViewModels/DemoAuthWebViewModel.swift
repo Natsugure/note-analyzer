@@ -8,15 +8,10 @@
 import SwiftUI
 
 class DemoAuthWebViewModel: AuthWebViewModel {
-    override init(authManager: AuthenticationProtocol) {
-        super.init(authManager: authManager)
+    override init() {
+        super.init()
         
-        Task {
-            await checkAuthentication()
-        }
-    }
-    
-    override func checkAuthentication() async {
-        super.showInitialSetupView()
+        super.didFinishLogin = true
+        super.isPresented = false
     }
 }

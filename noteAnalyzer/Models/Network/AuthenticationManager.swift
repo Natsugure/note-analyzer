@@ -15,30 +15,29 @@ enum KeychainError: Error {
     case unhandledError(Error)
 }
 
-protocol AuthenticationProtocol {
-    func isValidAuthCookies(cookies: [HTTPCookie]) -> Bool
-    func getCookies() -> [HTTPCookie]
-    func clearAuthentication() throws
-}
+//protocol AuthenticationProtocol {
+//    func saveAuthCookies(cookies: [HTTPCookie]) throws
+//    func getCookies() -> [HTTPCookie]
+//    func clearAuthentication() throws
+//}
 
-class AuthenticationManager: ObservableObject, AuthenticationProtocol {
+class AuthenticationManager {
     private var cookies: [HTTPCookie] = []
     
     init() {
         cookies = loadCookiesFromKeychain()
     }
     
-    func isValidAuthCookies(cookies: [HTTPCookie]) -> Bool {
+    func saveAuthCookies(cookies: [HTTPCookie]) throws {
         let noteCookies = cookies.filter { $0.domain.contains("note.com") }
         if !noteCookies.isEmpty {
             self.saveCookiesToKeychain(cookies: noteCookies)
             print("認証成功: \(noteCookies.count) cookies found")
             
-            return true
         } else {
             print("認証失敗: No note.com cookies found")
             
-            return false
+            throw NAError.auth(.authCookiesNotFound)
         }
     }
     

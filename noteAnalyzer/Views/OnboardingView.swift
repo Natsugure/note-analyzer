@@ -10,11 +10,6 @@ import SwiftUI
 struct OnboardingView: View {
     @StateObject var viewModel: OnboardingViewModel
     
-    @State private var showTermModal = false
-    @State private var showPrivacyModal = false
-    @State private var shouldShowInitialSetupView = false
-    @State private var isShowProgressView = false
-    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -49,19 +44,19 @@ struct OnboardingView: View {
                             
                             HStack {
                                 Button("利用規約") {
-                                    showTermModal = true
+                                    viewModel.showTermModal = true
                                 }
                                 .foregroundColor(.blue)
-                                .sheet(isPresented: $showTermModal) {
-                                    TermAndPolicyView(isShowModal: $showTermModal, fileName: "term_of_service")
+                                .sheet(isPresented: $viewModel.showTermModal) {
+                                    TermAndPolicyView(isShowModal: $viewModel.showTermModal, fileName: "term_of_service")
                                 }
                                 Text("と")
                                 Button("プライバシーポリシー") {
-                                    showPrivacyModal = true
+                                    viewModel.showPrivacyModal = true
                                 }
                                 .foregroundColor(.blue)
-                                .sheet(isPresented: $showPrivacyModal) {
-                                    TermAndPolicyView(isShowModal: $showPrivacyModal, fileName: "privacy_policy")
+                                .sheet(isPresented: $viewModel.showPrivacyModal) {
+                                    TermAndPolicyView(isShowModal: $viewModel.showPrivacyModal, fileName: "privacy_policy")
                                 }
                             }
                             
@@ -76,7 +71,11 @@ struct OnboardingView: View {
                         .background(Color.blue)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
-                        .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
+                        .sheet(isPresented: $viewModel.isPresentedAuthWebView, onDismiss: {
+                            Task {
+                                await viewModel.checkAuthentication()
+                            }
+                        }) {
                             AuthWebView(viewModel: viewModel.makeAuthWebViewModel())
                                 .interactiveDismissDisabled()
                         }
@@ -84,29 +83,11 @@ struct OnboardingView: View {
                     .padding()
                 }
                 
-                if isShowProgressView {
+                if viewModel.isPresentedProgressView {
                     Color.black.opacity(0.7).ignoresSafeArea()
                     ProgressCircularView()
                 }
             }
-//            .onChange(of: viewModel.shouldShowInitialSetupView) {
-//                // TODO: 今のままだと、showAuthWebViewがfalseになった時点で処理が完了していなかったら、認証できていなかったことになってしまう。
-//                if viewModel.isAuthenticated && !newValue {
-//                    shouldShowInitialSetupView.toggle()
-//                } else if !viewModel.isAuthenticated && !newValue {
-//                    Task {
-//                        // すぐにAlertを表示しようとすると正常に動作しないため遅延を追加
-//                        try? await Task.sleep(nanoseconds: 500_000_000)
-//                        await showFailAuthAlert()
-//                    }
-//                }
-//            }
-//            .onReceive(viewModel.$isAuthenticated) { isAuthenticated in
-//                if isAuthenticated {
-//                    isShowProgressView = false
-//                    shouldShowInitialSetupView.toggle()
-//                }
-//            }
             .navigationDestination(isPresented: $viewModel.shouldShowInitialSetupView) {
                 InitialSetupView(viewModel: viewModel.makeInitialSetupViewModel())
             }
@@ -115,15 +96,6 @@ struct OnboardingView: View {
             }
             .navigationBarBackButtonHidden(true)
             .customAlert(object: $viewModel.alertEntity)
-        }
-    }
-    
-    private func showFailAuthAlert() async {
-        await MainActor.run {
-//            alertObject.showSingle(
-//                title: "認証失敗",
-//                message: "認証情報の取得に失敗しました。再度お試しください。"
-//            )
         }
     }
 }
@@ -162,17 +134,15 @@ struct TermAndPolicyView: View {
     }
 }
 
-//struct OnboardingView_Previews: PreviewProvider {
-//    static let mockAuthManager = MockAuthenticationManager()
-//    static var viewModel = OnboardingViewModel(authManager: mockAuthManager)
-////    static let networkService = NetworkService(authManager: authManager)
-////    static let realmManager = RealmManager()
-////    static let apiFetcher = NoteAPIFetcher(networkService: networkService)
-//    
-//    static var previews: some View {
-//        OnboardingView(viewModel: viewModel, alertObject: AlertObject())
-//            .environmentObject(
-//                OnboardingViewModel(authManager: mockAuthManager)
-//            )
-//    }
-//}
+struct OnboardingView_Previews: PreviewProvider {
+    static let mockAuthManager = MockAuthenticationService()
+    static let provider = MockDataProvider()
+    static let realmManager = RealmManager()
+    static let networkService = MockNetworkService(provider: provider)
+    static let apiFetcher = NoteAPIClient(authManager: mockAuthManager, networkService: networkService)
+    static var viewModel = OnboardingViewModel(authManager: mockAuthManager, apiClient: apiFetcher, realmManager: realmManager)
+    
+    static var previews: some View {
+        OnboardingView(viewModel: viewModel)
+    }
+}

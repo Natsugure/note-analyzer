@@ -8,49 +8,32 @@
 import SwiftUI
 import WebKit
 
+@MainActor
 class AuthWebViewModel: ObservableObject, WebViewModelProtocol {
     @Published var isPresented = true
-    @Published var showLoadingView = false
-    @Published var shouldShowInitialSetupView = false
-    @Published var error: NAError?
-    @Published var urlString: String = AppConstants.URL.authUrl {
+    @Published var didFinishLogin = false
+    var urlString: String = "" {
         didSet {
             if urlString == AppConstants.URL.topPage {
-                Task {
-                    await checkAuthentication()
-                }
+                didFinishLogin = true
+                isPresented = false
             }
         }
     }
     
     private(set) var webView: WKWebView
-    private let authManager: AuthenticationProtocol
     
-    init(authManager: AuthenticationProtocol) {
-        self.authManager = authManager
+    init() {
         self.webView = WKWebView()
+        
+        loadAuthUrl()
+    }
+    
+    func loadAuthUrl() {
+        let urlString = "https://note.com/login"
         
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: url))
         }
-    }
-    
-    func checkAuthentication() async {
-        let allCookies = await WKWebsiteDataStore.default().httpCookieStore.allCookies()
-        
-        showLoadingView = true
-        
-        if authManager.isValidAuthCookies(cookies: allCookies) {
-            showInitialSetupView()
-        } else {
-            error = .auth(.authCookiesNotFound)
-        }
-        
-        showLoadingView = false
-    }
-    
-    func showInitialSetupView() {
-        shouldShowInitialSetupView = true
-        isPresented = false
     }
 }

@@ -82,6 +82,7 @@ struct APIErrorResponse: Codable {
 }
 
 struct APIUserDetailResponse: Codable {
+    let id: Int
     let noteCount: Int
 }
 
@@ -137,5 +138,22 @@ enum DataOrError: Codable {
         case .error(let message):
             try container.encode(message)
         }
+    }
+}
+
+struct APISearchUserResponse: Codable {
+    let data: SearchUserData
+    
+    struct SearchUserData: Codable {
+        let users: UserList
+    }
+    
+    struct UserList: Codable {
+        let contents: [User]
+        let totalCount: Int
+    }
+    
+    struct User: Codable {
+        let id: Int
     }
 }

@@ -24,6 +24,7 @@
 		1A4E589B2C8B37BC009472A1 /* CompleteInitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4E589A2C8B37BC009472A1 /* CompleteInitialSetupView.swift */; };
 		1A5852CA2C7AFFD200EDA5E2 /* AuthWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5852C92C7AFFD200EDA5E2 /* AuthWebView.swift */; };
 		1A5852CE2C7C060600EDA5E2 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5852CD2C7C060600EDA5E2 /* InitialSetupView.swift */; };
+		1A7366D92D43334A0056337E /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7366D82D43334A0056337E /* AuthenticationService.swift */; };
 		1A8E9C792C5F081300A97D31 /* DailyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8E9C782C5F081300A97D31 /* DailyView.swift */; };
 		1A8FC21C2C718BD800AA5A03 /* CustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8FC21B2C718BD800AA5A03 /* CustomAlertView.swift */; };
 		1A94E5AF2D2E739C002BC7B2 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5AE2D2E739C002BC7B2 /* OnboardingViewModel.swift */; };
@@ -39,7 +40,7 @@
 		1A94E5CE2D3667C4002BC7B2 /* InitialSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E5CD2D3667BF002BC7B2 /* InitialSetupViewModel.swift */; };
 		1A94E71C2D389DC8002BC7B2 /* DashboardListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E71B2D389DC8002BC7B2 /* DashboardListRow.swift */; };
 		1A94E71E2D38A8DD002BC7B2 /* DailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A94E71D2D38A8D8002BC7B2 /* DailyViewModel.swift */; };
-		1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */; };
+		1AA5AD832CCB343F007BDBDE /* MockAuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD822CCB343F007BDBDE /* MockAuthenticationService.swift */; };
 		1AA5AD852CCB34C6007BDBDE /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */; };
 		1AC95B242C4CAA2E0049E6AA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */; };
 		1AC95B272C4CC26A0049E6AA /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC95B262C4CC26A0049E6AA /* RealmManager.swift */; };
@@ -94,6 +95,7 @@
 		1A4E589A2C8B37BC009472A1 /* CompleteInitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteInitialSetupView.swift; sourceTree = "<group>"; };
 		1A5852C92C7AFFD200EDA5E2 /* AuthWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWebView.swift; sourceTree = "<group>"; };
 		1A5852CD2C7C060600EDA5E2 /* InitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupView.swift; sourceTree = "<group>"; };
+		1A7366D82D43334A0056337E /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 		1A7E450B2C64590A002A4B82 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1A8E9C782C5F081300A97D31 /* DailyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyView.swift; sourceTree = "<group>"; };
 		1A8FC21B2C718BD800AA5A03 /* CustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertView.swift; sourceTree = "<group>"; };
@@ -110,7 +112,7 @@
 		1A94E5CD2D3667BF002BC7B2 /* InitialSetupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupViewModel.swift; sourceTree = "<group>"; };
 		1A94E71B2D389DC8002BC7B2 /* DashboardListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListRow.swift; sourceTree = "<group>"; };
 		1A94E71D2D38A8D8002BC7B2 /* DailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyViewModel.swift; sourceTree = "<group>"; };
-		1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationManager.swift; sourceTree = "<group>"; };
+		1AA5AD822CCB343F007BDBDE /* MockAuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationService.swift; sourceTree = "<group>"; };
 		1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
 		1AC95B232C4CAA2E0049E6AA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1AC95B262C4CC26A0049E6AA /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 			children = (
 				1AE3CA462C3B649500C30A89 /* APIResponses.swift */,
 				1A25C67E2C4770C400403215 /* AuthenticationManager.swift */,
+				1A7366D82D43334A0056337E /* AuthenticationService.swift */,
 				1AE3CA442C3B63CA00C30A89 /* NetworkService.swift */,
 				1ADA6E0A2D2B76AE00227F42 /* NoteAPIClient.swift */,
 				1A94E5BF2D3349E3002BC7B2 /* NoteDataTransformer.swift */,
@@ -248,7 +251,7 @@
 		1AA5AD7F2CCB33F6007BDBDE /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				1AA5AD822CCB343F007BDBDE /* MockAuthenticationManager.swift */,
+				1AA5AD822CCB343F007BDBDE /* MockAuthenticationService.swift */,
 				1AA5AD842CCB34C6007BDBDE /* MockNetworkService.swift */,
 				1A29BAEC2D22813C00FD6AB3 /* MockDataProvider.swift */,
 				1A94E5C52D3356E3002BC7B2 /* MockNoteAPIClient.swift */,
@@ -469,7 +472,8 @@
 				1ADA6E052D2A270200227F42 /* DateUtils.swift in Sources */,
 				1A4D8AC02CBBA18200BF353A /* NAError.swift in Sources */,
 				1A29BAED2D22814500FD6AB3 /* MockDataProvider.swift in Sources */,
-				1AA5AD832CCB343F007BDBDE /* MockAuthenticationManager.swift in Sources */,
+				1A7366D92D43334A0056337E /* AuthenticationService.swift in Sources */,
+				1AA5AD832CCB343F007BDBDE /* MockAuthenticationService.swift in Sources */,
 				1AE3CA472C3B649500C30A89 /* APIResponses.swift in Sources */,
 				1A94E5AF2D2E739C002BC7B2 /* OnboardingViewModel.swift in Sources */,
 				1A2AC3AC2C5496DC0046C921 /* Constants.swift in Sources */,

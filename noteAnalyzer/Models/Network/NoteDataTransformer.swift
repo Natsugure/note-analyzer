@@ -14,23 +14,29 @@ struct NoteDataTransformer {
         return decoder
     }()
     
-    func parseUserDetailJSON(_ data: Data) throws -> APIResponse<APIUserDetailResponse> {
-        return try decoder.decode(APIResponse<APIUserDetailResponse>.self, from: data)
-    }
+//    func parseUserDetailJSON(_ data: Data) throws -> APIResponse<APIUserDetailResponse> {
+//        return try decoder.decode(APIResponse<APIUserDetailResponse>.self, from: data)
+//    }
+//    
+//    func parseStatsJSON(_ data: Data) throws -> APIStatsResponse {
+//        let results: APIStatsResponse = try decodeAPIResponse(data)
+//        
+//        return results
+//    }
+//    
+//    func parseContentsJSON(_ data: Data) throws -> APIContentsResponse {
+//        let results: APIContentsResponse = try decodeAPIResponse(data)
+//        
+//        return results
+//    }
+//    
+//    func parseSearchUserJSON(_ data: Data) throws -> APISearchUserResponse {
+//        let results: APISearchUserResponse = try decodeAPIResponse(data)
+//        
+//        return results
+//    }
     
-    func parseStatsJSON(_ data: Data) throws -> APIStatsResponse {
-        let results: APIStatsResponse = try decodeAPIResponse(data)
-        
-        return results
-    }
-    
-    func parseContentsJSON(_ data: Data) throws -> APIContentsResponse {
-        let results: APIContentsResponse = try decodeAPIResponse(data)
-        
-        return results
-    }
-    
-    private func decodeAPIResponse<T: Decodable>(_ data: Data) throws -> T {
+    func decodeAPIResponse<T: Decodable>(_ data: Data) throws -> T {
         do {
             // まず、APIStatsResponseとしてデコードを試みる
             return try decoder.decode(T.self, from: data)

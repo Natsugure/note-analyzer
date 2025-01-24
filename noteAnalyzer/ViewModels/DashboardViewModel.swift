@@ -65,17 +65,10 @@ final class DashboardViewModel: ObservableObject {
             
             alertEntity = .init(singleButtonAlert: "取得完了", message: "統計情報の取得が完了しました。")
             
-//            alertEntity = .single(
-//                title: "取得完了",
-//                message: "統計情報の取得が完了しました。",
-//                button: AlertEntity.AlertButton(text: "OK")
-//            )
-//            
-//            isShowAlert = true
         } catch {
             isPresentedProgressView = false
             
-//            try? await Task.sleep(for: .seconds(0.1))
+            try? await Task.sleep(for: .seconds(0.1))
             handleGetStatsError(error)
         }
     }
@@ -156,9 +149,6 @@ final class DashboardViewModel: ObservableObject {
         }
         
         alertEntity = .init(singleButtonAlert: title, message: detail)
-        
-//        alertEntity = AlertEntity(title: title, message: detail, button: .single())
-//        isShowAlert = true
     }
 }
 

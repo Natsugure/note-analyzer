@@ -48,8 +48,8 @@ enum NAError: LocalizedError {
         
         var userMessage: String {
             switch self {
-            case .authenticationFailed, .loginCredentialMismatch: "noteへのログインに失敗しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
-                
+            case .authenticationFailed: "noteへのログインに失敗しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
+            case .loginCredentialMismatch: "異なるアカウントでのログインが検知されました。\n当初ログインしたアカウントで認証してください。"
             case .authCookiesNotFound: "認証情報の読込中にエラーが発生しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
             }
         }

@@ -30,7 +30,7 @@ struct MockNetworkService: MockableNetworkServiceProtocol {
     }
     
     /// 実際のAPIをフェッチする代わりに、URLに基づいた適切なモックデータを返す
-    func fetchData(url urlString: String) async throws -> Data {
+    func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data {
         let page = extractPageNumber(from: urlString)
         
         try await Task.sleep(nanoseconds: networkDelayNanoSec)
@@ -71,5 +71,6 @@ struct MockNetworkService: MockableNetworkServiceProtocol {
     func updateMockItems() {
         mockDataProvider.updateLastCalculatedAt()
         mockDataProvider.updateExistingItems()
+        mockDataProvider.generateNewMockItems()
     }
 }

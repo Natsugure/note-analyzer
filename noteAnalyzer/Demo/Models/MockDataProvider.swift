@@ -12,6 +12,7 @@ class MockDataProvider {
     private var lastCalculatedAt: Date
     private var mockItems: [MockItem] = []
     private var currentNoteCount = 0
+    private var mockUserId = 12345
     
     // モックデータの1アイテムを表す構造体
     private struct MockItem {
@@ -29,6 +30,7 @@ class MockDataProvider {
         let date = Date()
         // 即時更新できるように、イニシャライズした1時間前に設定
         lastCalculatedAt = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
+        generateNewMockItems()
     }
     
     /// デバイス内のデータをmockItemに変換し、サーバー(MockDataProvider)も同じ記事データを持っているようにする
@@ -63,7 +65,7 @@ class MockDataProvider {
         return result
     }
     
-    private func generateNewMockItems() {
+    func generateNewMockItems() {
         let newItemCount = Int.random(in: 1...3)
         for _ in 0..<newItemCount {
             currentNoteCount += 1
@@ -113,7 +115,7 @@ class MockDataProvider {
     
     func createMockContentsCountData(isSuccess: Bool) async -> Data {
         let mockData = isSuccess
-        ? APIResponse<APIUserDetailResponse>(data: .success(APIUserDetailResponse(noteCount: currentNoteCount)))
+        ? APIResponse<APIUserDetailResponse>(data: .success(APIUserDetailResponse(id: mockUserId, noteCount: currentNoteCount)))
             : APIResponse<APIUserDetailResponse>(data: .error("リソースが見つかりません"))
         
         return try! JSONEncoder().encode(mockData)
@@ -142,7 +144,6 @@ class MockDataProvider {
     /// モックデータ用の`lastCalculatedAt`を、今回更新分から1分進める。こうすることで、更新ボタンをまたすぐに押してもデータの取得ができる。
     func updateLastCalculatedAt() {
         lastCalculatedAt = Calendar.current.date(byAdding: .minute, value: 1, to: lastCalculatedAt)!
-        generateNewMockItems()
     }
     
     /// 既存のモックデータの統計ステータスを増加させる

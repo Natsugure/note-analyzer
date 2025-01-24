@@ -18,6 +18,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack(path: $path) {
             List {
+                Section("認証がうまくいかない場合は、こちらから再認証してください。") {
+                    Button("再認証") {
+                        Task {
+                            await viewModel.reauthorize()
+                        }
+                    }
+                }
+                
                 Section {
                     NavigationLink("利用規約", destination: MarkdownView(filename: "term_of_service"))
                     NavigationLink("プライバシーポリシー", destination: MarkdownView(filename: "privacy_policy"))
@@ -59,19 +67,36 @@ struct SettingsView: View {
                 }
 #endif
             }
+            .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
+                AuthWebView(viewModel: viewModel.makeAuthWebViewModel())
+                    .onDisappear {
+                        if viewModel.didFinishLoginOnAuthWebView {
+                            Task {
+                                await viewModel.checkAuthentication()
+                            }
+                        }
+                    }
+            }
             .customAlert(object: $viewModel.alertEntity)
         }
     }
 }
 
-//struct SettingsView_Previews: PreviewProvider {
-//    static let authManager = AuthenticationManager()
-//    static let networkService = NetworkService(authManager: authManager)
-//    static let realmManager = RealmManager()
-//    static let alertObject = AlertObject()
-//    
-//    static var previews: some View {
-//        SettingsView(alertObject: alertObject)
-//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-//    }
-//}
+struct SettingsView_Previews: PreviewProvider {
+    static let authService = MockAuthenticationService()
+    static let provider = MockDataProvider()
+    static let networkService = MockNetworkService(provider: provider)
+    static let apiClient = NoteAPIClient(authManager: authService, networkService: networkService)
+    static let realmManager = RealmManager()
+    
+    static var previews: some View {
+        SettingsView(
+            viewModel: SettingsViewModel(
+                authService: authService,
+                apiClient: apiClient,
+                realmManager: realmManager
+            ),
+            selectedTabBarIndex: .constant(2)
+        )
+    }
+}

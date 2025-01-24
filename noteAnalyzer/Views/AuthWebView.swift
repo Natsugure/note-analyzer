@@ -15,6 +15,15 @@ struct AuthWebView: View {
             VStack {
                 WrappedWebView(viewModel: viewModel)
             }
+            .fullScreenCover(isPresented: $viewModel.showLoadingView) {
+                ZStack {
+                    Rectangle()
+                        .fill(Color.white)
+                        .ignoresSafeArea()
+                    
+                    ProgressCircularView()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("キャンセル") {
@@ -29,13 +38,8 @@ struct AuthWebView: View {
 }
 
 //struct AuthWebView_Previews: PreviewProvider {
-//    static let authManager = AuthenticationManager()
-//    static let networkService = NetworkService(authManager: authManager)
-//    static let realmManager = RealmManager()
-//    
 //    static var previews: some View {
-//        AuthWebView()
-//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+//        AuthWebView(viewModel: AuthWebViewModel(didFinishLoginOnAuthWebView: .constant(false)))
 //    }
 //}
 

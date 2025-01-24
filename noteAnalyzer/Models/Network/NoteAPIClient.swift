@@ -11,14 +11,14 @@ class NoteAPIClient {
     @Published private(set) var progressValue: Double = 0.0
     private var articleCount: Int = 0
     
-    private let authManager: AuthenticationProtocol
+    private let authService: AuthenticationServiceProtocol
     let networkService: NetworkServiceProtocol
     private let transformer = NoteDataTransformer()
     
     private let timeIntervalSec: Double = 0.5
     
-    init(authManager: AuthenticationProtocol, networkService: NetworkServiceProtocol) {
-        self.authManager = authManager
+    init(authManager: AuthenticationServiceProtocol, networkService: NetworkServiceProtocol) {
+        self.authService = authManager
         self.networkService = networkService
     }
     
@@ -48,7 +48,8 @@ class NoteAPIClient {
     
     private func fetchUrlName() async throws -> String {
         let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=1&sort=pv"
-        let results: APIStatsResponse = try await transformer.parseStatsJSON(networkService.fetchData(url: urlString))
+        let fetchedData = try await networkService.fetchData(url: urlString, cookies: authService.getCookies())
+        let results: APIStatsResponse = try transformer.decodeAPIResponse(fetchedData)
         
         let urlName = results.data.noteStats[0].user.urlname
         
@@ -57,9 +58,9 @@ class NoteAPIClient {
     
     private func fetchArticleCount() async throws -> Int {
         let urlString = "https://note.com/api/v2/creators/\(AppConfig.urlname)"
-        let fetchedData = try await networkService.fetchData(url: urlString)
+        let fetchedData = try await networkService.fetchData(url: urlString, cookies: authService.getCookies())
         
-        let parsedResult = try transformer.parseUserDetailJSON(fetchedData)
+        let parsedResult: APIResponse<APIUserDetailResponse> = try transformer.decodeAPIResponse(fetchedData)
         
         switch parsedResult.data {
         case .success(let userData):
@@ -68,38 +69,7 @@ class NoteAPIClient {
         case .error(let message):
             throw NAError.decoding(.userNotFound(message))
         }
-        
-//        switch parsedResult {
-//        case .success(let noteCount):
-//            return noteCount
-//            
-//        case .failure(let error):
-//            throw error
-//            switch error {
-//            case NAError.decoding(.userNotFound(_)):
-//                // TODO: ここでゼロを返すことは適切か？設計自体考え直したほうがいいのでは？
-//                return 0
-//            default:
-//                throw error
-//            }
-//        }
     }
-        
-//    private func parseUserDetailJSON(_ data: Data) -> Result<Int, Error> {
-//        do {
-//            let results = try transformer.parseUserDetailJSON(data)
-//            
-//            switch results.data {
-//            case .success(let userData):
-//                return .success(userData.noteCount)
-//                
-//            case .error(let message):
-//                return .failure(NAError.decoding(.userNotFound(message)))
-//            }
-//        } catch {
-//            return .failure(error)
-//        }
-//    }
     
     private func fetchStats() async throws -> [APIStatsResponse.APIStatsItem] {
         // TODO: 総ページ数がわかってるなら、maxLoopCountはいらないのでは？クールダウンタイムは要検討だが。
@@ -117,7 +87,8 @@ class NoteAPIClient {
             }
             
             let urlString = "https://note.com/api/v1/stats/pv?filter=all&page=\(page)&sort=pv"
-            let result = try await transformer.parseStatsJSON(networkService.fetchData(url: urlString))
+            let fetchedData = try await networkService.fetchData(url: urlString, cookies: authService.getCookies())
+            let result: APIStatsResponse = try transformer.decodeAPIResponse(fetchedData)
             
             let thisTimeLastCalculateAt = self.stringToDate(result.data.lastCalculateAt)
             
@@ -150,7 +121,8 @@ class NoteAPIClient {
             }
             
             let urlString = "https://note.com/api/v2/creators/\(AppConfig.urlname)/contents?kind=note&page=\(page)"
-            let result = try await transformer.parseContentsJSON(networkService.fetchData(url: urlString))
+            let fetchedData = try await networkService.fetchData(url: urlString, cookies: authService.getCookies())
+            let result: APIContentsResponse = try transformer.decodeAPIResponse(fetchedData)
             
             responses.append(result)
             
@@ -178,7 +150,7 @@ class NoteAPIClient {
     }
     
     func deleteAllComponents() throws {
-        try authManager.clearAuthentication()
+        try authService.clearAuthentication()
         networkService.resetWebComponents()
     }
 }

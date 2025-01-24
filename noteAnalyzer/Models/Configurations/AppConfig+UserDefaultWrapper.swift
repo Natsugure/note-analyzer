@@ -43,6 +43,7 @@ extension UserDefaultWrapper {
         case contentsCount
         case lastCalculateAt
         case urlname
+        case userId
         
         case demoModeKey
     }
@@ -61,6 +62,9 @@ struct AppConfig {
     @UserDefaultWrapper(key: .urlname, defaultValue: "（不明なユーザー名）")
     static var urlname: String
     
+    @UserDefaultWrapper(key: .userId, defaultValue: 0)
+    static var userId: Int
+    
 #if DEBUG
     @UserDefaultWrapper(key: .demoModeKey, defaultValue: true)
     static var isDemoMode: Bool
@@ -74,7 +78,8 @@ struct AppConfig {
         let keys: [String] = [
             AppConfig.$contentsCount.key.rawValue,
             AppConfig.$lastCalculateAt.key.rawValue,
-            AppConfig.$urlname.key.rawValue
+            AppConfig.$urlname.key.rawValue,
+            AppConfig.$userId.key.rawValue
         ]
         
         keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }

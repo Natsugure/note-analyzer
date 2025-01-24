@@ -54,8 +54,8 @@ struct InitialSetupView: View {
 }
 
 struct InitialSetupView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let authManager = MockAuthenticationService()
+    static let networkService = NetworkService()
     static let apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
     static let realmManager = RealmManager()
     

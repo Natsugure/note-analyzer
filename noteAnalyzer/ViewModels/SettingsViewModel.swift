@@ -6,17 +6,24 @@
 //
 
 import Foundation
+import WebKit
 
 @MainActor
 final class SettingsViewModel: ObservableObject {
     @Published var alertEntity: AlertEntity?
     @Published var url: URL?
+    @Published var isPresentedAuthWebView = false
+    @Published var isPresentedProgressView = false
     @Published var shouldShowOnboardingView = false
+    @Published var didFinishLoginOnAuthWebView = false
     
+    private let authService: AuthenticationServiceProtocol
+    private var authWebViewModel: AuthWebViewModel?
     private let apiClient: NoteAPIClient
     private let realmManager: RealmManager
     
-    init(apiClient: NoteAPIClient, realmManager: RealmManager) {
+    init(authService: AuthenticationServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
+        self.authService = authService
         self.apiClient = apiClient
         self.realmManager = realmManager
     }
@@ -31,6 +38,49 @@ final class SettingsViewModel: ObservableObject {
                 self.url = URL(string: contactFormURLString)
             }
         )
+    }
+    
+    func reauthorize() async {
+        isPresentedAuthWebView = true
+    }
+    
+    func makeAuthWebViewModel() -> AuthWebViewModel {
+        let viewModel: AuthWebViewModel
+        if AppConfig.isDemoMode {
+            viewModel = DemoAuthWebViewModel()
+        } else {
+            viewModel = AuthWebViewModel()
+        }
+        
+        authWebViewModel = viewModel
+        observeAuthWebViewModel()
+        
+        return viewModel
+    }
+    
+    private func observeAuthWebViewModel() {
+        Task {
+            authWebViewModel?.$isPresented.assign(to: &$isPresentedAuthWebView)
+            authWebViewModel?.$didFinishLogin.assign(to: &$didFinishLoginOnAuthWebView)
+        }
+    }
+    
+    func checkAuthentication() async {
+        isPresentedProgressView = true
+        
+        let allCookies = await WKWebsiteDataStore.default().httpCookieStore.allCookies()
+        
+        do {
+            try await authService.reauthorize(cookies: allCookies)
+            
+            isPresentedProgressView = false
+            alertEntity = .init(singleButtonAlert: "再認証が完了しました。", message: nil)
+        } catch {
+            isPresentedProgressView = false
+            
+            try? await Task.sleep(for: .seconds(0.5))
+            handleError(error)
+        }
     }
     
     func confirmClearData() {

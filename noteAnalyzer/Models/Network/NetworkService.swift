@@ -5,24 +5,24 @@
 //  Created by Natsugure on 2024/07/08.
 //
 
-import SwiftUI
+import Foundation
 import WebKit
 
 protocol NetworkServiceProtocol {
-    func fetchData(url: String) async throws -> Data
+    func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data
     func resetWebComponents()
 }
 
 class NetworkService: NetworkServiceProtocol {
-    private let authManager: AuthenticationProtocol
+//    private let authManager: AuthenticationProtocol
     private var session: URLSession
     
     // レート制限のための変数
     private let requestsPerMinute: Int = 60
     private var requestTimestamps: [Date] = []
     
-    init(authManager: AuthenticationProtocol) {
-        self.authManager = authManager
+    init(/*authManager: AuthenticationProtocol*/) {
+//        self.authManager = authManager
         
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true
@@ -31,7 +31,7 @@ class NetworkService: NetworkServiceProtocol {
         self.session = URLSession(configuration: configuration)
     }
     
-    func fetchData(url urlString: String) async throws -> Data {
+    func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data {
         print(urlString)
 
         guard let url = URL(string: urlString) else {
@@ -43,17 +43,7 @@ class NetworkService: NetworkServiceProtocol {
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = nil
         request.cachePolicy = .reloadIgnoringLocalCacheData
-        try addCookiesToRequest(&request)
-        
-        let (data, _) = try await session.data(for: request)
-        
-        requestTimestamps.append(Date())
-        
-        return data
-    }
-    
-    private func addCookiesToRequest(_ request: inout URLRequest) throws {
-        let cookies = authManager.getCookies()
+//        try addCookiesToRequest(&request)
         
         if cookies.isEmpty {
             throw NAError.auth(.authCookiesNotFound)
@@ -65,7 +55,28 @@ class NetworkService: NetworkServiceProtocol {
         } else {
             request.allHTTPHeaderFields = cookieHeaders
         }
+        
+        let (data, _) = try await session.data(for: request)
+        
+        requestTimestamps.append(Date())
+        
+        return data
     }
+    
+//    private func addCookiesToRequest(_ request: inout URLRequest) throws {
+//        let cookies = authManager.getCookies()
+//        
+//        if cookies.isEmpty {
+//            throw NAError.auth(.authCookiesNotFound)
+//        }
+//        
+//        let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
+//        if let headers = request.allHTTPHeaderFields {
+//            request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
+//        } else {
+//            request.allHTTPHeaderFields = cookieHeaders
+//        }
+//    }
     
     ///URLSession、WKWebViewから関連するデータを全て削除して再定義。
     func resetWebComponents() {

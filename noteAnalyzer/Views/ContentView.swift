@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let authManager: AuthenticationProtocol
+    private let authService: AuthenticationServiceProtocol
     private let networkService: NetworkServiceProtocol
     private let apiClient: NoteAPIClient
     private let realmManager: RealmManager
     
     @State private var isLoading: Bool = true
     
-    init(authManager: AuthenticationProtocol, networkService: NetworkServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
-        self.authManager = authManager
+    init(authService: AuthenticationServiceProtocol, networkService: NetworkServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
+        self.authService = authService
         self.networkService = networkService
         self.apiClient = apiClient
         self.realmManager = realmManager
@@ -24,7 +24,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            MainTabView(authManager: authManager, apiClient: apiClient, realmManager: realmManager)
+            MainTabView(authService: authService, apiClient: apiClient, realmManager: realmManager)
                 .zIndex(1)
             
             if isLoading {
@@ -46,12 +46,12 @@ struct ContentView: View {
 }
 
 struct Content_Previews: PreviewProvider {
-    static let authManager = MockAuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let authManager = MockAuthenticationService()
+    static let networkService = NetworkService()
     static let apiClient = MockNoteAPIClient(authManager: authManager, networkService: networkService)
     static let realmManager = RealmManager()
     
     static var previews: some View {
-        ContentView(authManager: authManager, networkService: networkService, apiClient: apiClient, realmManager: realmManager)
+        ContentView(authService: authManager, networkService: networkService, apiClient: apiClient, realmManager: realmManager)
     }
 }

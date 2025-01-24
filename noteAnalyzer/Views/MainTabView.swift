@@ -10,7 +10,7 @@ import SwiftUI
 struct MainTabView: View {
     @State var isPresentedOnboardingView = false
     @State var selectedTabBarIndex = 1
-    let authManager: AuthenticationProtocol
+    let authService: AuthenticationServiceProtocol
     let apiClient: NoteAPIClient
     let realmManager: RealmManager
     
@@ -24,7 +24,7 @@ struct MainTabView: View {
                     .tag(1)
                 
                 SettingsView(
-                    viewModel: SettingsViewModel(apiClient: apiClient, realmManager: realmManager),
+                    viewModel: SettingsViewModel(authService: authService, apiClient: apiClient, realmManager: realmManager),
                     selectedTabBarIndex: $selectedTabBarIndex
                 )
                     .tabItem {
@@ -35,7 +35,7 @@ struct MainTabView: View {
             .fullScreenCover(isPresented: $isPresentedOnboardingView) {
                 OnboardingView(
                     viewModel: OnboardingViewModel(
-                        authManager: AuthenticationManager(),
+                        authManager: authService,
                         apiClient: apiClient,
                         realmManager: realmManager
                     )
@@ -56,13 +56,13 @@ struct MainTabView: View {
 }
 
 struct MainView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let authManager = MockAuthenticationService()
+    static let networkService = NetworkService()
     static let apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
     static let realmManager = RealmManager()
     
     static var previews: some View {
-        MainTabView(authManager: authManager, apiClient: apiClient, realmManager: realmManager)
+        MainTabView(authService: authManager, apiClient: apiClient, realmManager: realmManager)
     }
 }
 
