@@ -10,23 +10,32 @@ import WebKit
 
 @MainActor
 class AuthWebViewModel: ObservableObject, WebViewModelProtocol {
-    @Published var isPresented = true
-    @Published var didFinishLogin = false
+    @Published var shouldExecuteCompletionHandler = false
     var urlString: String = "" {
         didSet {
             if urlString == AppConstants.URL.topPage {
-                didFinishLogin = true
-                isPresented = false
+                shouldExecuteCompletionHandler = true
             }
         }
     }
     
+    typealias CompletionHandler = ([HTTPCookie]) -> Void
+    private let completionHandler: CompletionHandler
+    
     private(set) var webView: WKWebView
     
-    init() {
+    init(completionHandler: @escaping CompletionHandler) {
+        self.completionHandler = completionHandler
         self.webView = WKWebView()
         
         loadAuthUrl()
+    }
+    
+    func executeCompletionHandler() async {
+        let cookies = await webView.configuration.websiteDataStore.httpCookieStore.allCookies()
+        await webView.configuration.websiteDataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: Date.distantPast)
+        
+        completionHandler(cookies)
     }
     
     func loadAuthUrl() {

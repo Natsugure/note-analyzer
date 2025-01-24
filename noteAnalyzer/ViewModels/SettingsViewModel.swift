@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import WebKit
 
 @MainActor
 final class SettingsViewModel: ObservableObject {
@@ -44,34 +43,11 @@ final class SettingsViewModel: ObservableObject {
         isPresentedAuthWebView = true
     }
     
-    func makeAuthWebViewModel() -> AuthWebViewModel {
-        let viewModel: AuthWebViewModel
-        if AppConfig.isDemoMode {
-            viewModel = DemoAuthWebViewModel()
-        } else {
-            viewModel = AuthWebViewModel()
-        }
-        
-        authWebViewModel = viewModel
-        observeAuthWebViewModel()
-        
-        return viewModel
-    }
-    
-    private func observeAuthWebViewModel() {
-        Task {
-            authWebViewModel?.$isPresented.assign(to: &$isPresentedAuthWebView)
-            authWebViewModel?.$didFinishLogin.assign(to: &$didFinishLoginOnAuthWebView)
-        }
-    }
-    
-    func checkAuthentication() async {
+    func checkAuthentication(cookies: [HTTPCookie]) async {
         isPresentedProgressView = true
         
-        let allCookies = await WKWebsiteDataStore.default().httpCookieStore.allCookies()
-        
         do {
-            try await authService.reauthorize(cookies: allCookies)
+            try await authService.reauthorize(cookies: cookies)
             
             isPresentedProgressView = false
             alertEntity = .init(singleButtonAlert: "再認証が完了しました。", message: nil)

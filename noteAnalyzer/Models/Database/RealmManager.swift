@@ -9,18 +9,6 @@ import Foundation
 import RealmSwift
 
 class RealmManager {
-    //FIXME: メンバ変数でRealmのインスタンスを持ちっぱなしはincorrect threadエラーの原因なのでNG。CRUDメソッドの全てでtry! Realm()するのが正解。
-//    private var realm: Realm?
-    
-//    private func getRealm() -> Realm {
-//        do {
-//            let realm = try Realm()
-//            return realm
-//        } catch {
-//            fatalError("Failed to initialize Realm on RealmManager: \(error)")
-//        }
-//    }
-    
     init() {
         let config = Realm.Configuration(
             schemaVersion: 2, // スキーマバージョンをインクリメント

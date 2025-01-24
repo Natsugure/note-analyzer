@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import WebKit
 
 @MainActor
 class OnboardingViewModel: ObservableObject {
@@ -34,32 +33,11 @@ class OnboardingViewModel: ObservableObject {
         isPresentedAuthWebView = true
     }
     
-    func makeAuthWebViewModel() -> AuthWebViewModel {
-        let viewModel: AuthWebViewModel
-        if AppConfig.isDemoMode {
-            viewModel = DemoAuthWebViewModel()
-        } else {
-            viewModel = AuthWebViewModel()
-        }
-        
-        authWebViewModel = viewModel
-        observeAuthWebViewModel()
-        
-        return viewModel
-    }
-    
-    private func observeAuthWebViewModel() {
-        authWebViewModel?.$isPresented.assign(to: &$isPresentedAuthWebView)
-        authWebViewModel?.$didFinishLogin.assign(to: &$didFinishLogin)
-    }
-    
-    func checkAuthentication() async {
+    func checkAuthentication(cookies: [HTTPCookie]) async {
         isPresentedProgressView = true
         
-        let allCookies = await WKWebsiteDataStore.default().httpCookieStore.allCookies()
-        
         do {
-            try await authService.authenticate(cookies: allCookies)
+            try await authService.authenticate(cookies: cookies)
             
             isPresentedProgressView = false
             shouldShowInitialSetupView = true

@@ -9,25 +9,38 @@ import SwiftUI
 
 struct AuthWebView: View {
     @StateObject var viewModel: AuthWebViewModel
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationStack {
             VStack {
                 WrappedWebView(viewModel: viewModel)
             }
-            .fullScreenCover(isPresented: $viewModel.showLoadingView) {
-                ZStack {
-                    Rectangle()
-                        .fill(Color.white)
-                        .ignoresSafeArea()
-                    
-                    ProgressCircularView()
+            .onChange(of: viewModel.shouldExecuteCompletionHandler) {
+                if viewModel.shouldExecuteCompletionHandler {
+                    dismiss()
+                }
+            }
+            .onAppear {
+#if DEBUG
+                Task {
+                    if AppConfig.isDemoMode {
+                        viewModel.shouldExecuteCompletionHandler = true
+                    }
+                }
+#endif
+            }
+            .onDisappear {
+                if viewModel.shouldExecuteCompletionHandler {
+                    Task {
+                        await viewModel.executeCompletionHandler()
+                    }
                 }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("キャンセル") {
-                        viewModel.isPresented = false
+                        dismiss()
                     }
                 }
             }

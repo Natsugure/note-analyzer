@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-import WebKit
 import Security
-import Combine
 
 enum KeychainError: Error {
     case unexpectedStatus(OSStatus)
@@ -33,6 +31,7 @@ class AuthenticationManager {
         if !noteCookies.isEmpty {
             self.saveCookiesToKeychain(cookies: noteCookies)
             print("認証成功: \(noteCookies.count) cookies found")
+            self.cookies = noteCookies
             
         } else {
             print("認証失敗: No note.com cookies found")

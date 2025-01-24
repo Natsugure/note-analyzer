@@ -23,6 +23,8 @@ struct noteAnalyzerApp: SwiftUI.App {
             AppConfig.isDemoMode = true
         }
         
+        print("userId: \(AppConfig.userId)")
+        
         if AppConfig.isDemoMode {
             print("demoMode")
 

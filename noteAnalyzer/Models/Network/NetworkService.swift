@@ -14,16 +14,13 @@ protocol NetworkServiceProtocol {
 }
 
 class NetworkService: NetworkServiceProtocol {
-//    private let authManager: AuthenticationProtocol
     private var session: URLSession
     
     // レート制限のための変数
     private let requestsPerMinute: Int = 60
     private var requestTimestamps: [Date] = []
     
-    init(/*authManager: AuthenticationProtocol*/) {
-//        self.authManager = authManager
-        
+    init() {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
@@ -33,6 +30,7 @@ class NetworkService: NetworkServiceProtocol {
     
     func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data {
         print(urlString)
+        print(cookies)
 
         guard let url = URL(string: urlString) else {
             fatalError("Invalid URL: \(urlString)")
@@ -43,7 +41,6 @@ class NetworkService: NetworkServiceProtocol {
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = nil
         request.cachePolicy = .reloadIgnoringLocalCacheData
-//        try addCookiesToRequest(&request)
         
         if cookies.isEmpty {
             throw NAError.auth(.authCookiesNotFound)
@@ -62,21 +59,6 @@ class NetworkService: NetworkServiceProtocol {
         
         return data
     }
-    
-//    private func addCookiesToRequest(_ request: inout URLRequest) throws {
-//        let cookies = authManager.getCookies()
-//        
-//        if cookies.isEmpty {
-//            throw NAError.auth(.authCookiesNotFound)
-//        }
-//        
-//        let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
-//        if let headers = request.allHTTPHeaderFields {
-//            request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
-//        } else {
-//            request.allHTTPHeaderFields = cookieHeaders
-//        }
-//    }
     
     ///URLSession、WKWebViewから関連するデータを全て削除して再定義。
     func resetWebComponents() {

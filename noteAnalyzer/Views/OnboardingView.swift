@@ -71,12 +71,12 @@ struct OnboardingView: View {
                         .background(Color.blue)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
-                        .sheet(isPresented: $viewModel.isPresentedAuthWebView, onDismiss: {
-                            Task {
-                                await viewModel.checkAuthentication()
-                            }
-                        }) {
-                            AuthWebView(viewModel: viewModel.makeAuthWebViewModel())
+                        .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
+                            AuthWebView(viewModel: AuthWebViewModel { cookies in
+                                Task {
+                                    await viewModel.checkAuthentication(cookies: cookies)
+                                }
+                            })
                                 .interactiveDismissDisabled()
                         }
                     }

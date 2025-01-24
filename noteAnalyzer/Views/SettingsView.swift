@@ -68,14 +68,11 @@ struct SettingsView: View {
 #endif
             }
             .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
-                AuthWebView(viewModel: viewModel.makeAuthWebViewModel())
-                    .onDisappear {
-                        if viewModel.didFinishLoginOnAuthWebView {
-                            Task {
-                                await viewModel.checkAuthentication()
-                            }
-                        }
+                AuthWebView(viewModel: AuthWebViewModel { cookies in
+                    Task {
+                        await viewModel.checkAuthentication(cookies: cookies)
                     }
+                })
             }
             .customAlert(object: $viewModel.alertEntity)
         }
