@@ -33,7 +33,6 @@ class InitialSetupViewModel: ObservableObject {
             try realmManager.updateStats(stats: stats, publishedDate: publishedDateArray)
             
             AppConfig.isCompletedInitialSetup = true
-            isPresentedProgressView = false
             shouldShowCompleteInitialSetupView = true
         } catch {
             handleError(error)

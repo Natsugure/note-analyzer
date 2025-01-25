@@ -52,10 +52,21 @@ final class SettingsViewModel: ObservableObject {
             isPresentedProgressView = false
             alertEntity = .init(singleButtonAlert: "再認証が完了しました。", message: nil)
         } catch {
-            isPresentedProgressView = false
+            print(error)
+            let title = "認証エラー"
+            let message: String
             
-            try? await Task.sleep(for: .seconds(0.5))
-            handleError(error)
+            if let naError = error as? NAError {
+                message = naError.userMessage
+            } else if let keychainError = error as? KeychainError {
+                message = "認証データの保存中にエラーが発生しました。\(keychainError.localizedDescription)"
+            } else {
+                message = "不明なエラーが発生しました。"
+            }
+            
+            isPresentedProgressView = false
+            try? await Task.sleep(for: .seconds(0.2))
+            alertEntity = .init(singleButtonAlert: title, message: message)
         }
     }
     
@@ -86,7 +97,7 @@ final class SettingsViewModel: ObservableObject {
                 }
             )
         } catch {
-            self.handleError(error)
+            handleClearAllDataError(error)
         }
     }
 
@@ -97,21 +108,20 @@ final class SettingsViewModel: ObservableObject {
         AppConfig.deleteUserInfo()
     }
     
-    private func handleError(_ error: Error) {
+    private func handleClearAllDataError(_ error: Error) {
         print(error)
         let title = "初期化エラー"
         let detail: String
         
-        if let keychainError = error as? KeychainError {
-            switch keychainError {
-            case .unexpectedStatus(let status):
-                detail = "処理中にエラーが発生しました。\n 認証情報の消去に失敗しました。\nエラーコード: \(status)"
-                
-            default:
-                detail = "処理中に不明なエラーが発生しました。\n\(error.localizedDescription)"
-            }
-        } else {
-            detail = "処理中に不明なエラーが発生しました。"
+        switch error {
+        case let keyChainError as KeychainError:
+            detail = "処理中にエラーが発生しました。\n 認証情報の消去に失敗しました。\(keyChainError.localizedDescription)"
+            
+        case let naError as NAError:
+            detail = naError.userMessage
+            
+        default:
+            detail = "不明なエラーが発生しました。"
         }
         
         alertEntity = .init(singleButtonAlert: title, message: detail)
@@ -128,7 +138,7 @@ final class SettingsViewModel: ObservableObject {
             try await clearAllData()
             showRestartAlert()
         } catch {
-            handleError(error)
+            handleClearAllDataError(error)
         }
     }
     
@@ -145,14 +155,6 @@ final class SettingsViewModel: ObservableObject {
                 }
             }
         )
-    }
-    
-    func logout() async {
-        do {
-            try apiClient.deleteAllComponents()
-        } catch {
-            handleError(error)
-        }
     }
 #endif
 }

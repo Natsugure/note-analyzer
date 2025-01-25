@@ -30,7 +30,6 @@ class NetworkService: NetworkServiceProtocol {
     
     func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data {
         print(urlString)
-        print(cookies)
 
         guard let url = URL(string: urlString) else {
             fatalError("Invalid URL: \(urlString)")

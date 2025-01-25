@@ -53,7 +53,7 @@ struct DashboardView: View {
                     }
                 }
             }
-            .customAlert(object: $viewModel.alertEntity)
+            .customAlert(entity: $viewModel.alertEntity)
         }
     }
     

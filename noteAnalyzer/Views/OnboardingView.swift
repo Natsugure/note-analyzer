@@ -95,7 +95,7 @@ struct OnboardingView: View {
                 print("shouldShowInitialSetupView: \(viewModel.shouldShowInitialSetupView)")
             }
             .navigationBarBackButtonHidden(true)
-            .customAlert(object: $viewModel.alertEntity)
+            .customAlert(entity: $viewModel.alertEntity)
         }
     }
 }

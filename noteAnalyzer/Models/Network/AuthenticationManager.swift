@@ -5,19 +5,8 @@
 //  Created by Natsugure on 2024/07/17.
 //
 
-import SwiftUI
+import Foundation
 import Security
-
-enum KeychainError: Error {
-    case unexpectedStatus(OSStatus)
-    case unhandledError(Error)
-}
-
-//protocol AuthenticationProtocol {
-//    func saveAuthCookies(cookies: [HTTPCookie]) throws
-//    func getCookies() -> [HTTPCookie]
-//    func clearAuthentication() throws
-//}
 
 class AuthenticationManager {
     private var cookies: [HTTPCookie] = []
@@ -29,7 +18,7 @@ class AuthenticationManager {
     func saveAuthCookies(cookies: [HTTPCookie]) throws {
         let noteCookies = cookies.filter { $0.domain.contains("note.com") }
         if !noteCookies.isEmpty {
-            self.saveCookiesToKeychain(cookies: noteCookies)
+            try saveCookiesToKeychain(cookies: noteCookies)
             print("認証成功: \(noteCookies.count) cookies found")
             self.cookies = noteCookies
             
@@ -41,30 +30,23 @@ class AuthenticationManager {
     }
     
     private func loadCookiesFromKeychain() -> [HTTPCookie] {
-        if let cookieData = KeychainManager.load(forKey: "noteCookies"),
+        if let cookieData = try? KeychainManager.load(forKey: "noteCookies"),
            let cookies = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: cookieData) as? [HTTPCookie] {
-            self.cookies = cookies
-            
             print("Cookies load successfully, count: \(cookies.count)")
-            
             return cookies
         }
         
         return []
     }
     
-    private func saveCookiesToKeychain(cookies: [HTTPCookie]) {
+    private func saveCookiesToKeychain(cookies: [HTTPCookie]) throws {
         if let cookieData = try? NSKeyedArchiver.archivedData(withRootObject: cookies, requiringSecureCoding: true) {
-            let status = KeychainManager.save(cookieData: cookieData, forKey: "noteCookies")
-            print("Keychain save status: \(status)")
+            try KeychainManager.save(cookieData: cookieData, forKey: "noteCookies")
         }
     }
     
     private func deleteKeychainItem(forKey key: String) throws {
-        let status = KeychainManager.delete(forKey: key)
-        guard status == errSecSuccess else {
-            throw KeychainError.unexpectedStatus(status)
-        }
+        try KeychainManager.delete(forKey: key)
     }
     
     func getCookies() -> [HTTPCookie] {
@@ -72,38 +54,15 @@ class AuthenticationManager {
     }
     
     func clearAuthentication() throws {
-        do {
-            try deleteKeychainItem(forKey: "noteCookies")
-            self.cookies.removeAll()
-            
-            print("Keychain delete successful")
-            
-        } catch KeychainError.unexpectedStatus(let status) {
-            handleKeychainError(status: status)
-            throw KeychainError.unexpectedStatus(status)
-            
-        } catch {
-            print("Unexpected error: \(error.localizedDescription)")
-            throw KeychainError.unhandledError(error)
-        }
-    }
-    
-    private func handleKeychainError(status: OSStatus) {
-        switch status {
-        case errSecItemNotFound:
-            print("Keychain item not found. It may have been already deleted.")
-        case errSecDuplicateItem:
-            print("Duplicate item found in Keychain.")
-        case errSecAuthFailed:
-            print("Authentication failed. Check Keychain access permissions.")
-        default:
-            print("Keychain delete failed with status: \(status)")
-        }
+        try deleteKeychainItem(forKey: "noteCookies")
+        cookies.removeAll()
+        
+        print("Keychain delete successful")
     }
 }
 
 class KeychainManager {
-    static func save(cookieData: Data, forKey key: String) -> OSStatus {
+    static func save(cookieData: Data, forKey key: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
@@ -112,10 +71,13 @@ class KeychainManager {
         
         SecItemDelete(query as CFDictionary)
         
-        return SecItemAdd(query as CFDictionary, nil)
+        let status = SecItemAdd(query as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            throw KeychainError(status: status)
+        }
     }
     
-    static func load(forKey key: String) -> Data? {
+    static func load(forKey key: String) throws -> Data {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
@@ -125,15 +87,71 @@ class KeychainManager {
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         
-        return (status == errSecSuccess) ? (result as? Data) : nil
+        guard status == errSecSuccess else {
+            if status == errSecItemNotFound {
+                print("Keychain item not found for key: \(key) (This might be normal)")
+            } else {
+                print("Keychain load failed for key: \(key), status: \(String(describing: SecCopyErrorMessageString(status, nil)))")
+            }
+            
+            throw KeychainError(status: status)
+        }
+        
+        guard let data = result as? Data else {
+            throw KeychainError.invalidData
+        }
+        
+        return data
     }
     
-    static func delete(forKey key: String) -> OSStatus {
+    static func delete(forKey key: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key
         ]
         
-        return SecItemDelete(query as CFDictionary)
+        let status = SecItemDelete(query as CFDictionary)
+        // 削除時にアイテムが見つからないことは特に問題がないため、正常系として扱う。
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw KeychainError(status: status)
+        }
+    }
+}
+
+enum KeychainError: LocalizedError {
+    case duplicateItem
+    case itemNotFound
+    case invalidData
+    case authFailed
+    case unhandledError(OSStatus)
+    
+    init(status: OSStatus) {
+        switch status {
+        case errSecDuplicateItem:
+            self = .duplicateItem
+        case errSecItemNotFound:
+            self = .itemNotFound
+        case errSecInvalidData:
+            self = .invalidData
+        case errSecAuthFailed:
+            self = .authFailed
+        default:
+            self = .unhandledError(status)
+        }
+    }
+    
+    var errorDescription: String? {
+        switch self {
+        case .duplicateItem:
+            return "アイテムが既に存在しています"
+        case .itemNotFound:
+            return "アイテムが見つかりませんでした"
+        case .invalidData:
+            return "不正なデータです"
+        case .authFailed:
+            return "認証に失敗しました"
+        case .unhandledError(let status):
+            return "予期せぬエラーが発生しました: \(status)"
+        }
     }
 }

@@ -69,6 +69,10 @@ class OnboardingViewModel: ObservableObject {
             title = "ネットワークエラー"
             message = detail.userMessage
             
+        case is KeychainError:
+            title = "認証エラー"
+            message = "認証情報の保存中にエラーが発生しました。\(error.localizedDescription)"
+            
         default:
             title = "不明なエラー"
             message = "認証中に不明なエラーが発生しました。"
