@@ -28,6 +28,7 @@ struct DashboardView: View {
                         Text("スキ").tag(StatsType.like)
                     }
                     .pickerStyle(.segmented)
+                    .padding(.horizontal)
                     
                     ChartView(chartData: viewModel.calculateChartData(), statsType: viewModel.selectionChartType)
                         .frame(height: geometry.size.height * 0.4)
@@ -44,7 +45,6 @@ struct DashboardView: View {
                     transaction.disablesAnimations = true
                 }
                 .navigationTitle("全記事統計")
-                .navigationBarItems(leading: EmptyView())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     //更新ボタン
@@ -83,7 +83,12 @@ struct DashboardView: View {
                 .listRowInsets(EdgeInsets())
             ) {
                 ForEach(viewModel.listData, id: \.id) { element in
-                    NavigationLink(destination: DailyView(path: $path, selectionChartType: $viewModel.selectionChartType, selectedDate: element.date)) {
+                    NavigationLink(
+                        destination: DailyView(
+                            viewModel: DailyViewModel(date: element.date, realmManager: RealmManager()),
+                            path: $path,
+                            selectionChartType: $viewModel.selectionChartType)
+                    ) {
                         DashboardListRow(element: element)
                     }
                 }
@@ -94,17 +99,15 @@ struct DashboardView: View {
     }
 }
 
-//struct DashboardView_Previews: PreviewProvider {
-//    static let authManager = AuthenticationManager()
-//    static let networkService = NetworkService(authManager: authManager)
-//    static let realmManager = RealmManager()
-//    @StateObject static var alertObject = AlertObject()
-//    @State static var isPresentedProgressView = false
-//    
-//    static var previews: some View {
-//        DashboardView(alertObject: alertObject, isPresentedProgressView: $isPresentedProgressView)
-//            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-//    }
-//}
+struct DashboardView_Previews: PreviewProvider {
+    static let authManager = MockAuthenticationService()
+    static let networkService = MockNetworkService(provider: MockDataProvider())
+    static let realmManager = RealmManager()
+    static let apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
+    
+    static var previews: some View {
+        DashboardView(viewModel: DashboardViewModel(apiClient: apiClient, realmManager: realmManager))
+    }
+}
 
 

@@ -8,122 +8,10 @@
 import SwiftUI
 import RealmSwift
 
-enum SortType: String, CaseIterable {
-    case publishedAtNew = "投稿日時の新しい順"
-    case publishedAtOld = "投稿日時の古い順"
-    case viewDecending = "ビューの多い順"
-    case viewAscending = "ビューの少ない順"
-    case commentDecending = "コメントの多い順"
-    case commentAscending = "コメントの少ない順"
-    case likeDecending = "スキの多い順"
-    case likeAscending = "スキの少ない順"
-    
-    var symbol: String {
-        switch self {
-        case .publishedAtNew:
-            return "📅▼"
-        case .publishedAtOld:
-            return "📅▲"
-        case .viewDecending:
-            return "👀▼"
-        case .viewAscending:
-            return "👀▲"
-        case .commentDecending:
-            return "💬▼"
-        case .commentAscending:
-            return "💬▲"
-        case .likeDecending:
-            return "♥️▼"
-        case .likeAscending:
-            return "♥️▲"
-        }
-    }
-}
-
 struct DailyView: View {
-    @ObservedResults(Item.self) var items
+    @StateObject var viewModel: DailyViewModel
     @Binding var path: [Item]
     @Binding var selectionChartType: StatsType
-    
-    //絞り込み条件のプロパティ
-    @State var isShowFilterSheet = false
-    @State var isEnablePublishDateFliter = false
-    @State var startDate = Date()
-    @State var endDate = Date()
-    @State var selectionContentTypes: Set<ContentType> = [.text, .talk, .image, .sound, .movie]
-    
-    @State private var sortType: SortType = .viewDecending
-    
-    var selectedDate: Date
-    
-    var filteredItem: [Item] {
-        //まずDashboardViewで選択した取得日時のデータに絞り込む
-        items.filter { (item: Item) -> Bool in
-            guard let stats = item.stats.first(where: { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }) else {
-                return false
-            }
-            let baseCondition = item.publishedAt <= stats.updatedAt
-            
-            // 投稿日フィルター
-            let publishDateCondition: Bool
-            if isEnablePublishDateFliter {
-                publishDateCondition = (startDate...endDate).contains(item.publishedAt)
-            } else {
-                publishDateCondition = true
-            }
-            
-            // ContentTypeフィルター
-            let contentTypeCondition = selectionContentTypes.contains(item.type)
-            
-            // すべての条件がtrueのみフィルターを通す
-            return baseCondition && publishDateCondition && contentTypeCondition
-        }
-    }
-    
-    var sortedItems: [Item] {
-        filteredItem.sorted { (item1, item2) -> Bool in
-            let stats1 = item1.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
-            let stats2 = item2.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
-            
-            switch sortType {
-            case .publishedAtNew:
-                return item1.publishedAt > item2.publishedAt
-                
-            case .publishedAtOld:
-                return item1.publishedAt < item2.publishedAt
-                
-            case .viewDecending:
-                let readCount1 = stats1?.readCount ?? 0
-                let readCount2 = stats2?.readCount ?? 0
-                return readCount1 > readCount2
-                
-            case .viewAscending:
-                let readCount1 = stats1?.readCount ?? 0
-                let readCount2 = stats2?.readCount ?? 0
-                return readCount1 < readCount2
-                
-            case .commentDecending:
-                let commentCount1 = stats1?.commentCount ?? 0
-                let commentCount2 = stats2?.commentCount ?? 0
-                return commentCount1 > commentCount2
-                
-            case .commentAscending:
-                let commentCount1 = stats1?.commentCount ?? 0
-                let commentCount2 = stats2?.commentCount ?? 0
-                return commentCount1 < commentCount2
-                
-            case .likeDecending:
-                let likeCount1 = stats1?.likeCount ?? 0
-                let likeCount2 = stats2?.likeCount ?? 0
-                return likeCount1 > likeCount2
-                
-            case .likeAscending:
-                let likeCount1 = stats1?.likeCount ?? 0
-                let likeCount2 = stats2?.likeCount ?? 0
-                return likeCount1 < likeCount2
-            }
-        }
-    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -134,10 +22,10 @@ struct DailyView: View {
                             .frame(alignment: .leading)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                        Text(formattedString(from: totalCount(for: \.readCount)))
+                        Text(formattedString(from: viewModel.totalCount(for: \.readCount)))
                             .font(.system(size: 24, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .center)
-                        Text(differenceString(for: \.readCount))
+                        Text(viewModel.differenceString(for: \.readCount))
                             .font(.system(size: 12))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -150,10 +38,10 @@ struct DailyView: View {
                             .frame(alignment: .leading)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                        Text(formattedString(from: totalCount(for: \.commentCount)))
+                        Text(formattedString(from: viewModel.totalCount(for: \.commentCount)))
                             .font(.system(size: 24, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .center)
-                        Text(differenceString(for: \.commentCount))
+                        Text(viewModel.differenceString(for: \.commentCount))
                             .font(.system(size: 12))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -166,10 +54,10 @@ struct DailyView: View {
                             .frame(alignment: .leading)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                        Text(formattedString(from: totalCount(for: \.likeCount)))
+                        Text(formattedString(from: viewModel.totalCount(for: \.likeCount)))
                             .font(.system(size: 24, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .center)
-                        Text(differenceString(for: \.likeCount))
+                        Text(viewModel.differenceString(for: \.likeCount))
                             .font(.system(size: 12))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -184,7 +72,7 @@ struct DailyView: View {
                 VStack {
                     HStack {
                         Button(action: {
-                            isShowFilterSheet.toggle()
+                            viewModel.isShowFilterSheet.toggle()
                         }, label: {
                             Text(Image(systemName: "line.3.horizontal.decrease.circle")) + Text("絞り込み")
                             
@@ -197,7 +85,7 @@ struct DailyView: View {
                         .padding(.horizontal)
                         
                         Menu {
-                            Picker("並び替え", selection: $sortType) {
+                            Picker("並び替え", selection: $viewModel.sortType) {
                                 ForEach(SortType.allCases, id: \.self) { type in
                                     Text("\(type.rawValue)")
                                         .tag(type)
@@ -234,8 +122,8 @@ struct DailyView: View {
                             .listRowInsets(EdgeInsets())
                         ) {
                             // データ行
-                            ForEach(sortedItems) { item in
-                                NavigationLink(destination: ArticleDetailView(item: item, path: $path, selection: $selectionChartType)) {
+                            ForEach(viewModel.listItems) { item in
+                                NavigationLink(destination: ArticleDetailView(item: item, selection: $selectionChartType)) {
                                     HStack(alignment: .center) {
                                         Rectangle()
                                             .fill(Color.red)
@@ -255,17 +143,17 @@ struct DailyView: View {
                                         
                                         ZStack {
                                             AppConstants.BrandColor.read.opacity(0.5)
-                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.readCount ?? 0))
+                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: viewModel.selectedDate) }?.readCount ?? 0))
                                         }
                                         .frame(width: 80)
                                         ZStack {
                                             AppConstants.BrandColor.comment.opacity(0.3)
-                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.commentCount ?? 0))
+                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: viewModel.selectedDate) }?.commentCount ?? 0))
                                         }
                                         .frame(width: 50)
                                         ZStack {
                                             AppConstants.BrandColor.likeBackground
-                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?.likeCount ?? 0))
+                                            Text(String(item.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: viewModel.selectedDate) }?.likeCount ?? 0))
                                         }
                                         .frame(width: 60)
                                     }
@@ -279,10 +167,10 @@ struct DailyView: View {
                 }
                 
             }
-            .navigationTitle("\(selectedDate, formatter: dateFormatter) 統計")
+            .navigationTitle("\(viewModel.selectedDate, formatter: dateFormatter) 統計")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $isShowFilterSheet) {
-                FilterSelecterView(isShowFilterSheet: $isShowFilterSheet, isEnablePublishDateFliter: $isEnablePublishDateFliter, startDate: $startDate, endDate: $endDate, selectionContentTypes: $selectionContentTypes)
+            .sheet(isPresented: $viewModel.isShowFilterSheet) {
+                FilterSelecterView(isShowFilterSheet: $viewModel.isShowFilterSheet, isEnablePublishDateFliter: $viewModel.isEnablePublishDateFliter, startDate: $viewModel.startDate, endDate: $viewModel.endDate, selectionContentTypes: $viewModel.selectionContentTypes)
                     .interactiveDismissDisabled()
             }
         }
@@ -305,36 +193,6 @@ struct DailyView: View {
         formatter.dateFormat = "MM/dd"
         return formatter
     }()
-    
-    private func totalCount<T: Numeric>(for keyPath: KeyPath<Stats, T>) -> T {
-        filteredItem.map { $0.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }?[keyPath: keyPath] ?? 0 }.reduce(0, +)
-    }
-    
-    private func previousUpdatedAt(for stats: [Stats], currentUpdatedAt: Date) -> Date? {
-        let previousStats = stats.filter { $0.updatedAt < currentUpdatedAt }
-        return previousStats.max(by: { $0.updatedAt < $1.updatedAt })?.updatedAt
-    }
-    
-    private func differenceCount<T: Numeric & Comparable>(for keyPath: KeyPath<Stats, T>) -> T? {
-        let currentTotal = totalCount(for: keyPath)
-        let previousTotal = filteredItem.map { item in
-            guard let currentStats = item.stats.first(where: { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }),
-                  let previousDate = previousUpdatedAt(for: Array(item.stats), currentUpdatedAt: currentStats.updatedAt),
-                  let previousStats = item.stats.first(where: { Calendar.current.isDate($0.updatedAt, inSameDayAs: previousDate) }) else {
-                return T.zero
-            }
-            return previousStats[keyPath: keyPath]
-        }.reduce(T.zero, +)
-        return previousTotal == T.zero ? nil : currentTotal - previousTotal
-    }
-    
-    private func differenceString<T: Numeric & Comparable>(for keyPath: KeyPath<Stats, T>) -> String {
-        if let difference = differenceCount(for: keyPath) {
-            return "(+\(formattedString(from: difference)))"
-        } else {
-            return "(-)"
-        }
-    }
     
     private func formattedString<T: Numeric>(from number: T) -> String {
         let formatter = NumberFormatter()

@@ -57,7 +57,7 @@ struct MainTabView: View {
 
 struct MainView_Previews: PreviewProvider {
     static let authManager = MockAuthenticationService()
-    static let networkService = NetworkService()
+    static let networkService = MockNetworkService(provider: MockDataProvider())
     static let apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
     static let realmManager = RealmManager()
     

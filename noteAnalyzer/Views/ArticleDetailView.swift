@@ -9,8 +9,7 @@ import SwiftUI
 import RealmSwift
 
 struct ArticleDetailView: View {
-    @ObservedRealmObject var item: Item
-    @Binding var path: [Item]
+    var item: Item
     @Binding var selection: StatsType
     
     var statsFormatter = StatsFormatter()

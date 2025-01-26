@@ -14,6 +14,7 @@ enum AppConstants {
     }
     
     enum BrandColor {
+        static let accent = Color(red: 53/255, green: 184/255, blue: 147/255)
         static let read = Color(red: 105/255, green: 176/255, blue: 118/255)
         static let comment = Color(red: 105/255, green: 105/255, blue: 105/255)
         static let like = Color(red: 200/255, green: 44/255, blue: 85/255)
