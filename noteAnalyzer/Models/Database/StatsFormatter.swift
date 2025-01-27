@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 struct StatsFormatter {
     let calendar = Calendar(identifier: .gregorian)
@@ -37,28 +38,9 @@ struct StatsFormatter {
         return Array(filteredStats.values)
     }
     
-    func filterLatestStatsOnDay(stats: [Stats]) -> [Stats] {
-        var filteredStats: [Date: Stats] = [:]
-        
-        for stat in stats {
-            let dateKey = calendar.startOfDay(for: stat.updatedAt)
-            
-            if filteredStats[dateKey] == nil {
-                filteredStats[dateKey] = stat
-            } else {
-                if let existingStats = filteredStats[dateKey],
-                   stat.updatedAt >= existingStats.updatedAt {
-                    filteredStats[dateKey] = stat
-                }
-            }
-        }
-        
-        return Array(filteredStats.values)
+    func filterLatestStatsOnDay(stats: RealmSwift.List<Stats>) -> [Stats] {
+        Dictionary(grouping: stats) { calendar.startOfDay(for: $0.updatedAt) }
+        .mapValues { $0.max(by: { $0.updatedAt < $1.updatedAt}) }
+        .compactMap { $0.value }
     }
-    
-//    private func dateOnly(from date: Date) -> Date {
-//        let calendar = Calendar.current
-//        let components = calendar.dateComponents([.year, .month, .day], from: date)
-//        return calendar.date(from: components) ?? date
-//    }
 }

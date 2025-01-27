@@ -13,8 +13,6 @@ struct ContentView: View {
     private let apiClient: NoteAPIClient
     private let realmManager: RealmManager
     
-    @State private var isLoading: Bool = true
-    
     init(authService: AuthenticationServiceProtocol, networkService: NetworkServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
         self.authService = authService
         self.networkService = networkService
@@ -25,22 +23,6 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             MainTabView(authService: authService, apiClient: apiClient, realmManager: realmManager)
-                .zIndex(1)
-            
-            if isLoading {
-                // TODO: ただの四角形ではなく、いい感じのロゴを表示する
-                Rectangle()
-                    .fill(Color.white)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                    .zIndex(3)
-            }
-        }
-        .task {
-            try? await Task.sleep(for: .seconds(1.5))
-            withAnimation {
-                isLoading = false
-            }
         }
     }
 }

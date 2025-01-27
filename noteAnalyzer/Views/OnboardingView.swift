@@ -19,7 +19,7 @@ struct OnboardingView: View {
                     Text("noteAnalyzer")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                    Image(systemName: "chart.bar.xaxis")
+                    Image(.appIconTransparent)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 150, height: 150)

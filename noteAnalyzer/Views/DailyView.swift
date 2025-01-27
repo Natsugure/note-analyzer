@@ -6,11 +6,9 @@
 //
 
 import SwiftUI
-import RealmSwift
 
 struct DailyView: View {
     @StateObject var viewModel: DailyViewModel
-    @Binding var path: [Item]
     @Binding var selectionChartType: StatsType
     
     var body: some View {
@@ -67,8 +65,6 @@ struct DailyView: View {
                 }
                 .padding()
                 
-
-                
                 VStack {
                     HStack {
                         Button(action: {
@@ -123,7 +119,11 @@ struct DailyView: View {
                         ) {
                             // データ行
                             ForEach(viewModel.listItems) { item in
-                                NavigationLink(destination: ArticleDetailView(item: item, selection: $selectionChartType)) {
+                                NavigationLink(
+                                    destination: ArticleDetailView(
+                                        viewModel: ArticleDetailViewModel(item: item, selectionChartType: selectionChartType)
+                                    )
+                                ) {
                                     HStack(alignment: .center) {
                                         Rectangle()
                                             .fill(Color.red)

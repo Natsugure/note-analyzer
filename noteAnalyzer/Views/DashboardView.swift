@@ -6,21 +6,13 @@
 //
 
 import SwiftUI
-import RealmSwift
-
-//enum StatsType {
-//    case view
-//    case comment
-//    case like
-//}
 
 struct DashboardView: View {
     @StateObject var viewModel: DashboardViewModel
-    @State private var path = [Item]()
 
     var body: some View {
         GeometryReader { geometry in
-            NavigationStack(path: $path) {
+            NavigationStack {
                 VStack {
                     Picker(selection: $viewModel.selectionChartType, label: Text("グラフ選択")) {
                         Text("ビュー").tag(StatsType.view)
@@ -86,7 +78,6 @@ struct DashboardView: View {
                     NavigationLink(
                         destination: DailyView(
                             viewModel: DailyViewModel(date: element.date, realmManager: RealmManager()),
-                            path: $path,
                             selectionChartType: $viewModel.selectionChartType)
                     ) {
                         DashboardListRow(element: element)
