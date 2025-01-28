@@ -45,23 +45,12 @@ final class DailyViewModel: ObservableObject {
     var selectedDate: Date
     
     @Published var listItems: [Item] = []
-    @Published var isShowFilterSheet = false {
-        didSet {
-            if !isShowFilterSheet {
-                makeListItems()
-            }
-        }
-    }
+    @Published var isShowFilterSheet = false
     @Published var isEnablePublishDateFliter = false
     @Published var startDate = Date()
     @Published var endDate = Date()
     @Published var selectionContentTypes: Set<ContentType> = [.text, .talk, .image, .sound, .movie]
-    @Published var sortType: SortType = .viewDecending {
-        didSet {
-            makeListItems()
-        }
-    }
-    
+    @Published var sortType: SortType = .viewDecending
     
     private let realmManager: RealmManager
     var baseResults: Results<Item>!
@@ -75,7 +64,7 @@ final class DailyViewModel: ObservableObject {
         makeListItems()
     }
     
-    private func makeListItems() {
+    func makeListItems() {
         filteredResults = baseResults.where { item -> Query<Bool> in
             let baseCondition = item.stats.updatedAt == selectedDate && item.publishedAt <= selectedDate
             

@@ -50,6 +50,7 @@ struct InitialSetupView: View {
             CompleteInitialSetupView()
         }
         .navigationBarBackButtonHidden(true)
+        .customAlert(entity: $viewModel.alertEntity)
     }
 }
 

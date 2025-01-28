@@ -27,6 +27,9 @@ struct SettingsView: View {
                 }
                 
                 Section {
+                    Button("アプリの使い方") {
+                        viewModel.openHowToUse()
+                    }
                     NavigationLink("利用規約", destination: MarkdownView(filename: "term_of_service"))
                     NavigationLink("プライバシーポリシー", destination: MarkdownView(filename: "privacy_policy"))
                 }
@@ -34,11 +37,6 @@ struct SettingsView: View {
                 Section {
                     Button("お問い合わせ") {
                         viewModel.openContactUsPage()
-                    }
-                    .onChange(of: viewModel.url) {
-                        if let url = viewModel.url {
-                            openURL(url)
-                        }
                     }
                 }
                 
@@ -73,6 +71,11 @@ struct SettingsView: View {
                         await viewModel.checkAuthentication(cookies: cookies)
                     }
                 })
+            }
+            .onChange(of: viewModel.url) {
+                if let url = viewModel.url {
+                    openURL(url)
+                }
             }
             .customAlert(entity: $viewModel.alertEntity)
         }

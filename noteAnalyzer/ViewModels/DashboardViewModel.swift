@@ -53,8 +53,6 @@ final class DashboardViewModel: ObservableObject {
         do {
             let (stats, publishedDateArray) = try await apiClient.requestFetch()
             
-            // TODO: DB書き込み処理のprogressValueはどう計算するか？コンテンツ数が少ないなら一瞬だが、1000記事を超えるような人だとどうか？
-            // TODO: RealmManager内のエラー処理が定まっていないので、RealmManager内で定義する。
             try realmManager.updateStats(stats: stats, publishedDate: publishedDateArray)
             
             isPresentedProgressView = false
@@ -75,7 +73,7 @@ final class DashboardViewModel: ObservableObject {
     
     func calculateChartData() -> [(Date, Int)] {
         let stats = realmManager.getStatsResults()
-        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: stats)
         
         var result: [(Date, Int)] = []
         
@@ -105,7 +103,7 @@ final class DashboardViewModel: ObservableObject {
     }
     
     private func calculateTotalCounts(stats: Results<Stats>) -> [ListElement] {
-        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: Array(stats))
+        let latestStatsByDate = statsFormatter.filterLatestStatsOnDayOfAllArticles(stats: stats)
         
         // 各日付の最新データで集計
         var result: [ListElement] = []

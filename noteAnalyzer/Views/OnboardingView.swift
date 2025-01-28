@@ -91,9 +91,6 @@ struct OnboardingView: View {
             .navigationDestination(isPresented: $viewModel.shouldShowInitialSetupView) {
                 InitialSetupView(viewModel: viewModel.makeInitialSetupViewModel())
             }
-            .onChange(of: viewModel.shouldShowInitialSetupView) {
-                print("shouldShowInitialSetupView: \(viewModel.shouldShowInitialSetupView)")
-            }
             .navigationBarBackButtonHidden(true)
             .customAlert(entity: $viewModel.alertEntity)
         }

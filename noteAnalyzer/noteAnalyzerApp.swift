@@ -35,7 +35,7 @@ struct noteAnalyzerApp: SwiftUI.App {
             
             self.authService = MockAuthenticationService()
             self.networkService = MockNetworkService(provider: provider)
-            self.apiClient = NoteAPIClient(authManager: authService, networkService: networkService)
+            self.apiClient = MockNoteAPIClient(authManager: authService, networkService: networkService)
 
         } else {
             print("normalMode")

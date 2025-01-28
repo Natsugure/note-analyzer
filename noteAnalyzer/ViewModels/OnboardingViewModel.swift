@@ -50,7 +50,12 @@ class OnboardingViewModel: ObservableObject {
     }
     
     func makeInitialSetupViewModel() -> InitialSetupViewModel {
-        InitialSetupViewModel(apiClient: apiClient, realmManager: realmManager)
+        let vm = InitialSetupViewModel(apiClient: apiClient, realmManager: realmManager)
+        Task {
+            vm.$isPresented.assign(to: &$shouldShowInitialSetupView)
+        }
+        
+        return vm
     }
     
     private func handleError(_ error: Error) {

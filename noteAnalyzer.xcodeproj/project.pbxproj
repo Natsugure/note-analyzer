@@ -177,6 +177,15 @@
 			path = WebView;
 			sourceTree = "<group>";
 		};
+		1A7367182D48632E0056337E /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				1A06C8FC2C6224BC00838DD5 /* privacy_policy.md */,
+				1A06C8FB2C6224BC00838DD5 /* term_of_service.md */,
+			);
+			path = Documents;
+			sourceTree = "<group>";
+		};
 		1A8FC21A2C718BC200AA5A03 /* Alert */ = {
 			isa = PBXGroup;
 			children = (
@@ -294,8 +303,7 @@
 				1AE3CA282C3A26D700C30A89 /* Assets.xcassets */,
 				1AE3CA2A2C3A26D700C30A89 /* Preview Content */,
 				1A2AC3AB2C5496DC0046C921 /* Constants.swift */,
-				1A06C8FC2C6224BC00838DD5 /* privacy_policy.md */,
-				1A06C8FB2C6224BC00838DD5 /* term_of_service.md */,
+				1A7367182D48632E0056337E /* Documents */,
 				1AA5AD7E2CCB33D6007BDBDE /* Demo */,
 			);
 			path = noteAnalyzer;

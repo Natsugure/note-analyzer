@@ -9,9 +9,11 @@ import Foundation
 
 @MainActor
 class InitialSetupViewModel: ObservableObject {
+    @Published var isPresented = true
     @Published var progressValue = 0.0
     @Published var isPresentedProgressView = false
     @Published var shouldShowCompleteInitialSetupView = false
+    @Published var shouldBackToOnboardingView = false
     @Published var alertEntity: AlertEntity?
     
     private let apiClient: NoteAPIClient
@@ -65,6 +67,6 @@ class InitialSetupViewModel: ObservableObject {
             message = "不明なエラーが発生しました。"
         }
         
-        alertEntity = .init(singleButtonAlert: title, message: message)
+        alertEntity = .init(singleButtonAlert: title, message: message, action: { self.isPresented = false })
     }
 }

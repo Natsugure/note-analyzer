@@ -13,9 +13,6 @@ struct ProgressCircularView: View {
             ProgressView()
                 .scaleEffect(1.5)
                 .padding(.top)
-            
-            Text("処理中")
-                .font(.title)
         }
         .padding()
         .background(Color.white)

@@ -96,6 +96,9 @@ struct DailyView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                         .shadow(radius: 1, x: 1, y: 1)
                         .padding(.horizontal)
+                        .onChange(of: viewModel.sortType) {
+                            viewModel.makeListItems()
+                        }
                     }
                     
                     List {
@@ -126,7 +129,7 @@ struct DailyView: View {
                                 ) {
                                     HStack(alignment: .center) {
                                         Rectangle()
-                                            .fill(Color.red)
+                                            .fill(item.type.color)
                                             .frame(width: 10)
                                         
                                         VStack(alignment: .leading) {
@@ -169,9 +172,10 @@ struct DailyView: View {
             }
             .navigationTitle("\(viewModel.selectedDate, formatter: dateFormatter) 統計")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $viewModel.isShowFilterSheet) {
-                FilterSelecterView(isShowFilterSheet: $viewModel.isShowFilterSheet, isEnablePublishDateFliter: $viewModel.isEnablePublishDateFliter, startDate: $viewModel.startDate, endDate: $viewModel.endDate, selectionContentTypes: $viewModel.selectionContentTypes)
-                    .interactiveDismissDisabled()
+            .sheet(isPresented: $viewModel.isShowFilterSheet, onDismiss: {
+                viewModel.makeListItems()
+            }) {
+                FilterSelecterView(viewModel: viewModel)
             }
         }
     }
@@ -211,11 +215,8 @@ struct DailyView: View {
 }
 
 struct FilterSelecterView: View {
-    @Binding var isShowFilterSheet: Bool
-    @Binding var isEnablePublishDateFliter: Bool
-    @Binding var startDate: Date
-    @Binding var endDate: Date
-    @Binding var selectionContentTypes: Set<ContentType>
+    @ObservedObject var viewModel: DailyViewModel
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack {
@@ -226,7 +227,7 @@ struct FilterSelecterView: View {
                         .frame(width: geometry.size.width, alignment: .center)
                     
                     Button("完了") {
-                        isShowFilterSheet.toggle()
+                        dismiss()
                     }
                     .padding(.trailing)
                     .frame(width: geometry.size.width, alignment: .trailing)
@@ -236,40 +237,34 @@ struct FilterSelecterView: View {
             }
             .frame(height: 44)
             
-            List(selection: $selectionContentTypes) {
+            List(selection: $viewModel.selectionContentTypes) {
                 Section("投稿日") {
-                    Toggle(isOn: $isEnablePublishDateFliter) {
+                    Toggle(isOn: $viewModel.isEnablePublishDateFliter) {
                         Text("投稿日による絞り込みを有効化")
                     }
                     
                     VStack {
-                        DatePicker("開始日", selection: $startDate, displayedComponents: [.date])
-                        DatePicker("終了日", selection: $endDate, displayedComponents: [.date])
+                        DatePicker("開始日", selection: $viewModel.startDate, displayedComponents: [.date])
+                        DatePicker("終了日", selection: $viewModel.endDate, displayedComponents: [.date])
                     }
-                    .opacity(isEnablePublishDateFliter ? 1 : 0.3)
-                    .animation(.default, value: isEnablePublishDateFliter)
+                    .opacity(viewModel.isEnablePublishDateFliter ? 1 : 0.3)
+                    .animation(.default, value: viewModel.isEnablePublishDateFliter)
 
                 }
                 
                 Section("投稿の種類") {
-                    ForEach(ContentType.allCases, id: \.self) {
-                        Text($0.name)
+                    ForEach(ContentType.allCases, id: \.self) { type in
+                        HStack {
+                            Rectangle()
+                                .fill(type.color)
+                                .frame(width: 10)
+                            Text(type.name)
+                        }
                     }
                     .listRowBackground(Color.white)
                 }
             }
             .environment(\.editMode, .constant(.active))
-        }
-    }
-}
-
-struct SortSelecterView: View {
-    @Binding var isShowSortView: Bool
-    @Binding var sortType: SortType
-    
-    var body: some View {
-        VStack {
-            
         }
     }
 }

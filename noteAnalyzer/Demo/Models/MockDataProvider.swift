@@ -30,15 +30,15 @@ class MockDataProvider {
         let date = Date()
         // 即時更新できるように、イニシャライズした1時間前に設定
         lastCalculatedAt = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
-        generateNewMockItems()
     }
     
     /// デバイス内のデータをmockItemに変換し、サーバー(MockDataProvider)も同じ記事データを持っているようにする
     func injectLocalItems(_ realmItems: Results<Item>) {
         mockItems += convertToMockItems(from: realmItems)
-        updateExistingItems()
         
         currentNoteCount = mockItems.count
+        updateExistingItems()
+        generateNewMockItems()
         updateLastCalculatedAt()
     }
     
@@ -70,10 +70,10 @@ class MockDataProvider {
         for _ in 0..<newItemCount {
             currentNoteCount += 1
             
-            let type: ContentType = Bool.random() ? .text : .talk
+            let type: ContentType = ContentType.allCases.randomElement()!
             let newItem = MockItem(
                 id: currentNoteCount,
-                name: type == .text ? "サンプル記事\(currentNoteCount)" : nil,
+                name: type == .talk ? nil : "サンプル\(type.name)\(currentNoteCount)",
                 body: "これは全記事通算\(currentNoteCount)番目の\(type.name)です",
                 type: type,
                 readCount: Int.random(in: 100...1500),
@@ -144,6 +144,8 @@ class MockDataProvider {
     /// モックデータ用の`lastCalculatedAt`を、今回更新分から1分進める。こうすることで、更新ボタンをまたすぐに押してもデータの取得ができる。
     func updateLastCalculatedAt() {
         lastCalculatedAt = Calendar.current.date(byAdding: .minute, value: 1, to: lastCalculatedAt)!
+        print("dataprovider: lastCalculatedAt updated to \(dateToString(date: lastCalculatedAt))")
+        print("Appconfig lastCalculatedAt updated to \(AppConfig.lastCalculateAt)")
     }
     
     /// 既存のモックデータの統計ステータスを増加させる

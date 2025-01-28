@@ -39,6 +39,18 @@ final class SettingsViewModel: ObservableObject {
         )
     }
     
+    func openHowToUse() {
+        let howToUsePageURLString = "https://note.com/natsu_gure/n/na8f53987857b"
+        
+        alertEntity = .init(
+            doubleButtonAlert: "",
+            message: "使い方の説明ページを外部ブラウザで開きます。\nよろしいですか？",
+            action: {
+                self.url = URL(string: howToUsePageURLString)
+            }
+        )
+    }
+    
     func reauthorize() async {
         isPresentedAuthWebView = true
     }
