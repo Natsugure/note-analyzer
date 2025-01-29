@@ -6,6 +6,7 @@ noteAnalyzerは、ブログサービス「note」の記事統計情報を取得�
 
 ## 統計を取得する
 ![全記事統計画面](Docs/Images/dashboard-view-screenshot.png)
+
 トップ画面（全記事統計画面）の右上にある↺マークをタップすると、noteのサーバーから統計情報を取得できます。
 
 ### 取得できる情報
@@ -19,11 +20,13 @@ noteAnalyzerは、ブログサービス「note」の記事統計情報を取得�
 
 ### 全記事統計
 ![全記事統計画面](Docs/Images/dashboard-view-screenshot.png)
+
 - 全記事通算のビュー・コメント・スキ数の推移をグラフとリストで確認できます
 - リストで各更新日を選択すると、記事リストに移動します
 
 ### 日統計
 ![日統計画面](Docs/Images/daily-view-screenshot.png)
+
 選択した取得日時点での統計を表示します。
 
 画面上部には：
@@ -43,6 +46,7 @@ noteAnalyzerは、ブログサービス「note」の記事統計情報を取得�
 
 ### 記事別統計
 ![記事別統計画面](Docs/Images/article-detail-view-screenshot.png)
+
 記事リストで選択した記事のビュー・コメント・スキ数の推移をグラフとリストで確認することができます。
 
 ## トラブルシューティング
