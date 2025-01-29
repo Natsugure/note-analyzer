@@ -298,6 +298,7 @@
 			isa = PBXGroup;
 			children = (
 				1AE3CA232C3A26D600C30A89 /* noteAnalyzer */,
+				1A7367182D48632E0056337E /* Docs */,
 				1A7E450B2C64590A002A4B82 /* README.md */,
 				1A7418162D49BED8002817CE /* USAGE.md */,
 				1AE3CA222C3A26D600C30A89 /* Products */,
@@ -323,7 +324,6 @@
 				1AE3CA282C3A26D700C30A89 /* Assets.xcassets */,
 				1AE3CA2A2C3A26D700C30A89 /* Preview Content */,
 				1A2AC3AB2C5496DC0046C921 /* Constants.swift */,
-				1A7367182D48632E0056337E /* Docs */,
 				1AA5AD7E2CCB33D6007BDBDE /* Demo */,
 			);
 			path = noteAnalyzer;
