@@ -40,7 +40,7 @@ final class SettingsViewModel: ObservableObject {
     }
     
     func openHowToUse() {
-        let howToUsePageURLString = "https://note.com/natsu_gure/n/na8f53987857b"
+        let howToUsePageURLString = "https://github.com/Natsugure/note-analyzer/blob/master/USAGE.md"
         
         alertEntity = .init(
             doubleButtonAlert: "",

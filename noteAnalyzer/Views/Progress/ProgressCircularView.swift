@@ -12,11 +12,13 @@ struct ProgressCircularView: View {
         VStack {
             ProgressView()
                 .scaleEffect(1.5)
-                .padding(.top)
         }
         .padding()
         .background(Color.white)
         .cornerRadius(8)
+        .onAppear {
+            print("progress appear")
+        }
     }
 }
 

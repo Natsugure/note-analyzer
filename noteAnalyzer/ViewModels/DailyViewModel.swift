@@ -40,11 +40,22 @@ enum SortType: String, CaseIterable {
     }
 }
 
+struct StatsSummary {
+    let totalRead: Int
+    let readDifference: String
+    let totalComment: Int
+    let commentDifference: String
+    let totalLike: Int
+    let likeDifference: String
+}
+
 @MainActor
 final class DailyViewModel: ObservableObject {
     var selectedDate: Date
     
-    @Published var listItems: [Item] = []
+    @Published private(set) var listItems: [Item] = []
+    @Published private(set) var statsSummary: StatsSummary?
+    @Published var isPresentedProgressView = false
     @Published var isShowFilterSheet = false
     @Published var isEnablePublishDateFliter = false
     @Published var startDate = Date()
@@ -53,19 +64,42 @@ final class DailyViewModel: ObservableObject {
     @Published var sortType: SortType = .viewDecending
     
     private let realmManager: RealmManager
-    var baseResults: Results<Item>!
-    var filteredResults: Results<Item>!
+    private var baseResults: Results<Item>!
+    private var filteredResults: Results<Item>!
     
     init(date: Date, realmManager: RealmManager) {
         self.selectedDate = date
         self.realmManager = realmManager
         
         baseResults = realmManager.getItem()
-        makeListItems()
+        updateSummaryAndList()
     }
     
-    func makeListItems() {
-        filteredResults = baseResults.where { item -> Query<Bool> in
+    func updateSummaryAndList() {
+        Task {
+            filteredResults = await filterItemResults()
+            await applySort()
+            await updateSummary()
+        }
+    }
+    
+    private func changeProgressViewState() async {
+        isPresentedProgressView.toggle()
+    }
+    
+    private func updateSummary() async {
+        statsSummary = StatsSummary(
+                    totalRead: totalCount(for: \.readCount),
+                    readDifference: differenceString(for: \.readCount),
+                    totalComment: totalCount(for: \.commentCount),
+                    commentDifference: differenceString(for: \.commentCount),
+                    totalLike: totalCount(for: \.likeCount),
+                    likeDifference: differenceString(for: \.likeCount)
+                )
+    }
+    
+    private func filterItemResults() async -> Results<Item> {
+        return baseResults.where { item -> Query<Bool> in
             let baseCondition = item.stats.updatedAt == selectedDate && item.publishedAt <= selectedDate
             
             // 投稿日フィルター
@@ -82,12 +116,10 @@ final class DailyViewModel: ObservableObject {
             // すべての条件がtrueのみフィルターを通す
             return baseCondition && publishDateCondition && contentTypeCondition
         }
-        
-        listItems = sortItems(items: filteredResults)
     }
     
-    private func sortItems(items: Results<Item>) -> [Item] {
-        items.sorted { (item1, item2) -> Bool in
+    func applySort() async {
+        listItems = filteredResults.sorted { (item1, item2) -> Bool in
             let stats1 = item1.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
             let stats2 = item2.stats.first { Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate) }
             

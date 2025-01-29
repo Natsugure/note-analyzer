@@ -20,10 +20,10 @@ struct DailyView: View {
                             .frame(alignment: .leading)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                        Text(formattedString(from: viewModel.totalCount(for: \.readCount)))
+                        Text(formattedString(from: viewModel.statsSummary?.totalRead ?? 0))
                             .font(.system(size: 24, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .center)
-                        Text(viewModel.differenceString(for: \.readCount))
+                        Text(viewModel.statsSummary?.readDifference ?? "(-)")
                             .font(.system(size: 12))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -36,10 +36,10 @@ struct DailyView: View {
                             .frame(alignment: .leading)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                        Text(formattedString(from: viewModel.totalCount(for: \.commentCount)))
+                        Text(formattedString(from: viewModel.statsSummary?.totalComment ?? 0))
                             .font(.system(size: 24, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .center)
-                        Text(viewModel.differenceString(for: \.commentCount))
+                        Text(viewModel.statsSummary?.commentDifference ?? "(-)")
                             .font(.system(size: 12))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -52,10 +52,10 @@ struct DailyView: View {
                             .frame(alignment: .leading)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                        Text(formattedString(from: viewModel.totalCount(for: \.likeCount)))
+                        Text(formattedString(from: viewModel.statsSummary?.totalLike ?? 0))
                             .font(.system(size: 24, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .center)
-                        Text(viewModel.differenceString(for: \.likeCount))
+                        Text(viewModel.statsSummary?.likeDifference ?? "(-)")
                             .font(.system(size: 12))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -97,7 +97,9 @@ struct DailyView: View {
                         .shadow(radius: 1, x: 1, y: 1)
                         .padding(.horizontal)
                         .onChange(of: viewModel.sortType) {
-                            viewModel.makeListItems()
+                            Task {
+                                await viewModel.applySort()
+                            }
                         }
                     }
                     
@@ -172,10 +174,20 @@ struct DailyView: View {
             }
             .navigationTitle("\(viewModel.selectedDate, formatter: dateFormatter) 統計")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $viewModel.isShowFilterSheet, onDismiss: {
-                viewModel.makeListItems()
-            }) {
+            .sheet(isPresented: $viewModel.isShowFilterSheet) {
                 FilterSelecterView(viewModel: viewModel)
+            }
+            .onChange(of: viewModel.isShowFilterSheet) {
+                if !viewModel.isShowFilterSheet {
+                    viewModel.updateSummaryAndList()
+                }
+            }
+            .fullScreenCover(isPresented: $viewModel.isPresentedProgressView) {
+                ProgressCircularView()
+                    .presentationBackground(Color.black.opacity(0.3))
+            }
+            .transaction(value: viewModel.isPresentedProgressView) {
+                $0.disablesAnimations = true
             }
         }
     }

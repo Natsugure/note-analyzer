@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import RealmSwift
 
 struct SettingsView: View {
     @StateObject var viewModel: SettingsViewModel
