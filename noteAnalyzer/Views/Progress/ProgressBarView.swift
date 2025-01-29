@@ -11,7 +11,7 @@ struct ProgressBarView: View {
     @Binding var progress: Double
     
     init(progress: Binding<Double>) {
-        self._progress = progress  // _progress で @Binding プロパティに代入
+        self._progress = progress
     }
     
     var body: some View {

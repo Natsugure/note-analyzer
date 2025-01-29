@@ -8,35 +8,29 @@
 import SwiftUI
 
 struct InitialSetupView: View {
-    @EnvironmentObject private var viewModel: ViewModel
-    @StateObject private var alertObject = AlertObject()
-    @State private var isPresentedProgressView = false
-    @State private var shouldShowLoginCredentialMismatchView = false
-    @State private var shouldShowIsCompleteInitialSetupView = false
-    @State var isShowAlert = false
+    @StateObject var viewModel: InitialSetupViewModel
     
     var body: some View {
         ZStack {
             VStack {
                 Spacer()
                 Text("ログイン処理が完了しました")
+                    .font(.title)
                     .padding(.vertical)
-                Text("アプリを利用するには、ダッシュボードを取得する必要があります。")
+                
+                VStack {
+                    Text("アプリを利用するには、noteのサーバーから統計情報を取得する必要があります。")
+                    Text("以下のボタンをタップすると、現時点での総ビュー・スキ・コメント数を取得します。".insertWordJoiner())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical)
+                }
+                .padding(.vertical, 100)
                 
                 Spacer()
                 
-                Button("ダッシュボードを取得する") {
+                Button("統計情報を取得する") {
                     Task {
-                        viewModel.resetProgressValue()
-                        isPresentedProgressView = true
-                        do {
-                            try await viewModel.getArticleCount()
-                            try await viewModel.getStats()
-                            isPresentedProgressView = false
-                            shouldShowIsCompleteInitialSetupView.toggle()
-                        } catch {
-                            shouldShowIsCompleteInitialSetupView.toggle()
-                        }
+                        await viewModel.fetchStats()
                     }
                 }
                 .frame(maxWidth: .infinity, minHeight: 50)
@@ -46,46 +40,27 @@ struct InitialSetupView: View {
             }
             .padding()
 
-            
-            if isPresentedProgressView {
+            if viewModel.isPresentedProgressView {
                 Color.white
                 ProgressBarView(progress: $viewModel.progressValue)
                     .padding()
             }
         }
-        .onAppear {
-            Task {
-//                await verifyLoginConsistency()
-            }
-        }
-        .navigationDestination(isPresented: $shouldShowIsCompleteInitialSetupView) {
-            IsCompleteInitialSetupView()
+        .navigationDestination(isPresented: $viewModel.shouldShowCompleteInitialSetupView) {
+            CompleteInitialSetupView()
         }
         .navigationBarBackButtonHidden(true)
-        .customAlert(for: alertObject, isPresented: $isShowAlert)
-    }
-    
-    private func verifyLoginConsistency() async {
-        isPresentedProgressView = true
-        // ここにAPIからurlnameを取得するロジックを書く。たぶんViewModelから呼び出す。
-        do {
-            try await viewModel.verifyLoginConsistency()
-            isPresentedProgressView = false
-        } catch NAError.Auth.loginCredentialMismatch {
-            shouldShowLoginCredentialMismatchView.toggle()
-        } catch {
-            print(error)
-        }
+        .customAlert(entity: $viewModel.alertEntity)
     }
 }
 
 struct InitialSetupView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let authManager = MockAuthenticationService()
+    static let networkService = NetworkService()
+    static let apiClient = NoteAPIClient(authManager: authManager, networkService: networkService)
     static let realmManager = RealmManager()
     
     static var previews: some View {
-        InitialSetupView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        InitialSetupView(viewModel: InitialSetupViewModel(apiClient: apiClient, realmManager: realmManager))
     }
 }

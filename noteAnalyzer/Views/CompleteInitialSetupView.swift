@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-struct IsCompleteInitialSetupView: View {
-    @EnvironmentObject private var viewModel: ViewModel
-    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+struct CompleteInitialSetupView: View {
     @State private var shouldShowMainView = false
+    @Environment(\.SetIsPresentedOnboardingView) var setIsPresentedOnboardingView
     
     var body: some View {
         VStack {
@@ -23,7 +22,7 @@ struct IsCompleteInitialSetupView: View {
             Text("ダッシュボードの取得が完了しました！")
             Spacer()
             Button("メイン画面へ移動する") {
-                isAuthenticationConfigured = true
+                setIsPresentedOnboardingView(false)
             }
             .frame(maxWidth: .infinity, minHeight: 50)
             .background(Color.blue)
@@ -35,13 +34,6 @@ struct IsCompleteInitialSetupView: View {
     }
 }
 
-struct IsCompleteInitialSetupView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    
-    static var previews: some View {
-        IsCompleteInitialSetupView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
+#Preview {
+    CompleteInitialSetupView()
 }

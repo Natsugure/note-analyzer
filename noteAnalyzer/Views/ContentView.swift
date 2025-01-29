@@ -8,25 +8,32 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var viewModel: ViewModel
-    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
+    private let authService: AuthenticationServiceProtocol
+    private let networkService: NetworkServiceProtocol
+    private let apiClient: NoteAPIClient
+    private let realmManager: RealmManager
+    
+    init(authService: AuthenticationServiceProtocol, networkService: NetworkServiceProtocol, apiClient: NoteAPIClient, realmManager: RealmManager) {
+        self.authService = authService
+        self.networkService = networkService
+        self.apiClient = apiClient
+        self.realmManager = realmManager
+    }
     
     var body: some View {
-        if !isAuthenticationConfigured {
-            OnboardingView()
-        } else {
-            MainView()
+        ZStack {
+            MainTabView(authService: authService, apiClient: apiClient, realmManager: realmManager)
         }
     }
 }
 
 struct Content_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let authManager = MockAuthenticationService()
+    static let networkService = NetworkService()
+    static let apiClient = MockNoteAPIClient(authManager: authManager, networkService: networkService)
     static let realmManager = RealmManager()
     
     static var previews: some View {
-        ContentView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        ContentView(authService: authManager, networkService: networkService, apiClient: apiClient, realmManager: realmManager)
     }
 }

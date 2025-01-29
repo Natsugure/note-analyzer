@@ -2,7 +2,7 @@
 //  Calendar+DateFormatter.swift
 //  noteAnalyzer
 //
-//  Created by akizora on 2025/01/05.
+//  Created by Natsugure on 2025/01/05.
 //
 
 import Foundation

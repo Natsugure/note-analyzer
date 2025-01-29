@@ -5,31 +5,22 @@
 //  Created by Natsugure on 2024/07/08.
 //
 
-import SwiftUI
+import Foundation
 import WebKit
 
 protocol NetworkServiceProtocol {
-    func fetchData(url: String) async throws -> Data
+    func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data
     func resetWebComponents()
 }
 
 class NetworkService: NetworkServiceProtocol {
-    private let realmManager: RealmManager
-    private let authManager: AuthenticationManager
-    
-    private var isLastPage = false
-    private var isUpdated = false
     private var session: URLSession
-    private var cookies: [HTTPCookie] = []
     
     // レート制限のための変数
     private let requestsPerMinute: Int = 60
     private var requestTimestamps: [Date] = []
     
-    init(authManager: AuthenticationManager) {
-        self.authManager = authManager
-        self.realmManager = RealmManager()
-        
+    init() {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
@@ -37,7 +28,7 @@ class NetworkService: NetworkServiceProtocol {
         self.session = URLSession(configuration: configuration)
     }
     
-    func fetchData(url urlString: String) async throws -> Data {
+    func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data {
         print(urlString)
 
         guard let url = URL(string: urlString) else {
@@ -49,7 +40,17 @@ class NetworkService: NetworkServiceProtocol {
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = nil
         request.cachePolicy = .reloadIgnoringLocalCacheData
-        addCookiesToRequest(&request)
+        
+        if cookies.isEmpty {
+            throw NAError.auth(.authCookiesNotFound)
+        }
+        
+        let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
+        if let headers = request.allHTTPHeaderFields {
+            request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
+        } else {
+            request.allHTTPHeaderFields = cookieHeaders
+        }
         
         let (data, _) = try await session.data(for: request)
         
@@ -58,27 +59,14 @@ class NetworkService: NetworkServiceProtocol {
         return data
     }
     
-    private func addCookiesToRequest(_ request: inout URLRequest) {
-        let cookies = authManager.getCookies()
-        
-        let cookieHeaders = HTTPCookie.requestHeaderFields(with: cookies)
-        if let headers = request.allHTTPHeaderFields {
-            request.allHTTPHeaderFields = headers.merging(cookieHeaders) { (_, new) in new }
-        } else {
-            request.allHTTPHeaderFields = cookieHeaders
-        }
-    }
-    
     ///URLSession、WKWebViewから関連するデータを全て削除して再定義。
     func resetWebComponents() {
         // HTTPCookieStorageからクッキーを削除
         if let cookies = HTTPCookieStorage.shared.cookies {
             for cookie in cookies {
-                print("before delete: \(cookie)")
                 HTTPCookieStorage.shared.deleteCookie(cookie)
             }
         }
-        cookies.removeAll()
         
         // URLSessionをリセットして、URLSessionConfigurationを再定義
         URLSession.shared.reset {

@@ -11,7 +11,7 @@ protocol MockableNetworkServiceProtocol: NetworkServiceProtocol {
     func updateMockItems()
 }
 
-class MockNetworkService: MockableNetworkServiceProtocol {
+struct MockNetworkService: MockableNetworkServiceProtocol {
     enum MockResponseType {
         case success
         case error
@@ -19,20 +19,21 @@ class MockNetworkService: MockableNetworkServiceProtocol {
     }
 
     /// モックの動作をコントロールするためのプロパティ
-    var responseType: MockResponseType = .success
+    private var responseType: MockResponseType = .success
+    /// ネットワークの遅延を再現するための時間。
+    private let networkDelaySec: Double = 0.1
     
-    private var mockDataProvider: MockDataProvider
+    private let mockDataProvider: MockDataProvider
     
-    init(realmItems: [Item]) {
-        self.mockDataProvider = MockDataProvider(realmItems: realmItems)
-        mockDataProvider.updateLastCalculatedAt()
+    init(provider: MockDataProvider) {
+        self.mockDataProvider = provider
     }
     
     /// 実際のAPIをフェッチする代わりに、URLに基づいた適切なモックデータを返す
-    func fetchData(url urlString: String) async throws -> Data {
+    func fetchData(url urlString: String, cookies: [HTTPCookie]) async throws -> Data {
         let page = extractPageNumber(from: urlString)
         
-        try await Task.sleep(nanoseconds: 500_000_000)
+        try await Task.sleep(for: .seconds(networkDelaySec))
         
         if urlString.contains("stats/pv") {
             return await mockDataProvider.createMockStatsData(page: page)
@@ -51,9 +52,7 @@ class MockNetworkService: MockableNetworkServiceProtocol {
         throw NAError.network(.unknownNetworkError(NSError(domain: "", code: -1)))
     }
     
-    func resetWebComponents() {
-        // デモ用なので何もしない
-    }
+    func resetWebComponents() {}
     
     /// URLからページ番号を抽出する。
     ///
@@ -68,13 +67,10 @@ class MockNetworkService: MockableNetworkServiceProtocol {
         }
         return page
     }
-//    
-//    func injectExistingItems(realmItems: [Item]) {
-//        mockDataProvider.appendExistingItems(realmItems: realmItems)
-//    }
     
     func updateMockItems() {
-        mockDataProvider.updateLastCalculatedAt()
         mockDataProvider.updateExistingItems()
+        mockDataProvider.generateNewMockItems()
+        mockDataProvider.updateLastCalculatedAt()
     }
 }

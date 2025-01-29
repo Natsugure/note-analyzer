@@ -6,45 +6,42 @@
 //
 
 import SwiftUI
-import RealmSwift
 
 struct SettingsView: View {
-    @EnvironmentObject var viewModel: ViewModel
+    @StateObject var viewModel: SettingsViewModel
+    @Binding var selectedTabBarIndex: Int
+    @Environment(\.SetIsPresentedOnboardingView) var isPresentedOnboardingView
     @Environment(\.openURL) private var openURL
-    @ObservedObject var alertObject: AlertObject
-    @AppStorage(AppConstants.UserDefaults.authenticationConfigured) private var isAuthenticationConfigured = false
     @State var path = NavigationPath()
-    @State var isShowAlert = false
-    
-    private let contactFormURLString = "https://forms.gle/Tceg32xcH8avj8qy5"
-    
-#if DEBUG
-    @AppStorage(AppConstants.UserDefaults.demoModekey) private var isDemoMode = false
-#endif
     
     var body: some View {
         NavigationStack(path: $path) {
             List {
+                Section("認証がうまくいかない場合は、こちらから再認証してください。") {
+                    Button("再認証") {
+                        Task {
+                            await viewModel.reauthorize()
+                        }
+                    }
+                }
+                
                 Section {
+                    Button("アプリの使い方") {
+                        viewModel.openHowToUse()
+                    }
                     NavigationLink("利用規約", destination: MarkdownView(filename: "term_of_service"))
                     NavigationLink("プライバシーポリシー", destination: MarkdownView(filename: "privacy_policy"))
                 }
                 
                 Section {
                     Button("お問い合わせ") {
-                        alertObject.showDouble(
-                            isPresented: $isShowAlert,
-                            title: "",
-                            message: "お問い合わせフォームを外部ブラウザで開きます。\nよろしいですか？",
-                            action: { openURL(URL(string: contactFormURLString)!)})
+                        viewModel.openContactUsPage()
                     }
                 }
                 
                 Section {
                     Button(action: {
-                        Task {
-                            await confirmClearData()
-                        }
+                        viewModel.confirmClearData()
                     }) {
                         Text("すべてのデータを消去")
                             .foregroundColor(.red)
@@ -53,138 +50,52 @@ struct SettingsView: View {
                 
 #if DEBUG
                 Section {
-                    Button("ログイン") {
-                        viewModel.authenticate()
-                    }
-                    .sheet(isPresented: $viewModel.showAuthWebView) {
-                        WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: "https://note.com/login")
-                    }
-                    Button(action: {
-                        Task {
-                            do {
-                                try await viewModel.logout()
-                                alertObject.showSingle(
-                                    isPresented: $isShowAlert,
-                                    title: "ログアウト完了",
-                                    message: "ログアウトが完了しました。初期設定画面に戻ります。") {
-                                    isAuthenticationConfigured = false
-                                }
-                            } catch KeychainError.unexpectedStatus(let status) {
-                                alertObject.showSingle(
-                                    isPresented: $isShowAlert,
-                                    title: "エラー",
-                                    message: "ログアウト処理中にエラーが発生しました。\n Keychain error status: \(status)"
-                                )
-                            } catch {
-                                alertObject.showSingle(
-                                    isPresented: $isShowAlert,
-                                    title: "エラー",
-                                    message: "ログアウト処理中に不明なエラーが発生しました。"
-                                )
-                            }
-                        }
-                    }) {
-                        Text("ログアウト")
-                            .foregroundColor(.red)
-                    }
-                }
-                .onAppear(perform: {
-                    print("settingView: \(isDemoMode)")
-                })
-                
-                Section {
-                    Toggle("デモモード", isOn: $isDemoMode)
+                    Toggle("デモモード", isOn: $viewModel.isDemoMode)
                     Text("デモモードON : モックデータを使用してアプリを使用します。\nデモモードOFF: 実際にnoteのアカウントを使用してダッシュボードを取得します。\n\n変更するとただちにアプリ内データの消去を実行し、変更を適用します。")
                 }
-                .onChange(of: isDemoMode) { newValue in
+                .onChange(of: viewModel.isDemoMode) {
                     Task {
-                        await changeDemoModeKey()
+                        await viewModel.changeDemoModeKey()
                     }
                 }
+                .onChange(of: viewModel.shouldShowOnboardingView) {
+                    selectedTabBarIndex = 1
+                    isPresentedOnboardingView(true)
+                }
 #endif
-                
             }
-            .customAlert(for: alertObject, isPresented: $isShowAlert)
-        }
-    }
-    
-    private func confirmClearData() async {
-        alertObject.showDouble(
-            isPresented: $isShowAlert,
-            title: "すべてのデータを消去",
-            message: "\n●これまで取得した統計データ\n●noteへのログイン情報\n\nこれらがすべて消去され、アプリが初期状態に戻ります。\nこの操作は取り消すことができません。\n\n消去を実行しますか？",
-            actionText: "消去する",
-            action: { Task { await clearAllData() } },
-            actionRole: .destructive
-        )
-    }
-    
-    private func clearAllData() async {
-        do {
-            try await viewModel.clearAllData()
-            alertObject.showSingle(
-                isPresented: $isShowAlert,
-                title: "消去完了",
-                message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。",
-                action: { isAuthenticationConfigured = false }
-            )
-        } catch {
-            handleClearAllDataError(error)
-        }
-    }
-    
-    private func changeDemoModeKey() async {
-        do {
-            try await viewModel.clearAllData()
-            showRestartAlert()
-        } catch {
-            handleClearAllDataError(error)
-        }
-    }
-    
-    private func showRestartAlert() {
-        alertObject.showSingle(
-            isPresented: $isShowAlert,
-            title: "アプリの再起動が必要",
-            message: "デモモードの設定を反映するには、アプリの再起動が必要です。",
-            action: {
-                isAuthenticationConfigured = false
-                exit(0)
+            .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
+                AuthWebView(viewModel: AuthWebViewModel { cookies in
+                    Task {
+                        await viewModel.checkAuthentication(cookies: cookies)
+                    }
+                })
             }
-        )
-    }
-    
-    private func handleClearAllDataError(_ error: any Error) {
-        let detail: String
-        
-        if let keychainError = error as? KeychainError {
-            switch keychainError {
-            case .unexpectedStatus(let status):
-                detail = "処理中にエラーが発生しました。\n 認証情報の消去に失敗しました。\nエラーコード: \(status)"
-                
-            default:
-                detail = "処理中に不明なエラーが発生しました。\n\(error.localizedDescription)"
+            .onChange(of: viewModel.url) {
+                if let url = viewModel.url {
+                    openURL(url)
+                }
             }
-        } else {
-            detail = "処理中に不明なエラーが発生しました。"
+            .customAlert(entity: $viewModel.alertEntity)
         }
-        
-        alertObject.showSingle(
-            isPresented: $isShowAlert,
-            title: "初期化エラー",
-            message: detail
-        )
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let authService = MockAuthenticationService()
+    static let provider = MockDataProvider()
+    static let networkService = MockNetworkService(provider: provider)
+    static let apiClient = NoteAPIClient(authManager: authService, networkService: networkService)
     static let realmManager = RealmManager()
-    static let alertObject = AlertObject()
     
     static var previews: some View {
-        SettingsView(alertObject: alertObject)
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        SettingsView(
+            viewModel: SettingsViewModel(
+                authService: authService,
+                apiClient: apiClient,
+                realmManager: realmManager
+            ),
+            selectedTabBarIndex: .constant(2)
+        )
     }
 }

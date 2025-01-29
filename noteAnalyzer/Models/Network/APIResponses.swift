@@ -5,10 +5,10 @@
 //  Created by Natsugure on 2024/07/08.
 //
 
-import Foundation
+import SwiftUI
 import RealmSwift
 
-enum ContentType: String, Codable, RawRepresentable, PersistableEnum {
+enum ContentType: String, Codable, CaseIterable, RawRepresentable, PersistableEnum {
     case text = "TextNote"
     case talk = "TalkNote"
     case sound = "SoundNote"
@@ -24,11 +24,21 @@ enum ContentType: String, Codable, RawRepresentable, PersistableEnum {
     
     var name: String {
         switch self {
-        case .text: return "通常記事"
-        case .talk: return "つぶやき"
-        case .sound: return "音声"
-        case .image: return "画像"
-        case .movie: return "動画"
+        case .text: "通常記事"
+        case .talk: "つぶやき"
+        case .sound: "音声"
+        case .image: "画像"
+        case .movie: "動画"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .text: Color.rgb(red: 255, green: 214, blue: 39)
+        case .talk: Color.rgb(red: 134, green: 217, blue: 226)
+        case .sound: Color.rgb(red: 85, green: 209, blue: 183)
+        case .image: Color.rgb(red: 245, green: 114, blue: 88)
+        case .movie: Color.rgb(red: 213, green: 225, blue: 236)
         }
     }
 }
@@ -82,6 +92,7 @@ struct APIErrorResponse: Codable {
 }
 
 struct APIUserDetailResponse: Codable {
+    let id: Int
     let noteCount: Int
 }
 
@@ -137,5 +148,28 @@ enum DataOrError: Codable {
         case .error(let message):
             try container.encode(message)
         }
+    }
+}
+
+struct APISearchUserResponse: Codable {
+    let data: SearchUserData
+    
+    struct SearchUserData: Codable {
+        let users: UserList
+    }
+    
+    struct UserList: Codable {
+        let contents: [User]
+        let totalCount: Int
+    }
+    
+    struct User: Codable {
+        let id: Int
+    }
+}
+
+extension Color {
+    static func rgb(red: CGFloat, green: CGFloat, blue: CGFloat) -> Color {
+        return Color(red: red/255.0, green: green/255.0, blue: blue/255.0)
     }
 }

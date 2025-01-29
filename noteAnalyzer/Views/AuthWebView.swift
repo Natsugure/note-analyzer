@@ -8,17 +8,39 @@
 import SwiftUI
 
 struct AuthWebView: View {
-    @EnvironmentObject var viewModel: ViewModel
+    @StateObject var viewModel: AuthWebViewModel
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationStack {
             VStack {
-                WebView(isPresented: $viewModel.isAuthenticated, viewModel: viewModel, urlString: AppConstants.authUrl)
+                WrappedWebView(viewModel: viewModel)
+            }
+            .onChange(of: viewModel.shouldExecuteCompletionHandler) {
+                if viewModel.shouldExecuteCompletionHandler {
+                    dismiss()
+                }
+            }
+            .onAppear {
+#if DEBUG
+                Task {
+                    if AppConfig.isDemoMode {
+                        viewModel.shouldExecuteCompletionHandler = true
+                    }
+                }
+#endif
+            }
+            .onDisappear {
+                if viewModel.shouldExecuteCompletionHandler {
+                    Task {
+                        await viewModel.executeCompletionHandler()
+                    }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("キャンセル") {
-                        viewModel.showAuthWebView.toggle()
+                        dismiss()
                     }
                 }
             }
@@ -28,14 +50,9 @@ struct AuthWebView: View {
     }
 }
 
-struct AuthWebView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
-    static let realmManager = RealmManager()
-    
-    static var previews: some View {
-        AuthWebView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
-    }
-}
+//struct AuthWebView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        AuthWebView(viewModel: AuthWebViewModel(didFinishLoginOnAuthWebView: .constant(false)))
+//    }
+//}
 

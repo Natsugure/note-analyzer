@@ -8,90 +8,91 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @EnvironmentObject var viewModel: ViewModel
-    
-    @State private var showTermModal = false
-    @State private var showPrivacyModal = false
-    @State private var shouldShowInitialSetupView = false
-    @State private var agreedToTerms = false
+    @StateObject var viewModel: OnboardingViewModel
     
     var body: some View {
         NavigationStack {
-            VStack {
-                Spacer()
-                
-                Text("noteAnalyzer")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                Image(systemName: "chart.bar.xaxis")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 150, height: 150)
-                    .foregroundColor(.black)
-                    .padding(.bottom)
-                Text("noteAnalyzerは、noteのダッシュボードを拡張する非公式アプリです。")
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                    .padding(.bottom, 3)
-                Text("ダッシュボードを取得するにはnoteへのログインが必要です。")
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                
-                Spacer()
-                
+            ZStack {
                 VStack {
-                    VStack {
-                        HStack {
-                            Text("サービスを利用開始するには、")
-                        }
+                    Spacer()
+                    
+                    Text("noteAnalyzer")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    Image(.appIconTransparent)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 150, height: 150)
+                        .foregroundColor(.black)
+                        .padding(.bottom)
+                    Text("noteAnalyzerは、noteのダッシュボードを拡張する非公式アプリです。")
                         .multilineTextAlignment(.center)
-                        
-                        HStack {
-                            Button("利用規約") {
-                                showTermModal = true
+                        .padding(.horizontal)
+                        .padding(.bottom, 3)
+                    Text("ダッシュボードを取得するにはnoteへのログインが必要です。")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    VStack {
+                        VStack {
+                            HStack {
+                                Text("サービスを利用開始するには、")
                             }
-                            .foregroundColor(.blue)
-                            .sheet(isPresented: $showTermModal) {
-                                TermAndPolicyView(isShowModal: $showTermModal, fileName: "term_of_service")
+                            .multilineTextAlignment(.center)
+                            
+                            HStack {
+                                Button("利用規約") {
+                                    viewModel.showTermModal = true
+                                }
+                                .foregroundColor(.blue)
+                                .sheet(isPresented: $viewModel.showTermModal) {
+                                    TermAndPolicyView(isShowModal: $viewModel.showTermModal, fileName: "term_of_service")
+                                }
+                                Text("と")
+                                Button("プライバシーポリシー") {
+                                    viewModel.showPrivacyModal = true
+                                }
+                                .foregroundColor(.blue)
+                                .sheet(isPresented: $viewModel.showPrivacyModal) {
+                                    TermAndPolicyView(isShowModal: $viewModel.showPrivacyModal, fileName: "privacy_policy")
+                                }
                             }
-                            Text("と")
-                            Button("プライバシーポリシー") {
-                                showPrivacyModal = true
-                            }
-                            .foregroundColor(.blue)
-                            .sheet(isPresented: $showPrivacyModal) {
-                                TermAndPolicyView(isShowModal: $showPrivacyModal, fileName: "privacy_policy")
-                            }
+                            
+                            Text("に同意する必要があります。")
                         }
+                        .padding()
                         
-                        Text("に同意する必要があります。")
+                        Button("同意してログイン画面へ") {
+                            viewModel.showAuthWebView()
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(Color.blue)
+                        .foregroundStyle(.white)
+                        .clipShape(Capsule())
+                        .sheet(isPresented: $viewModel.isPresentedAuthWebView) {
+                            AuthWebView(viewModel: AuthWebViewModel { cookies in
+                                Task {
+                                    await viewModel.checkAuthentication(cookies: cookies)
+                                }
+                            })
+                                .interactiveDismissDisabled()
+                        }
                     }
                     .padding()
-                    
-                    Button("同意してログイン画面へ") {
-                        viewModel.authenticate()
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 50)
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .clipShape(Capsule())
-                    .sheet(isPresented: $viewModel.showAuthWebView) {
-                        AuthWebView()
-                            .interactiveDismissDisabled()
-                    }
                 }
-                .padding()
-            }
-            .onChange(of: viewModel.showAuthWebView) { newValue in
-                if viewModel.isAuthenticated && !newValue {
-                    print("onchange")
-                    shouldShowInitialSetupView.toggle()
+                
+                if viewModel.isPresentedProgressView {
+                    Color.black.opacity(0.7).ignoresSafeArea()
+                    ProgressCircularView()
                 }
             }
-            .navigationDestination(isPresented: $shouldShowInitialSetupView) {
-                InitialSetupView()
+            .navigationDestination(isPresented: $viewModel.shouldShowInitialSetupView) {
+                InitialSetupView(viewModel: viewModel.makeInitialSetupViewModel())
             }
             .navigationBarBackButtonHidden(true)
+            .customAlert(entity: $viewModel.alertEntity)
         }
     }
 }
@@ -131,12 +132,14 @@ struct TermAndPolicyView: View {
 }
 
 struct OnboardingView_Previews: PreviewProvider {
-    static let authManager = AuthenticationManager()
-    static let networkService = NetworkService(authManager: authManager)
+    static let mockAuthManager = MockAuthenticationService()
+    static let provider = MockDataProvider()
     static let realmManager = RealmManager()
+    static let networkService = MockNetworkService(provider: provider)
+    static let apiFetcher = NoteAPIClient(authManager: mockAuthManager, networkService: networkService)
+    static var viewModel = OnboardingViewModel(authManager: mockAuthManager, apiClient: apiFetcher, realmManager: realmManager)
     
     static var previews: some View {
-        OnboardingView()
-            .environmentObject(ViewModel(authManager: authManager, networkService: networkService, realmManager: realmManager))
+        OnboardingView(viewModel: viewModel)
     }
 }

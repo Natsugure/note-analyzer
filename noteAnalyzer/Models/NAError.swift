@@ -28,25 +28,29 @@ enum NAError: LocalizedError {
             switch self {
             case .statsNotUpdated: "前回の取得以降、まだ統計が更新されていません。\n 時間が経ってから再度お試しください。"
             case .networkNotConnected: "ネットワークに接続されていません。\n端末の接続状態をご確認ください。"
-            case .unknownNetworkError(let error): "ネットワーク上で不明なエラーが発生しました。\n 時間が経ってから再度お試しください。"
+            case .unknownNetworkError(_): "ネットワーク上で不明なエラーが発生しました。\n 時間が経ってから再度お試しください。"
             }
         }
     }
     
     enum Auth: LocalizedError {
         case authenticationFailed
+        case authCookiesNotFound
         case loginCredentialMismatch
         
         var errorDescription: String? {
             switch self {
             case .authenticationFailed: "noteへのログインに失敗しました。"
+            case .authCookiesNotFound: "Keychain内に該当するCookieが見つかりません。"
             case .loginCredentialMismatch: "保存済みの認証情報と、今回入力された認証情報が一致しません。"
             }
         }
         
         var userMessage: String {
             switch self {
-            case .authenticationFailed, .loginCredentialMismatch: "noteへのログインに失敗しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再認証してください。"
+            case .authenticationFailed: "noteへのログインに失敗しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
+            case .loginCredentialMismatch: "異なるアカウントが検知されました。\n当初ログインしたアカウントで認証してください。"
+            case .authCookiesNotFound: "認証情報の読込中にエラーが発生しました。\n しばらく時間をおいてから再度お試しいただくか、設定メニューから再ログインしてください。"
             }
         }
     }
