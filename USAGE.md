@@ -5,7 +5,7 @@
 noteAnalyzerは、ブログサービス「note」の記事統計情報を取得・保存し、より詳細な分析を可能にするアプリです。公式のダッシュボードページで確認できる各記事のビュー数、コメント数、スキ数を保存し、時系列での変化を追跡したり、強化された統計情報検索を行うことができます。
 
 ## 統計を取得する
-![全記事統計画面](docs/images/dashboard-view-screenshot.png)
+![全記事統計画面](Docs/Images/dashboard-view-screenshot.png)
 トップ画面（全記事統計画面）の右上にある↺マークをタップすると、noteのサーバーから統計情報を取得できます。
 
 ### 取得できる情報
@@ -18,12 +18,12 @@ noteAnalyzerは、ブログサービス「note」の記事統計情報を取得�
 ## 統計を閲覧する
 
 ### 全記事統計
-![全記事統計画面](docs/images/dashboard-view-screenshot.png)
+![全記事統計画面](Docs/Images/dashboard-view-screenshot.png)
 - 全記事通算のビュー・コメント・スキ数の推移をグラフとリストで確認できます
 - リストで各更新日を選択すると、記事リストに移動します
 
 ### 日統計
-![日統計画面](docs/images/daily-view-screenshot.png)
+![日統計画面](Docs/Images/daily-view-screenshot.png)
 選択した取得日時点での統計を表示します。
 
 画面上部には：
@@ -42,7 +42,7 @@ noteAnalyzerは、ブログサービス「note」の記事統計情報を取得�
 - 灰色：動画
 
 ### 記事別統計
-![記事別統計画面](docs/images/article-detail-view-screenshot.png)
+![記事別統計画面](Docs/Images/article-detail-view-screenshot.png)
 記事リストで選択した記事のビュー・コメント・スキ数の推移をグラフとリストで確認することができます。
 
 ## トラブルシューティング
