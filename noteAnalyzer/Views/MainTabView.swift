@@ -43,11 +43,13 @@ struct MainTabView: View {
             }
         }
         .onAppear {
-            var transaction = Transaction()
-            transaction.disablesAnimations = true
-            
-            withTransaction(transaction) {
-                isPresentedOnboardingView = !AppConfig.isCompletedInitialSetup
+            if !AppConfig.isCompletedInitialSetup {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                
+                withTransaction(transaction) {
+                    isPresentedOnboardingView = true
+                }
             }
         }
         .navigationBarBackButtonHidden(true)

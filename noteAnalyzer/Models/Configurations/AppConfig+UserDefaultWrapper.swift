@@ -1,11 +1,11 @@
 //
-//  UserDefaults.swift
+//  AppConfig+UserDefaultWrapper.swift
 //  noteAnalyzer
 //
 //  Created by Natsugure on 2024/12/22.
 //
 
-import SwiftUICore
+import Foundation
 
 @propertyWrapper
 struct UserDefaultWrapper<T: UserDefaultCompatible> {
