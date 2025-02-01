@@ -14,6 +14,8 @@ class MockDataProvider {
     private var currentNoteCount = 0
     private var mockUserId = 12345
     
+    private let transformer = NoteDataTransformer()
+    
     // モックデータの1アイテムを表す構造体
     private struct MockItem {
         let id: Int
@@ -37,9 +39,71 @@ class MockDataProvider {
         mockItems += convertToMockItems(from: realmItems)
         
         currentNoteCount = mockItems.count
-        updateExistingItems()
-        generateNewMockItems()
+        
+        if currentNoteCount == 0 {
+            
+        } else {
+            updateExistingItems()
+            generateNewMockItems()
+        }
         updateLastCalculatedAt()
+    }
+    
+    func generateInitialReviewData() async throws ->
+    [Date: ([APIStatsResponse.APIStatsItem], [APIContentsResponse.APIContentItem])]{
+        let calendar = Calendar.current
+        let today = Date()
+        // 30日前からスタート
+        var currentDate = calendar.date(byAdding: .day, value: -30, to: today)!
+        
+        var reviewData: [Date: ([APIStatsResponse.APIStatsItem], [APIContentsResponse.APIContentItem])] = [:]
+        
+        // 初日は2-3記事
+        let initialItemCount = Int.random(in: 2...3)
+        for _ in 0..<initialItemCount {
+            let newItem = generateMockItem(publishedAt: currentDate)
+            
+            mockItems.append(newItem)
+        }
+        
+        reviewData[currentDate] = try await createDayResult()
+        updateExistingItems()
+        
+        for dayOffset in stride(from: 29, through: 1, by: -1) {
+            currentDate = calendar.date(byAdding: .day, value: -dayOffset, to: today)!
+            print("currentDate in \(dayOffset): \(currentDate)")
+            
+            generateNewMockItems(date: currentDate)
+            
+            reviewData[currentDate] = try await createDayResult()
+            updateExistingItems()
+        }
+        
+        updateDataInProvider()
+        
+        return reviewData
+    }
+    
+    private func createDayResult() async throws -> ([APIStatsResponse.APIStatsItem], [APIContentsResponse.APIContentItem]) {
+        var statsResults: [APIStatsResponse.APIStatsItem] = []
+        var contentsResults: [APIContentsResponse.APIContentItem] =  []
+        
+        let statsPageCount = Int(ceil(Double(currentNoteCount) / Double(10)))
+        let contentPageCount = Int(ceil(Double(currentNoteCount) / Double(5)))
+        
+        for i in 1...statsPageCount {
+            let stats: APIStatsResponse = try await transformer.decodeAPIResponse(createMockStatsData(page: i))
+            
+            statsResults += stats.data.noteStats
+        }
+        
+        for i in 1...contentPageCount {
+            let contents: APIContentsResponse = try await transformer.decodeAPIResponse(createMockContentsData(page: i))
+            
+            contentsResults += contents.data.contents
+        }
+        
+        return (statsResults, contentsResults)
     }
     
     private func convertToMockItems(from realmItems: Results<Item>) -> [MockItem] {
@@ -65,25 +129,43 @@ class MockDataProvider {
         return result
     }
     
-    func generateNewMockItems() {
+    func generateNewMockItems(date: Date = Date()) {
         let newItemCount = Int.random(in: 1...3)
-        for _ in 0..<newItemCount {
-            currentNoteCount += 1
+        for i in 0..<newItemCount {
+            let publishedAt = Calendar.current.date(byAdding: .hour, value: i, to: date)!
             
-            let type: ContentType = ContentType.allCases.randomElement()!
-            let newItem = MockItem(
-                id: currentNoteCount,
-                name: type == .talk ? nil : "サンプル\(type.name)\(currentNoteCount)",
-                body: "これは全記事通算\(currentNoteCount)番目の\(type.name)です",
-                type: type,
-                readCount: Int.random(in: 100...1500),
-                likeCount: Int.random(in: 10...100),
-                commentCount: Int.random(in: 0...20),
-                publishAt: dateToString2(date: Calendar.current.date(byAdding: .minute, value: -70, to: lastCalculatedAt)!)
-            )
+            let newItem = generateMockItem(publishedAt: publishedAt)
             
             mockItems.append(newItem)
         }
+    }
+    
+    func updateDataInProvider() {
+        updateExistingItems()
+        generateNewMockItems()
+        updateLastCalculatedAt()
+    }
+    
+    private func generateMockItem(publishedAt: Date = Date()) -> MockItem {
+        currentNoteCount += 1
+        
+        let type: ContentType = ContentType.weightedRandomElement()
+        let readCount = Int.random(in: 100...500)
+        let likeCount = Int(Double(readCount) * Double.random(in: 0.05...0.2))
+        let commentCout = Int.random(in: 0...2)
+        
+        let newItem = MockItem(
+            id: currentNoteCount,
+            name: type == .talk ? nil : "サンプル\(type.name)\(currentNoteCount)",
+            body: "これは全記事通算\(currentNoteCount)番目の\(type.name)です",
+            type: type,
+            readCount: readCount,
+            likeCount: likeCount,
+            commentCount: commentCout,
+            publishAt: dateToString2(date: publishedAt)
+        )
+        
+        return newItem
     }
     
     func createMockStatsData(page: Int) async -> Data {
@@ -142,18 +224,19 @@ class MockDataProvider {
     }
     
     /// モックデータ用の`lastCalculatedAt`を、今回更新分から1分進める。こうすることで、更新ボタンをまたすぐに押してもデータの取得ができる。
-    func updateLastCalculatedAt() {
+    private func updateLastCalculatedAt() {
         lastCalculatedAt = Calendar.current.date(byAdding: .minute, value: 1, to: lastCalculatedAt)!
-        print("dataprovider: lastCalculatedAt updated to \(dateToString(date: lastCalculatedAt))")
-        print("Appconfig lastCalculatedAt updated to \(AppConfig.lastCalculateAt)")
     }
     
     /// 既存のモックデータの統計ステータスを増加させる
-    func updateExistingItems() {
+    private func updateExistingItems() {
         for i in 0..<mockItems.count {
-            mockItems[i].readCount += Int.random(in: 10...50)
-            mockItems[i].likeCount += Int.random(in: 0...5)
-            mockItems[i].commentCount += Int.random(in: 0...2)
+            let increasementReadCount = Int.random(in: 10...50)
+            
+            mockItems[i].readCount += increasementReadCount
+            mockItems[i].likeCount += Int(Double(increasementReadCount) * Double.random(in: 0.05...0.1))
+            // コメントはめったに増えないので、95%の確率で増加分を0にする
+            mockItems[i].commentCount += Double.random(in: 0...1) < 0.95 ? 0 : 1
         }
     }
     

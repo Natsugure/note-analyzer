@@ -104,7 +104,6 @@ final class SettingsViewModel: ObservableObject {
                 singleButtonAlert: "消去完了",
                 message: "すべてのデータの消去が完了しました。初期設定画面に戻ります。",
                 action: {
-                    AppConfig.isCompletedInitialSetup = false
                     self.shouldShowOnboardingView = true
                 }
             )
@@ -118,6 +117,7 @@ final class SettingsViewModel: ObservableObject {
         try realmManager.deleteAll()
         
         AppConfig.deleteUserInfo()
+        AppConfig.isCompletedInitialSetup = false
     }
     
     private func handleClearAllDataError(_ error: Error) {
@@ -161,7 +161,6 @@ final class SettingsViewModel: ObservableObject {
             actionText: "再起動する",
             action: {
                 Task {
-                    AppConfig.isCompletedInitialSetup = false
                     try? await Task.sleep(for: .seconds(1))
                     exit(0)
                 }

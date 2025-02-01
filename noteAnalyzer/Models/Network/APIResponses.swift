@@ -43,6 +43,20 @@ enum ContentType: String, Codable, CaseIterable, RawRepresentable, PersistableEn
     }
 }
 
+extension ContentType {
+    /// モックデーダ用に、通常記事とつぶやきがある程度多く排出されるようにしたランダム生成メソッド。
+    static func weightedRandomElement() -> ContentType {
+        let weightedCases = ContentType.allCases.flatMap { type -> [ContentType] in
+            switch type {
+            case .text: Array(repeating: type, count: 60)  // 60%
+            case .talk: Array(repeating: type, count: 30)  // 30%
+            default: Array(repeating: type, count: 3)      // 他のタイプはそれぞれ約3.33%
+            }
+        }
+        return weightedCases.randomElement()!
+    }
+}
+
 struct APIStatsResponse: Codable {
     let data: APIStatsData
     

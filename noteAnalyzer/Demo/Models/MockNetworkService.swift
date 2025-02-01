@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol MockableNetworkServiceProtocol: NetworkServiceProtocol {
-    func updateMockItems()
-}
+//protocol MockableNetworkServiceProtocol: NetworkServiceProtocol {
+//    func updateMockItems()
+//}
 
-struct MockNetworkService: MockableNetworkServiceProtocol {
+struct MockNetworkService: NetworkServiceProtocol {
     enum MockResponseType {
         case success
         case error
@@ -69,8 +69,6 @@ struct MockNetworkService: MockableNetworkServiceProtocol {
     }
     
     func updateMockItems() {
-        mockDataProvider.updateExistingItems()
-        mockDataProvider.generateNewMockItems()
-        mockDataProvider.updateLastCalculatedAt()
+        mockDataProvider.updateDataInProvider()
     }
 }

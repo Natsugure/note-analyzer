@@ -32,7 +32,7 @@ class InitialSetupViewModel: ObservableObject {
         do {
             let (stats, publishedDateArray) = try await apiClient.requestFetch()
             
-            try realmManager.updateStats(stats: stats, publishedDate: publishedDateArray)
+            try realmManager.writeStats(stats: stats, publishedDate: publishedDateArray)
             
             AppConfig.isCompletedInitialSetup = true
             shouldShowCompleteInitialSetupView = true

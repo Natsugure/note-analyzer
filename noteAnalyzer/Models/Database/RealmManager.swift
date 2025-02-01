@@ -29,16 +29,15 @@ class RealmManager {
         Realm.Configuration.defaultConfiguration = config
     }
     
-    func updateStats(stats: [APIStatsResponse.APIStatsItem], publishedDate: [APIContentsResponse.APIContentItem]) throws {
-        let updateDateTime = Date()
+    func writeStats(stats: [APIStatsResponse.APIStatsItem], publishedDate: [APIContentsResponse.APIContentItem], at updateDate: Date = Date()) throws {
         let realm = try! Realm()
         
         try realm.write {
             for stat in stats {
                 if let existingItem = realm.object(ofType: Item.self, forPrimaryKey: stat.id) {
-                    try updateExistingItem(existingItem, with: stat, at: updateDateTime)
+                    try updateExistingItem(existingItem, with: stat, at: updateDate)
                 } else {
-                    try createNewItem(in: realm, from: stat, publishedDate: publishedDate, at: updateDateTime)
+                    try createNewItem(in: realm, from: stat, publishedDate: publishedDate, at: updateDate)
                 }
             }
         }
