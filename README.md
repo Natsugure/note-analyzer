@@ -1,5 +1,5 @@
-#  noteAnalyzer
-noteAnalyzerは、noteというブログサイトから各記事のアクセス状況を取得し、データをユーザーが見やすい形にして提供する非公式のサービスです。
+#  Advanced Dashboard for note
+Advanced Dashboard for noteは、noteというブログサイトから各記事のアクセス状況を取得し、データをユーザーが見やすい形にして提供する非公式のサービスです。
 
 ## 機能
 - noteのAPIを使用して記事のアクセスデータを取得
@@ -7,8 +7,7 @@ noteAnalyzerは、noteというブログサイトから各記事のアクセス�
 - 期間別のアクセス分析（近日実装予定）
 
 ## 対応プラットフォーム
-- iOS16.0以上を搭載したiPhone
-- iPadはビルドできるように設定してありますが、現時点では最適化が不十分です。
+- iOS17.0以上を搭載したiPhone
 
 ## インストール
 
@@ -34,7 +33,7 @@ https://github.com/Natsugure/note-analyzer.git
 - Charts（データ可視化）
 
 ## 連絡先
-質問や提案がある場合、またバグや指摘事項を発見した場合は、GitHubのIssuesまたはnoteのコメントでお知らせください。
+質問や提案がある場合、またバグや指摘事項を発見した場合は、GitHubのIssuesまたは[こちらのGoogleフォーム](https://forms.gle/Tceg32xcH8avj8qy5)からご連絡ください。
 
 ## ライセンス
 "note-analyzer" is under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
