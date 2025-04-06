@@ -16,6 +16,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     override init() {
 #if DEBUG
+        UserDefaultsMigrator.migrateIfNeeded()
+        
         // UserDefaults内にisDemoModeがsetされていないなら、trueをsetする。
         // ※defaultValueをregister(defaults:)するとバグる可能性があるため。
         if !AppConfig.$isDemoMode.isSetValue {

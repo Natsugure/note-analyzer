@@ -14,7 +14,9 @@ protocol UserDefaultCompatible {
 
 extension UserDefaultCompatible where Self: Codable {
     init?(with object: Any) {
-        guard let data = object as? Data else { return nil }
+        guard let data = object as? Data else {
+            return nil
+        }
         
         do {
             self = try JSONDecoder().decode(Self.self, from: data)

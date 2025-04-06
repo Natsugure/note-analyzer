@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-enum SortType: String, CaseIterable {
+enum SortType: String, CaseIterable, Codable, UserDefaultCompatible {
     case publishedAtNew = "投稿日時の新しい順"
     case publishedAtOld = "投稿日時の古い順"
     case viewDecending = "ビューの多い順"
@@ -61,7 +61,11 @@ final class DailyViewModel: ObservableObject {
     @Published var startDate = Date()
     @Published var endDate = Date()
     @Published var selectionContentTypes: Set<ContentType> = [.text, .talk, .image, .sound, .movie]
-    @Published var sortType: SortType = .viewDecending
+    @Published var sortType: SortType = AppConfig.sortOrder {
+        didSet {
+            AppConfig.sortOrder = sortType
+        }
+    }
     
     private let realmManager: RealmManager
     private var baseResults: Results<Item>!
